@@ -172,20 +172,38 @@ router.post('/shipping/calculate', async (req, res) => {
     }
 });
 
-// 4. Initiate Payment (Mock WiPay)
+// 4. Initiate Payment (Live WiPay Integration)
 router.post('/payment/wipay/create', (req, res) => {
     const { sessionId, total, currency } = req.body;
 
     // Update total in DB
-    db.run(`UPDATE orders SET total_amount=?, currency=? WHERE session_id=?`, [total, currency, sessionId]);
+    db.run(`UPDATE orders SET total_amount=?, currency=? WHERE session_id=?`, [total, currency, sessionId], function(err) {
+        if (err) return res.status(500).json({ error: 'DB error updating order' });
 
-    // WiPay would return a redirect URL here
-    const txnId = `txn_${Date.now()}`;
+        const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
+        const wipayEnvironment = process.env.WIPAY_ENVIRONMENT || 'sandbox';
 
-    // In production, the redirectURL would be passed to WiPay to send the user back to us
-    res.json({
-        redirectUrl: `/purchase-flow.html?payment_success=true&session_id=${sessionId}&txn=${txnId}`,
-        transactionId: txnId
+        // Base URL strictly from the frontend origin
+        const baseUrl = req.headers.origin || (req.protocol + '://' + req.get('host'));
+        const responseUrl = `${baseUrl}/purchase-flow.html`;
+
+        res.json({
+            actionUrl: wipayEnvironment === 'live' 
+                ? 'https://jm.wipayfinancial.com/plugins/payments/request' 
+                : 'https://jm.wipayfinancial.com/plugins/payments/request', // JM endpoint is same for sandbox, account number triggers it
+            params: {
+                account_number: wipayAccountNumber,
+                country_code: 'JM',
+                currency: currency,
+                environment: wipayEnvironment,
+                fee_structure: 'customer_pay',
+                method: 'credit_card',
+                order_id: sessionId, // WiPay will return this to us precisely
+                origin: 'Windross_Tailoring',
+                response_url: responseUrl,
+                total: parseFloat(total).toFixed(2) // WiPay explicitly requires two decimal formatting
+            }
+        });
     });
 });
 

@@ -56,12 +56,23 @@ const suits = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check for Payment Success
     const urlParams = new URLSearchParams(window.location.search);
+    const wipayStatus = urlParams.get('status');
+    const orderId = urlParams.get('order_id');
+    const transactionId = urlParams.get('transaction_id');
+
+    // 1. Live WiPay Success
+    if (wipayStatus === 'success' && orderId) {
+        verifyPayment(orderId, transactionId);
+        return;
+    } else if (wipayStatus === 'failed' || wipayStatus === 'error') {
+        alert("Payment was unsuccessful. Please check your credentials or try again.");
+        // Let the script continue so they can stay on the checkout page
+    }
+
+    // 2. Legacy Mock Check
     if (urlParams.get('payment_success')) {
-        const sessionId = urlParams.get('session_id');
-        const txnId = urlParams.get('txn');
-        verifyPayment(sessionId, txnId);
+        verifyPayment(urlParams.get('session_id'), urlParams.get('txn'));
         return;
     }
 
@@ -612,11 +623,28 @@ function handlePayment() {
     })
         .then(r => r.json())
         .then(data => {
-            if (data.redirectUrl) {
-                console.log("Mock Redirecting to:", data.redirectUrl);
-                setTimeout(() => {
-                    renderStep(4);
-                }, 1500);
+            if (data.actionUrl && data.params) {
+                console.log("[WiPay] Redirecting to secure Hosted Page...");
+                // Dynamically build and submit the WiPay checkout form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = data.actionUrl;
+
+                Object.keys(data.params).forEach(key => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = data.params[key];
+                    form.appendChild(input);
+                });
+
+                document.body.appendChild(form);
+                form.submit();
+            } else if (data.redirectUrl) {
+                // Fallback for legacy mock
+                window.location.href = data.redirectUrl;
+            } else {
+                throw new Error("Invalid payment response");
             }
         })
         .catch(e => {
