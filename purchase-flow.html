@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="js/region.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | Windross Tailoring</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/purchase-flow.css">
+    <script src="js/region-manager.js"></script>
+    <script src="js/data/suit-pricing.js"></script>
+    <script src="js/pricing-engine.js"></script>
+    <script src="js/currency-manager.js"></script>
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav>
+        <a href="index.html" class="logo">Windross</a>
+        <div
+            style="font-family:'Playfair Display'; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase;">
+            Secure Checkout
+        </div>
+        <button class="btn-secondary" onclick="window.location.href='ready-to-wear.html'">Cancel</button>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="checkout-container">
+
+        <!-- Progress Indicator -->
+        <div class="progress-bar">
+            <div class="progress-step active">
+                <div class="step-num">1</div> Measurements
+            </div>
+            <div class="progress-step">
+                <div class="step-num">2</div> Shipping
+            </div>
+            <div class="progress-step">
+                <div class="step-num">3</div> Payment
+            </div>
+        </div>
+
+        <!-- Left Column: Steps -->
+        <main>
+
+            <!-- Step 1: Measurements -->
+            <div id="step-1" class="step-content">
+                <header style="margin-bottom: 30px;">
+                    <h1>Your Fit Profile</h1>
+                    <p class="subtitle">We need a few key measurements to tailor this garment to your exact physique.
+                    </p>
+                </header>
+
+                <div class="form-section">
+                    <div style="margin-bottom: 20px;">
+                        <label>Garment Cut (Gender)</label>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <button class="btn-secondary gender-btn active" data-gender="male"
+                                style="border:1px solid var(--bg-border); background: var(--bg-input);">
+                                Male / Masculine
+                            </button>
+                            <button class="btn-secondary gender-btn" data-gender="female"
+                                style="border:1px solid var(--bg-border); background: var(--bg-input);">
+                                Female / Feminine
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3><i data-lucide="ruler"></i> Measurements</h3>
+                    <div class="form-grid" id="measurement-fields-container" style="margin-bottom: 20px;">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <!-- Size Suggestion Box -->
+                    <div id="size-suggestion-box" class="size-suggestion-card">
+                        <div class="suggestion-header">Suggested Size</div>
+                        <div id="suggested-size-label" class="suggestion-value">-</div>
+                        <div id="suggested-size-confidence" class="suggestion-confidence">Enter measurements for a
+                            recommendation</div>
+                        <div class="suggestion-helper">This is a guide only — your suit will still be tailored to your
+                            exact measurements.</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="nextStep()">Continue to Shipping</button>
+            </div>
+
+            <!-- Step 2: Shipping -->
+            <div id="step-2" class="step-content" style="display:none;">
+                <header style="margin-bottom: 30px;">
+                    <h1>Shipping Details</h1>
+                    <p class="subtitle">Where should we create and deliver your masterpiece?</p>
+                </header>
+
+                <div class="form-section">
+                    <h3><i data-lucide="user"></i> Contact Info</h3>
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Full Name</label>
+                            <input type="text" id="name" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="email" placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number (Required for DHL)</label>
+                            <input type="tel" id="phone" placeholder="+1 (876) 555-0123">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i data-lucide="map-pin"></i> Delivery Address</h3>
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Street Address</label>
+                            <input type="text" id="address" placeholder="123 Luxury Lane, Apt 4B">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Country</label>
+                            <select id="country" onchange="updateAddressFormat()">
+                                <option value="Jamaica">Jamaica</option>
+                                <option value="USA">United States</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic Fields -->
+                        <div class="form-group">
+                            <label id="label-city">City / Town</label>
+                            <input type="text" id="city" placeholder="Kingston">
+                        </div>
+
+                        <div class="form-group" id="group-region">
+                            <label id="label-region">Parish</label>
+                            <input type="text" id="region" placeholder="St. Andrew">
+                        </div>
+
+                        <div class="form-group" id="group-zip">
+                            <label id="label-zip">Zip Code</label>
+                            <input type="text" id="zip" placeholder="10001">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:20px;">
+                    <button class="btn-secondary" onclick="prevStep()">Back</button>
+                    <button class="btn-primary" onclick="nextStep()">Continue to Payment</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Checkout -->
+            <div id="step-3" class="step-content" style="display:none;">
+                <header style="margin-bottom: 30px;">
+                    <h1>Review & Pay</h1>
+                    <p class="subtitle">Review your order and select a payment method.</p>
+                </header>
+
+                <div class="form-section">
+                    <h3><i data-lucide="truck"></i> Shipping Method</h3>
+                    <div
+                        style="background: var(--bg-input); padding: 15px; border:1px solid var(--gold-primary); display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="color:white; font-weight:600;">DHL Express International</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">Estimated 3-5 Business Days</div>
+                        </div>
+                        <div id="shipping-method-price" style="color:var(--gold-primary); font-weight:600;">£80.00</div>
+                    </div>
+                    <div style="margin-top:15px; font-size:0.8rem; color:var(--text-muted); text-align:right;">
+                        Shipping to: <span id="checkout-address" style="color:white;"></span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i data-lucide="credit-card"></i> Payment</h3>
+                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">
+                        All transactions are secure and encrypted.
+                    </p>
+
+                    <button class="btn-primary" id="pay-btn" onclick="handlePayment()"
+                        style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                        Pay <span id="total-amount-display">£1,430</span> with WiPay
+                    </button>
+
+                    <div style="text-align:center; margin-top:15px;">
+                        <img src="https://wipay caribbean.com/wp-content/uploads/2020/07/wipay-logo-white.png"
+                            alt="WiPay" style="height:20px; opacity:0.5;">
+                        <!-- Placeholder logo link, might check valid one later -->
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="prevStep()">Back</button>
+            </div>
+
+            <!-- Step 4: Success -->
+            <div id="step-4" class="step-content" style="display:none; text-align:center; padding-top:40px;">
+                <div
+                    style="width:80px; height:80px; border-radius:50%; background:var(--gold-primary); color:black; display:flex; align-items:center; justify-content:center; margin:0 auto 30px;">
+                    <i data-lucide="check" width="40" height="40"></i>
+                </div>
+                <h1>Order Confirmed</h1>
+                <p class="subtitle" style="max-width:500px; margin:0 auto 30px;">
+                    Thank you, <span id="checkout-name"></span>. Your order has been placed successfully.
+                    We have sent a confirmation email with your measurement profile and receipt.
+                </p>
+                <button class="btn-primary" onclick="window.location.href='index.html'" style="max-width:300px;">Return
+                    Home</button>
+            </div>
+
+        </main>
+
+        <!-- Right Column: Summary -->
+        <aside class="order-summary">
+            <div class="summary-title">Order Summary</div>
+
+            <div class="suit-preview">
+                <img id="summary-img" src="" class="suit-thumb">
+                <div>
+                    <div id="summary-suit-name" style="color:white; font-weight:600; font-family:'Playfair Display';">
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">Made to Measure</div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="summary-price">£0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span id="summary-shipping">Calculated at next step</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="summary-total" style="color:var(--gold-primary);">£0</span>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/purchase-flow.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+    <script src="js/back-to-top.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const isJM = window.Region && window.Region.isJamaica();
+        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
+            if (!isJM) {
+                link.style.display = "none";
+            }
+        });
+    });
+</script>
+<script>
+    console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: window.Region.getRegion() });
+</script>
+</body>
+
+</html>

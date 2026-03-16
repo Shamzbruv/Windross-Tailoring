@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="js/region.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made to Measure | Windross Tailoring</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Metallic Gold Gradient - The "Gold Thread" look */
+            --gold-primary: #D4AF37;
+            --gold-gradient: linear-gradient(135deg, #BF953F 0%, #FCF6BA 40%, #B38728 60%, #AA771C 100%);
+            --gold-subtle: rgba(212, 175, 55, 0.2);
+
+            /* Smoky Backgrounds */
+            --bg-body: #050505;
+            --bg-surface: #0a0a0a;
+            --bg-glass: rgba(20, 20, 20, 0.7);
+            --bg-glass-strong: rgba(15, 15, 15, 0.9);
+
+            /* UI Elements */
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(191, 149, 63, 0.3);
+            --text-main: #F5F5F7;
+            --text-muted: #86868B;
+
+            --ease-lux: cubic-bezier(0.25, 1, 0.5, 1);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        html.lenis {
+            height: auto;
+        }
+
+        /* Anti-Theft */
+        img {
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto;
+        }
+
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        .lenis.lenis-scrolling iframe {
+            pointer-events: none;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            /* Subtle texture overlay */
+            background-image: radial-gradient(circle at 50% 0%, #151515 0%, #000000 80%);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            color: white;
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 1200px;
+            z-index: 1000;
+            background: var(--bg-glass-strong);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 100px;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.5s var(--ease-out-expo);
+        }
+
+        nav:hover {
+            background: rgba(15, 15, 15, 0.95);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--gold-primary);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1500;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.5s var(--ease-out-expo);
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .mobile-link {
+            font-size: 2rem;
+            font-family: 'Playfair Display', serif;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.5s;
+        }
+
+        .mobile-menu-overlay.active .mobile-link {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered animation delays for mobile links */
+        .mobile-menu-overlay.active .mobile-link:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+
+        .mobile-menu-overlay.active .mobile-link:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        .mobile-menu-overlay.active .mobile-link:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+
+        .mobile-menu-overlay.active .mobile-link:nth-child(4) {
+            transition-delay: 0.4s;
+        }
+
+        .mobile-menu-overlay.active .mobile-link:nth-child(5) {
+            transition-delay: 0.5s;
+        }
+
+
+        @media (max-width: 900px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+        }
+
+        /* --- HERO SECTION --- */
+        .rtw-hero {
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding-top: 100px;
+        }
+
+        .rtw-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 400;
+            margin: 0;
+            line-height: 1;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: riseUp 1.2s var(--ease-out-expo) forwards;
+        }
+
+        .rtw-hero p {
+            margin-top: 20px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--gold-primary);
+            opacity: 0;
+            animation: fadeIn 1.2s ease 0.4s forwards;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* --- COLLECTION GRID --- */
+        .collection-section {
+            padding: 50px 5vw 150px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--gold-primary);
+            color: white;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* --- PRODUCT OVERLAY STYLES --- */
+        .product-card {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            aspect-ratio: 3/4;
+            transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold-primary);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.2s var(--ease-out-expo), filter 0.5s ease;
+            filter: grayscale(10%) contrast(1.1);
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.03);
+            filter: grayscale(0%) contrast(1);
+        }
+
+        .product-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7) 60%, transparent);
+            padding: 30px 20px 20px;
+            box-sizing: border-box;
+            transform: translateY(0);
+            transition: transform 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 1;
+        }
+
+        .product-info {
+            text-align: center;
+        }
+
+        .product-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: white;
+            margin: 0;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .product-price {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--gold-primary);
+            margin: 5px 0 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        .purchase-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 24px;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .product-card:hover .purchase-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .purchase-btn:hover {
+            background: var(--gold-primary);
+            color: #000;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* On mobile, standard behavior or always show button?
+    Let's keeping it clean: button visible on touch/focus might be tricky without JS,
+    so maybe just always visible or handle via tap.
+    For now, we'll keep the hover effect which works on tap for most devices
+    (first tap focuses/hovers, second clicks).
+    */
+        }
+
+        @media (max-width: 600px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Always show button on mobile for better UX */
+            .purchase-btn {
+                opacity: 1;
+                transform: translateY(0);
+                background: rgba(0, 0, 0, 0.8);
+            }
+        }
+
+
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 80px 24px;
+            text-align: center;
+            border-top: 1px solid var(--border-glass);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: #000;
+        }
+
+        @keyframes riseUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+    <script src="js/region-manager.js"></script>
+    <script src="js/data/suit-pricing.js"></script>
+    <script src="js/currency-manager.js"></script>
+</head>
+
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">WINDROSS</a>
+        <div class="nav-links">
+            <a href="customize.html">Customize</a>
+            <a href="ready-to-wear.html" class="active">Made to Measure</a>
+            <a href="submit-style.html">Submit Design</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="index.html#faq">FAQ</a>
+            <a href="book.html">Book</a>
+        </div>
+        <button class="mobile-toggle"><i data-lucide="menu"></i></button>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay">
+        <a href="customize.html" class="mobile-link">Customize</a>
+        <a href="ready-to-wear.html" class="mobile-link">Made to Measure</a>
+        <a href="submit-style.html" class="mobile-link">Submit Design</a>
+        <a href="gallery.html" class="mobile-link">Gallery</a>
+        <a href="index.html#faq" class="mobile-link" onclick="toggleMenu()">FAQ</a>
+        <a href="book.html" class="mobile-link">Book</a>
+    </div>
+
+    <div class="rtw-hero">
+        <h1>Made to Measure</h1>
+        <p>Signature styles, crafted from scratch to your exact measurements.<br>Select a design, and we will tailor
+            it
+            exclusively for you.</p>
+    </div>
+
+    <section class="collection-section">
+
+
+        <div class="product-grid">
+            <!-- 1. The Kensington -->
+            <!-- 1. The Kensington -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-1.png" alt="The Kensington" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Kensington</h3>
+                        <p class="product-price">From £1,250</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Kensington" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 2. The Windsor -->
+            <!-- 2. The Windsor -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-1.png" alt="The Windsor" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Windsor</h3>
+                        <p class="product-price">From £1,450</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Windsor" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 3. The Mayfair -->
+            <!-- 3. The Mayfair -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-2.png" alt="The Mayfair" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Mayfair</h3>
+                        <p class="product-price">From £1,250</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Mayfair" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 4. The Bond -->
+            <!-- 4. The Bond -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-2.png" alt="The Bond" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Bond</h3>
+                        <p class="product-price">From £1,550</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Bond" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 5. The Chelsea -->
+            <!-- 5. The Chelsea -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-3.png" alt="The Chelsea" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Chelsea</h3>
+                        <p class="product-price">From £1,350</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Chelsea" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 6. The Ascott -->
+            <!-- 6. The Ascott -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-3.png" alt="The Ascott" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Ascott</h3>
+                        <p class="product-price">From £1,450</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Ascott" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 7. The Victoria -->
+            <!-- 7. The Victoria -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-4.png" alt="The Victoria" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Victoria</h3>
+                        <p class="product-price">From £1,250</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Victoria" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 8. The Oxford -->
+            <!-- 8. The Oxford -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-4.png" alt="The Oxford" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Oxford</h3>
+                        <p class="product-price">From £1,400</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Oxford" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 9. The Belgravia -->
+            <!-- 9. The Belgravia -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-5.png" alt="The Belgravia" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Belgravia</h3>
+                        <p class="product-price">From £1,350</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Belgravia" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 10. The Cambridge -->
+            <!-- 10. The Cambridge -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-5.png" alt="The Cambridge" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Cambridge</h3>
+                        <p class="product-price">From £1,400</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Cambridge" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 11. The Sovereign -->
+            <!-- 11. The Sovereign -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-new-1.png" alt="The Sovereign" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Sovereign</h3>
+                        <p class="product-price">From £1,500</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Sovereign" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 12. The Regent -->
+            <!-- 12. The Regent -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-6.png" alt="The Regent" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Regent</h3>
+                        <p class="product-price">From £1,600</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Regent" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 13. The Grosvenor -->
+            <!-- 13. The Grosvenor -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-new-2.png" alt="The Grosvenor" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Grosvenor</h3>
+                        <p class="product-price">From £1,300</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Grosvenor" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 14. The Savile -->
+            <!-- 14. The Savile -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-7.png" alt="The Savile" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Savile</h3>
+                        <p class="product-price">From £1,800</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Savile" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 15. The Westminster -->
+            <!-- 15. The Westminster -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-new-3.png" alt="The Westminster" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Westminster</h3>
+                        <p class="product-price">From £1,350</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Westminster" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 16. The Knightsbridge -->
+            <!-- 16. The Knightsbridge -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-8.png" alt="The Knightsbridge" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Knightsbridge</h3>
+                        <p class="product-price">From £1,650</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Knightsbridge" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 17. The Piccadilly -->
+            <!-- 17. The Piccadilly -->
+            <div class="product-card" data-gender="female">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/female-new-4.png" alt="The Piccadilly" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The Piccadilly</h3>
+                        <p class="product-price">From £1,300</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20Piccadilly" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+
+            <!-- 18. The St. James -->
+            <!-- 18. The St. James -->
+            <div class="product-card" data-gender="male">
+                <div class="product-image">
+                    <img src="images/ready-to-wear/male-new-9.png" alt="The St. James" loading="lazy">
+                </div>
+                <div class="product-overlay">
+                    <div class="product-info">
+                        <h3 class="product-name">The St. James</h3>
+                        <p class="product-price">From £1,700</p>
+                    </div>
+                    <a href="purchase-flow.html?suit=The%20St%20James" class="purchase-btn">Purchase</a>
+                </div>
+            </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Windross Tailoring. All rights reserved.</p>
+    </footer>
+
+
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // 0. Update Prices Dynamically based on Region
+        const updateRtwPrices = () => {
+            document.querySelectorAll('.product-card').forEach(card => {
+                const nameEl = card.querySelector('.product-name');
+                const priceEl = card.querySelector('.product-price');
+                if (nameEl && priceEl) {
+                    const suitName = nameEl.textContent.trim();
+                    const startingPrice = window.getSuitStartingPrice(suitName);
+                    if (startingPrice) {
+                        priceEl.textContent = "From " + window.formatJMDWithRegion(startingPrice);
+                    }
+                }
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRtwPrices();
+        });
+
+        window.addEventListener('region-change', updateRtwPrices);
+        window.addEventListener('currency-change', updateRtwPrices);
+
+        // 1. Initialize Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+
+        // Mobile Menu Logic
+        const mobileToggle = document.querySelector('.mobile-toggle');
+        const mobileOverlay = document.querySelector('.mobile-menu-overlay');
+        let isMenuOpen = false;
+
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            mobileOverlay.classList.toggle('active');
+
+            if (isMenuOpen) {
+                mobileToggle.innerHTML = '<i data-lucide="x" width="28" height="28"></i>';
+            } else {
+                mobileToggle.innerHTML = '<i data-lucide="menu" width="28" height="28"></i>';
+            }
+            lucide.createIcons();
+        }
+
+        mobileToggle.addEventListener('click', toggleMenu);
+
+        // Anti-Theft
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('contextmenu', (e) => e.preventDefault());
+                img.addEventListener('dragstart', (e) => e.preventDefault());
+            });
+        });
+    </script>
+    <script src="js/back-to-top.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const isJM = window.Region && window.Region.isJamaica();
+        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
+            if (!isJM) {
+                link.style.display = "none";
+            }
+        });
+    });
+</script>
+</body>
+
+</html>

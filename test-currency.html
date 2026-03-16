@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/region.js"></script>
+<script>
+// Mock LocalStorage Intentionally for testing
+localStorage.setItem('wt_region', 'INTL');
+localStorage.setItem('windross_currency', 'USD');
+</script>
+<script src="js/region-manager.js"></script>
+<script src="js/data/suit-pricing.js"></script>
+<script src="js/currency-manager.js"></script>
+</head>
+<body>
+<p id="price-output">Testing...</p>
+<script>
+    setTimeout(() => {
+        const startPriceJMD = window.getSuitStartingPrice('The Windsor');
+        const formatted = window.formatJMDWithRegion(startPriceJMD);
+        document.getElementById('price-output').innerText = `Price: ${formatted}`;
+        console.log(`Currency: ${window.CurrencyManager.state.currency}, Price: ${formatted}`);
+    }, 500);
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const isJM = window.Region && window.Region.isJamaica();
+        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
+            if (!isJM) {
+                link.style.display = "none";
+            }
+        });
+    });
+</script>
+</body>
+</html>

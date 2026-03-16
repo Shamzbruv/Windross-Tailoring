@@ -1,0 +1,138 @@
+{
+    "version": "1.0.0",
+    "baseCurrency": "JMD",
+    "internationalMarkupMultiplier": 1.85,
+    "exchangeRate_USD_to_JMD": 155,
+    "styles": {
+        "suit_2_piece": {
+            "basePriceJMD": 38000
+        },
+        "suit_3_piece": {
+            "basePriceJMD": 58000
+        },
+        "tuxedo": {
+            "basePriceJMD": 42000
+        }
+    },
+    "fabricGrades": {
+        "cool-wool": {
+            "multiplier": 1.00,
+            "costPerMeterJMD": 6000,
+            "priceJMD": 1800
+        },
+        "king-wool": {
+            "multiplier": 1.00,
+            "costPerMeterJMD": 6000,
+            "priceJMD": 1600
+        },
+        "2020-material": {
+            "multiplier": 1.00,
+            "costPerMeterJMD": 6000,
+            "priceJMD": 1400
+        },
+        "termal-wool": {
+            "multiplier": 1.00,
+            "costPerMeterJMD": 6000,
+            "priceJMD": 5600
+        }
+    },
+    "construction": {
+        "half_canvas": {
+            "priceJMD": 0
+        },
+        "full_canvas": {
+            "priceJMD": 15000
+        }
+    },
+    "options": {
+        "j-single-2": {
+            "priceJMD": 0
+        },
+        "j-single-1": {
+            "priceJMD": 0
+        },
+        "j-3-roll-2": {
+            "priceJMD": 4600
+        },
+        "j-double-6": {
+            "priceJMD": 11500
+        },
+        "j-mandarin": {
+            "priceJMD": 18400
+        },
+        "l-notch": {
+            "priceJMD": 0
+        },
+        "l-wide-notch": {
+            "priceJMD": 3450
+        },
+        "l-slim-notch": {
+            "priceJMD": 2300
+        },
+        "l-peak": {
+            "priceJMD": 4600
+        },
+        "l-shawl": {
+            "priceJMD": 6900
+        },
+        "l-ulster": {
+            "priceJMD": 9200
+        },
+        "l-gorge": {
+            "priceJMD": 2300
+        },
+        "p-no-pleat": {
+            "priceJMD": 0
+        },
+        "p-pleat": {
+            "priceJMD": 3450
+        },
+        "p-cuff": {
+            "priceJMD": 2300
+        },
+        "v-none": {
+            "priceJMD": 0
+        },
+        "v-add": {
+            "priceJMD": 20000
+        }
+    },
+    "sizing": {
+        "wasteFactor": 0.15,
+        "baselineMeters": 4.15,
+        "tiers": {
+            "XS": {
+                "metersNeeded": 3.5,
+                "laborScalerJMD": 0
+            },
+            "S": {
+                "metersNeeded": 3.7,
+                "laborScalerJMD": 0
+            },
+            "M": {
+                "metersNeeded": 4.15,
+                "laborScalerJMD": 0
+            },
+            "L": {
+                "metersNeeded": 4.6,
+                "laborScalerJMD": 1500
+            },
+            "XL": {
+                "metersNeeded": 5.0,
+                "laborScalerJMD": 2500
+            },
+            "2X": {
+                "metersNeeded": 5.5,
+                "laborScalerJMD": 4500
+            },
+            "3X": {
+                "metersNeeded": 6.0,
+                "laborScalerJMD": 6500
+            },
+            "4X": {
+                "metersNeeded": 6.5,
+                "laborScalerJMD": 8000
+            }
+        }
+    }
+}
