@@ -517,11 +517,11 @@ async function calculateShipping() {
             throw new Error(data.error || "Failed to calculate live shipping rate.");
         }
 
-        const shippingCostGBP = data.cost;
-        state.shippingGBP = shippingCostGBP;
+        const shippingCostJMD = data.cost;
+        state.shippingJMD = shippingCostJMD;
 
         // Standardize the total update so button is formatted
-        updateTotal(shippingCostGBP);
+        updateTotal(shippingCostJMD);
         
         const payBtn = document.getElementById('pay-btn');
         if (payBtn) payBtn.disabled = false;
@@ -535,7 +535,7 @@ async function calculateShipping() {
         if (payBtn) payBtn.disabled = true;
 
         alert("Failed to calculate shipping rate: " + e.message + "\nPlease verify your address details.");
-        state.shippingGBP = 0;
+        state.shippingJMD = 0;
         updateTotal(0);
     }
 }
@@ -598,10 +598,8 @@ function updateSummaryPrices() {
     }
 }
 
-function updateTotal(shippingCostGBP) {
+function updateTotal(shippingJMD) {
     const suitPriceJMD = getActivePriceJMD();
-    // Convert shipping GBP to JMD using static approx rate 
-    const shippingJMD = shippingCostGBP * 230;
     const totalJMD = suitPriceJMD + shippingJMD;
 
     // Safely format everything using CurrencyManager directly tracking JMD amounts
@@ -631,9 +629,8 @@ function handlePayment() {
     btn.disabled = true;
 
     // We must send the ACTIVE display currency to WiPay so they charge the correct literal integer amount
-    const shippingGBP = state.shippingGBP || 80;
+    const shippingJMD = state.shippingJMD || 0;
     const suitPriceJMD = getActivePriceJMD();
-    const shippingJMD = shippingGBP * 230;
     const totalJMD = suitPriceJMD + shippingJMD;
 
     // Convert total native JMD int to final active currency amount mathematically

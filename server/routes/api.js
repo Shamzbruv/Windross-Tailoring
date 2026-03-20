@@ -189,13 +189,13 @@ router.post('/shipping/calculate', async (req, res) => {
             let rawCost = parseFloat(totalPriceInfo.price);
             let currency = totalPriceInfo.priceCurrency;
 
-            // The frontend normally expects GBP base costs. DHL usually returns rating based on billing account currency (e.g., JMD or USD)
-            if (currency === 'JMD') {
-                rawCost = rawCost / 230; // Rough conversion for frontend GBP base pipeline
-                currency = 'GBP';
-            } else if (currency === 'USD') {
-                rawCost = rawCost * 0.79; // Rough conversion to GBP
-                currency = 'GBP';
+            // Normalize EVERYTHING strictly to JMD before sending to the frontend to avoid double-conversion issues
+            if (currency === 'USD') {
+                rawCost = rawCost * 157.05; // DHL's exact internal USD to JMD exchange rate
+                currency = 'JMD';
+            } else if (currency === 'GBP') {
+                rawCost = rawCost * 200; 
+                currency = 'JMD';
             }
 
             return res.json({
