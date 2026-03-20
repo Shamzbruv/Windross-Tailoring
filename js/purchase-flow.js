@@ -491,24 +491,52 @@ async function calculateShipping() {
 
     document.getElementById('summary-shipping').textContent = 'Calculating...';
 
+    const suitData = suits[state.suitId] || suits['default'];
+    // Default tailored suits to large shipments (Box 3 or higher)
+    // Accessories, shirts, etc., to smaller shipments (Flyers)
+    let shipmentType = 'large';
+    if (suitData.category === 'accessory' || suitData.category === 'shirt' || suitData.shipmentType === 'small') {
+        shipmentType = 'small';
+    }
+    
+    // Support custom weight directly attached to the suit or config to support multiple items
+    let weight = suitData.weight;
+    if (!weight && suitData.config && suitData.config.weight) {
+        weight = parseFloat(suitData.config.weight);
+    }
+
     try {
         const res = await fetch('/api/shipping/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ country, city, zip })
+            body: JSON.stringify({ country, city, zip, shipmentType, weight })
         });
         const data = await res.json();
 
-        const shippingCostGBP = data.cost || 80;
+        if (res.status >= 400 || !data.cost) {
+            throw new Error(data.error || "Failed to calculate live shipping rate.");
+        }
+
+        const shippingCostGBP = data.cost;
         state.shippingGBP = shippingCostGBP;
 
         // Standardize the total update so button is formatted
         updateTotal(shippingCostGBP);
+        
+        const payBtn = document.getElementById('pay-btn');
+        if (payBtn) payBtn.disabled = false;
 
     } catch (e) {
         console.error("Shipping calc failed", e);
-        state.shippingGBP = 80;
-        updateTotal(80);
+        document.getElementById('summary-shipping').textContent = 'Error: ' + e.message;
+        
+        // Disable purchase button completely to enforce real shipping rules
+        const payBtn = document.getElementById('pay-btn');
+        if (payBtn) payBtn.disabled = true;
+
+        alert("Failed to calculate shipping rate: " + e.message + "\nPlease verify your address details.");
+        state.shippingGBP = 0;
+        updateTotal(0);
     }
 }
 

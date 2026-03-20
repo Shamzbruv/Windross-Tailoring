@@ -86,17 +86,9 @@ router.post('/shipping/calculate', async (req, res) => {
     const apiSecret = process.env.DHL_API_SECRET;
     const accountNumber = process.env.DHL_ACCOUNT_NUMBER;
 
-    // Fallback Mock Logic
-    const fallbackCost = () => {
-        let cost = 80;
-        if (country === 'Jamaica') cost = 20;
-        if (country === 'USA') cost = 60;
-        return { cost, currency: 'GBP', service: 'Standard Shipping (Fallback)' };
-    }
-
     if (!apiKey || !apiSecret || !accountNumber) {
-        console.warn("DHL credentials missing. Falling back to mock pricing.");
-        return res.json(fallbackCost());
+        console.error("DHL credentials missing in environment variables.");
+        return res.status(500).json({ error: 'DHL credentials missing. Cannot calculate live shipping rate.' });
     }
 
     // Map Frontend Country to ISO 2-letter Country Code
@@ -108,6 +100,50 @@ router.post('/shipping/calculate', async (req, res) => {
     };
     const destCountryCode = countryMap[country] || 'GB';
 
+    // DHL Package Configuration
+    const dhlPackages = {
+        'Box 3': { dimensions: { length: 33, width: 33, height: 10 }, maxWeight: 2 },
+        'Box 4': { dimensions: { length: 33, width: 32, height: 18 }, maxWeight: 5 },
+        'Box 5': { dimensions: { length: 33, width: 32, height: 34 }, maxWeight: 10 },
+        'Box 6': { dimensions: { length: 41, width: 35, height: 36 }, maxWeight: 15 },
+        'Box 7': { dimensions: { length: 48, width: 40, height: 38 }, maxWeight: 20 },
+        'Box 8': { dimensions: { length: 54, width: 44, height: 4 }, maxWeight: 25 },
+        'Box 2 Shoe': { dimensions: { length: 33, width: 18, height: 10 }, maxWeight: 1 },
+        'Tube Large': { dimensions: { length: 97, width: 17, height: 15 }, maxWeight: 5 },
+        'Envelopes': { dimensions: { length: 35, width: 27, height: 1 }, maxWeight: 0.5 },
+        'Flyer Standard': { dimensions: { length: 40, width: 30, height: 1 }, maxWeight: 2 },
+        'Flyer Large': { dimensions: { length: 47, width: 38, height: 1 }, maxWeight: 4 }
+    };
+
+    // Determine Package Type and Weight
+    const shipmentType = req.body.shipmentType || 'large';
+    
+    // Parse raw weight from frontend, defaulting to 1.05kg for a general suit, or 0.35kg for small items
+    const rawWeight = parseFloat(req.body.weight) || (shipmentType === 'small' ? 0.35 : 1.05);
+    
+    // Per Requirements: "Every weight that you see right here should be round up to the nearest whole number"
+    const finalWeight = Math.ceil(rawWeight);
+
+    let selectedPackage = 'Box 3';
+
+    if (shipmentType === 'small') {
+        selectedPackage = finalWeight <= 2 ? 'Flyer Standard' : 'Flyer Large';
+    } else {
+        // Box 3 is standard for 1 suit (up to 2kg rounded)
+        // Box 4 is used for > 1 suit (3kg to 5kg rounded)
+        if (finalWeight <= 2) {
+            selectedPackage = 'Box 3';
+        } else if (finalWeight <= 5) {
+            selectedPackage = 'Box 4';
+        } else if (finalWeight <= 10) {
+            selectedPackage = 'Box 5';
+        } else {
+            selectedPackage = 'Box 6';
+        }
+    }
+
+    const packageInfo = dhlPackages[selectedPackage];
+
     try {
         const axios = require('axios');
         const today = new Date().toISOString().split('T')[0];
@@ -118,10 +154,10 @@ router.post('/shipping/calculate', async (req, res) => {
             originCityName: process.env.DHL_ORIGIN_CITY_NAME || 'Kingston',
             destinationCountryCode: destCountryCode,
             destinationCityName: city || 'Unknown',
-            weight: 5,
-            length: 50,
-            width: 40,
-            height: 10,
+            weight: finalWeight,
+            length: packageInfo.dimensions.length,
+            width: packageInfo.dimensions.width,
+            height: packageInfo.dimensions.height,
             plannedShippingDate: today,
             isCustomsDeclarable: 'true',
             unitOfMeasurement: 'metric'
@@ -131,7 +167,12 @@ router.post('/shipping/calculate', async (req, res) => {
             params.append('destinationPostalCode', zip.trim());
         }
 
-        const response = await axios.get(`https://express.api.dhl.com/mydhlapi/rates?${params.toString()}`, {
+        const dhlEnv = process.env.DHL_ENVIRONMENT || 'sandbox';
+        const dhlBaseUrl = dhlEnv === 'production' 
+            ? 'https://express.api.dhl.com/mydhlapi/rates' 
+            : 'https://express.api.dhl.com/mydhlapi/test/rates';
+
+        const response = await axios.get(`${dhlBaseUrl}?${params.toString()}`, {
             headers: {
                 'Authorization': `Basic ${Buffer.from(apiKey + ':' + apiSecret).toString('base64')}`
             }
@@ -168,7 +209,7 @@ router.post('/shipping/calculate', async (req, res) => {
 
     } catch (err) {
         console.error("DHL API Error:", err.response?.data?.detail || err.message);
-        return res.json(fallbackCost());
+        return res.status(502).json({ error: 'Failed to retrieve rates from DHL API: ' + (err.response?.data?.detail || err.message) });
     }
 });
 
