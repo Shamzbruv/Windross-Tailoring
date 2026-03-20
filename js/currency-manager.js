@@ -23,7 +23,25 @@ const CurrencyManager = {
         }
     },
 
+    async loadLiveRates() {
+        try {
+            // Fetch the live global Bank Exchange Rate for USD to JMD dynamically
+            const res = await fetch('https://open.er-api.com/v6/latest/USD');
+            const data = await res.json();
+            if (data && data.rates && data.rates.JMD) {
+                this.state.rates['USD'] = 1 / data.rates.JMD;
+                console.log(`[Currency] Live Exchange Rate synced dynamically: 1 USD = ${data.rates.JMD} JMD`);
+                this.updateDOM(); // Refresh all prices on screen with live exact math
+            }
+        } catch (e) {
+            console.warn("[Currency] Failed to load live exchange rate, falling back safely to hardcoded default (157.05)", e);
+        }
+    },
+
     init() {
+        // Kick off live rate fetching instantly in the background without slowing down the site
+        this.loadLiveRates();
+
         // 1. Check URL override
         const params = new URLSearchParams(window.location.search);
         if (params.has('currency')) {
@@ -61,7 +79,7 @@ const CurrencyManager = {
             console.warn("[Currency] LocalStorage access failed", e);
         }
 
-        // 3. Detect Location
+        // 4. Detect Location
         // Check if running on file protocol which often blocks API calls
         if (window.location.protocol === 'file:') {
             console.warn("[Currency] Running on file:// protocol. Automatic detection may fail due to CORS. Use ?currency=XXX to test.");
