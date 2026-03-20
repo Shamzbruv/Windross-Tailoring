@@ -102,7 +102,7 @@ router.post('/shipping/calculate', async (req, res) => {
 
     // DHL Package Configuration
     const dhlPackages = {
-        'Box 3': { dimensions: { length: 33, width: 33, height: 10 }, maxWeight: 2 },
+        'Box 3': { dimensions: { length: 33, width: 30, height: 10 }, maxWeight: 2 },
         'Box 4': { dimensions: { length: 33, width: 32, height: 18 }, maxWeight: 5 },
         'Box 5': { dimensions: { length: 33, width: 32, height: 34 }, maxWeight: 10 },
         'Box 6': { dimensions: { length: 41, width: 35, height: 36 }, maxWeight: 15 },
@@ -181,8 +181,8 @@ router.post('/shipping/calculate', async (req, res) => {
         const products = response.data?.products || [];
         if (products.length === 0) throw new Error("No shipping products found for this route");
 
-        // Prefer DHL Express Worldwide or take first available
-        const product = products.find(p => p.productName?.includes('Express Worldwide')) || products[0];
+        // Strictly target DHL Express Worldwide (Product Code 'P') to avoid expensive medical/specialty rates
+        const product = products.find(p => p.productCode === 'P' || p.productCode === 'D') || products.find(p => p.productName?.toUpperCase().includes('EXPRESS WORLDWIDE')) || products[0];
         const totalPriceInfo = product.totalPrice[0];
 
         if (totalPriceInfo && totalPriceInfo.price) {
