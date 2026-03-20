@@ -11,7 +11,7 @@ const CurrencyManager = {
         currency: 'JMD', // Default fallback
         rates: {
             'JMD': 1,
-            'USD': 1 / 155  // 155 JMD = 1 USD (approx)
+            'USD': 1 / 157.05  // Synchronized directly with DHL's internal exchange rate
         },
         locales: {
             'USD': 'en-US',

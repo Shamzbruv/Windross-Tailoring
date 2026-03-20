@@ -183,7 +183,8 @@ router.post('/shipping/calculate', async (req, res) => {
 
         // Strictly target DHL Express Worldwide (Product Code 'P') to avoid expensive medical/specialty rates
         const product = products.find(p => p.productCode === 'P' || p.productCode === 'D') || products.find(p => p.productName?.toUpperCase().includes('EXPRESS WORLDWIDE')) || products[0];
-        const totalPriceInfo = product.totalPrice[0];
+        // Use DHL's exact recommendation to securely fetch native Billing Currency
+        const totalPriceInfo = product.totalPrice?.find(p => p.currencyType === "BILLC") || product.totalPrice?.[0];
 
         if (totalPriceInfo && totalPriceInfo.price) {
             let rawCost = parseFloat(totalPriceInfo.price);
