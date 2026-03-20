@@ -1105,27 +1105,7 @@
                     </div>
                 `;
 
-                // 4. Delivery Service (Local Delivery Only)
-                const showService = details.location === 'local' && details.deliveryMethod === 'delivery';
-                contentHtml += `
-                    <div id="section-delivery-service" class="measurement-group" style="display: ${showService ? 'block' : 'none'};">
-                        <h3>Choose Courier</h3>
-                        <div class="options-grid">
-                            <div class="option-card ${details.courier === 'knutsford' ? 'selected' : ''}" onclick="saveDetail('courier', 'knutsford');">
-                                <div class="card-header"><div class="card-title">Knutsford Express</div></div>
-                            </div>
-                            <div class="option-card ${details.courier === 'zipmail' ? 'selected' : ''}" onclick="saveDetail('courier', 'zipmail');">
-                                <div class="card-header"><div class="card-title">Zipmail</div></div>
-                            </div>
-                             <div class="option-card ${details.courier === 'tara' ? 'selected' : ''}" onclick="saveDetail('courier', 'tara');">
-                                <div class="card-header"><div class="card-title">Tara Courier</div></div>
-                            </div>
-                             <div class="option-card ${details.courier === 'bearer' ? 'selected' : ''}" onclick="saveDetail('courier', 'bearer');">
-                                <div class="card-header"><div class="card-title">Bearer Service</div></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                // 4. Delivery Service explicitly removed per client request. All deliveries default globally to DHL.
 
                 // 5. Address (Delivery Local OR Abroad)
                 const showAddress = details.location === 'abroad' || (details.location === 'local' && details.deliveryMethod === 'delivery');
