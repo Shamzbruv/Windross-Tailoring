@@ -801,6 +801,16 @@
         // 2. Steps Config
         const steps = [
             {
+                id: 'package',
+                title: 'Garment Package',
+                desc: 'Choose what pieces you want to customize.',
+                items: [
+                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, icon: 'layers', img: 'https://i.postimg.cc/D0F6VMx5/Chat-GPT-Image-Feb-21-2026-04-06-33-PM.png' },
+                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, icon: 'shirt', img: 'https://i.postimg.cc/dtc3FKRg/Chat-GPT-Image-Feb-21-2026-04-16-59-PM.png' },
+                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'Custom tailored pants.', price: 0, icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
+                ]
+            },
+            {
                 id: 'texture',
                 title: 'Fabric Texture',
                 desc: 'Step 1: Choose the foundation of your suit. The texture determines how the suit feels and drapes.',
@@ -932,13 +942,24 @@
         });
 
         // --- RENDER ---
+        function getActiveSteps() {
+            return steps.filter(step => {
+                if (!selections['package']) return true;
+                const pkg = selections['package'].id;
+                if (pkg === 'pkg-jacket' && ['pants', 'vest'].includes(step.id)) return false;
+                if (pkg === 'pkg-pants' && ['jacket', 'lapels', 'vest'].includes(step.id)) return false;
+                return true;
+            });
+        }
+
         function render() {
             const container = document.getElementById('app');
-            const step = steps[currentStepIndex];
+            const activeSteps = getActiveSteps();
+            const step = activeSteps[currentStepIndex];
 
             // 1. Progress
             let progressHtml = '<div class="progress-track">';
-            steps.forEach((s, idx) => {
+            activeSteps.forEach((s, idx) => {
                 let classes = 'step-dot';
                 if (idx < currentStepIndex) classes += ' completed';
                 if (idx === currentStepIndex) classes += ' active';
@@ -954,7 +975,7 @@
             const headerHtml = `
                 <div class="step-header">
                     <div style="color:var(--gold-primary); text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; margin-bottom:10px;">
-                        Step ${currentStepIndex + 1} of ${steps.length}
+                        Step ${currentStepIndex + 1} of ${activeSteps.length}
                     </div>
                     <h1>${step.title}</h1>
                     <p>${step.desc}</p>
@@ -1016,6 +1037,10 @@
             else if (step.type === 'measurements') {
                 contentHtml += '<div class="measurement-form" style="padding-bottom:50px;">';
                 step.sections.forEach(section => {
+                    const pkg = selections['package'] ? selections['package'].id : 'pkg-full';
+                    if (pkg === 'pkg-jacket' && section.title.includes('Pants')) return;
+                    if (pkg === 'pkg-pants' && (section.title.includes('Blazer') || section.title.includes('Jacket'))) return;
+
                     contentHtml += `<div class="measurement-group"><h3>${section.title}</h3><div class="options-grid">`; // Re-using grid for layout
                     section.fields.forEach(field => {
                         const val = selections.measurements[field.id] || '';
@@ -1246,7 +1271,8 @@
         }
 
         function handleNext() {
-            if (currentStepIndex < steps.length - 1) {
+            const activeSteps = getActiveSteps();
+            if (currentStepIndex < activeSteps.length - 1) {
                 currentStepIndex++;
                 render();
                 window.scrollTo(0, 0);
@@ -1264,21 +1290,26 @@
         }
 
         function updateFooter() {
+            const activeSteps = getActiveSteps();
             const backBtn = document.getElementById('btn-back');
             const nextBtn = document.getElementById('btn-next');
             const priceDisplay = document.getElementById('price-display');
 
             backBtn.style.visibility = currentStepIndex === 0 ? 'hidden' : 'visible';
 
-            if (currentStepIndex === steps.length - 1) {
+            if (currentStepIndex === activeSteps.length - 1) {
                 nextBtn.innerHTML = 'Proceed to Checkout <i data-lucide="credit-card"></i>';
             } else {
                 nextBtn.innerHTML = 'Next Step <i data-lucide="arrow-right"></i>';
             }
 
             if (window.PricingEngine && window.PricingEngine.isLoaded) {
+                let styleId = selections.vest && selections.vest.id === 'v-add' ? 'suit_3_piece' : 'suit_2_piece';
+                if (selections['package'] && selections['package'].id === 'pkg-jacket') styleId = 'jacket_only';
+                if (selections['package'] && selections['package'].id === 'pkg-pants') styleId = 'pants_only';
+
                 const configSelection = {
-                    styleId: selections.vest && selections.vest.id === 'v-add' ? 'suit_3_piece' : 'suit_2_piece',
+                    styleId: styleId,
                     fabricId: selections.texture ? selections.texture.id : null,
                     fabricGrade: selections.texture ? selections.texture.id : 'cool-wool', // Mapped one-to-one in config
                     constructionType: 'half_canvas',
@@ -1337,7 +1368,9 @@
                 details: selections.details || {},
                 // Pricing Engine Output
                 pricingEngineSelection: {
-                    styleId: selections.vest && selections.vest.id === 'v-add' ? 'suit_3_piece' : 'suit_2_piece',
+                    styleId: (selections['package'] && selections['package'].id === 'pkg-jacket') ? 'jacket_only' :
+                             (selections['package'] && selections['package'].id === 'pkg-pants') ? 'pants_only' :
+                             (selections.vest && selections.vest.id === 'v-add') ? 'suit_3_piece' : 'suit_2_piece',
                     fabricId: selections.texture ? selections.texture.id : null,
                     fabricGrade: selections.texture ? selections.texture.id : 'cool-wool',
                     constructionType: 'half_canvas',

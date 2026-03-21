@@ -12,6 +12,12 @@
         },
         "tuxedo": {
             "basePriceJMD": 42000
+        },
+        "jacket_only": {
+            "basePriceJMD": 28000
+        },
+        "pants_only": {
+            "basePriceJMD": 15000
         }
     },
     "fabricGrades": {

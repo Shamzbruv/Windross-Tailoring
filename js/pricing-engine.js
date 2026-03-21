@@ -35,7 +35,9 @@ const PricingEngine = {
             "styles": {
                 "suit_2_piece": { "basePriceJMD": 38000 },
                 "suit_3_piece": { "basePriceJMD": 58000 },
-                "tuxedo": { "basePriceJMD": 42000 }
+                "tuxedo": { "basePriceJMD": 42000 },
+                "jacket_only": { "basePriceJMD": 28000 },
+                "pants_only": { "basePriceJMD": 15000 }
             },
             "fabricGrades": {
                 "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 1800 },
