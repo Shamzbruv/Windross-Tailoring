@@ -14,10 +14,10 @@
             "basePriceJMD": 42000
         },
         "jacket_only": {
-            "basePriceJMD": 39000
+            "basePriceJMD": 37200
         },
         "pants_only": {
-            "basePriceJMD": 15500
+            "basePriceJMD": 13700
         }
     },
     "fabricGrades": {
