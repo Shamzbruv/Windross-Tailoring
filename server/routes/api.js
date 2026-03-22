@@ -214,7 +214,7 @@ router.post('/shipping/calculate', async (req, res) => {
     }
 });
 
-// 4. Initiate Payment (Live WiPay Integration)
+// 4. Initiate Payment (Live WiPay Integration) - Bypass for Bank Transfer
 router.post('/payment/wipay/create', (req, res) => {
     const { sessionId, total, currency } = req.body;
 
@@ -245,6 +245,27 @@ router.post('/payment/wipay/create', (req, res) => {
                 response_url: responseUrl,
                 total: parseFloat(total).toFixed(2) // WiPay explicitly requires two decimal formatting
             }
+        });
+    });
+});
+
+// 4.5. Initiate Bank Transfer
+router.post('/payment/bank-transfer', (req, res) => {
+    const { sessionId, total, currency } = req.body;
+
+    // Update total in DB and mark pending
+    db.run(`UPDATE orders SET total_amount=?, currency=?, status='pending_transfer' WHERE session_id=?`, [total, currency, sessionId], function(err) {
+        if (err) return res.status(500).json({ error: 'DB error updating order' });
+
+        db.get(`SELECT * FROM orders WHERE session_id = ?`, [sessionId], (err, order) => {
+            if (err || !order) return res.status(404).json({ error: 'Order not found' });
+            
+            db.all(`SELECT * FROM order_items WHERE order_id=?`, [order.id], (err, items) => {
+                generateOrderPDF(order, items, (pdfPath) => {
+                    sendOrderConfirmation(order, pdfPath);
+                });
+            });
+            res.json({ success: true, orderId: order.id });
         });
     });
 });

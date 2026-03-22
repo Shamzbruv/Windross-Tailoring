@@ -190,19 +190,13 @@
                 <div class="form-section">
                     <h3><i data-lucide="credit-card"></i> Payment</h3>
                     <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">
-                        All transactions are secure and encrypted.
+                        All transactions are secure. You will complete your payment via Bank Transfer.
                     </p>
 
                     <button class="btn-primary" id="pay-btn" onclick="handlePayment()"
                         style="display:flex; justify-content:center; align-items:center; gap:10px;">
-                        Pay <span id="total-amount-display">$0</span> with WiPay
+                        Complete Order (Bank Transfer)
                     </button>
-
-                    <div style="text-align:center; margin-top:15px;">
-                        <img src="https://wipay caribbean.com/wp-content/uploads/2020/07/wipay-logo-white.png"
-                            alt="WiPay" style="height:20px; opacity:0.5;">
-                        <!-- Placeholder logo link, might check valid one later -->
-                    </div>
                 </div>
 
                 <button class="btn-secondary" onclick="prevStep()">Back</button>
@@ -214,13 +208,18 @@
                     style="width:80px; height:80px; border-radius:50%; background:var(--gold-primary); color:black; display:flex; align-items:center; justify-content:center; margin:0 auto 30px;">
                     <i data-lucide="check" width="40" height="40"></i>
                 </div>
-                <h1>Order Confirmed</h1>
-                <p class="subtitle" style="max-width:500px; margin:0 auto 30px;">
-                    Thank you, <span id="checkout-name"></span>. Your order has been placed successfully.
+                <h1>Order Placed</h1>
+                <p class="subtitle" style="max-width:500px; margin:0 auto 20px;">
+                    Thank you, <span id="checkout-name"></span>. Your order has been placed successfully as pending bank transfer.
                     We have sent a confirmation email with your measurement profile and receipt.
                 </p>
-                <button class="btn-primary" onclick="window.location.href='index.html'" style="max-width:300px;">Return
-                    Home</button>
+                <button class="btn-primary" id="whatsapp-btn" style="max-width:300px; margin:0 auto 15px; display:flex; justify-content:center; align-items:center; gap:10px;">
+                    <i data-lucide="message-circle" width="20" height="20"></i> Send WhatsApp to Finalize
+                </button>
+                <div style="margin-top: 15px;">
+                    <button class="btn-secondary" onclick="window.location.href='index.html'" style="max-width:300px;">Return
+                        Home</button>
+                </div>
             </div>
 
         </main>

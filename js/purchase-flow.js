@@ -644,7 +644,7 @@ function updateTotal(shippingJMD) {
     // Update Checkout Button specifically formatted
     const payBtn = document.getElementById('pay-btn');
     if (payBtn) {
-        payBtn.innerHTML = `PAY <span id="total-amount-display">${formattedTotal}</span> WITH WIPAY`;
+        payBtn.innerHTML = `COMPLETE ORDER (<span id="total-amount-display">${formattedTotal}</span>)`;
     }
 }
 
@@ -653,7 +653,6 @@ function handlePayment() {
     btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Processing...';
     btn.disabled = true;
 
-    // We must send the ACTIVE display currency to WiPay so they charge the correct literal integer amount
     const shippingJMD = state.shippingJMD || 0;
     const suitPriceJMD = getActivePriceJMD();
     const totalJMD = suitPriceJMD + shippingJMD;
@@ -662,7 +661,7 @@ function handlePayment() {
     const activeTotal = CurrencyManager ? CurrencyManager.convert(totalJMD) : totalJMD;
     const finalTotal = parseFloat(activeTotal.toFixed(2));
 
-    fetch('/api/payment/wipay/create', {
+    fetch('/api/payment/bank-transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -673,28 +672,10 @@ function handlePayment() {
     })
         .then(r => r.json())
         .then(data => {
-            if (data.actionUrl && data.params) {
-                console.log("[WiPay] Redirecting to secure Hosted Page...");
-                // Dynamically build and submit the WiPay checkout form
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = data.actionUrl;
-
-                Object.keys(data.params).forEach(key => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = data.params[key];
-                    form.appendChild(input);
-                });
-
-                document.body.appendChild(form);
-                form.submit();
-            } else if (data.redirectUrl) {
-                // Fallback for legacy mock
-                window.location.href = data.redirectUrl;
+            if (data.success || data.orderId) {
+                renderStep(4);
             } else {
-                throw new Error("Invalid payment response");
+                throw new Error(data.error || "Payment saving failed");
             }
         })
         .catch(e => {

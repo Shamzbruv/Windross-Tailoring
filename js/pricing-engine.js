@@ -36,8 +36,8 @@ const PricingEngine = {
                 "suit_2_piece": { "basePriceJMD": 38000 },
                 "suit_3_piece": { "basePriceJMD": 58000 },
                 "tuxedo": { "basePriceJMD": 42000 },
-                "jacket_only": { "basePriceJMD": 19500 },
-                "pants_only": { "basePriceJMD": 4500 }
+                "jacket_only": { "basePriceJMD": 39000 },
+                "pants_only": { "basePriceJMD": 15500 }
             },
             "fabricGrades": {
                 "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 1800 },
@@ -181,7 +181,7 @@ const PricingEngine = {
             regionAdjustedSubtotalJMD,
             suggestedSize,
             appliedMarkupPercent,
-            finalDisplay: window.CurrencyManager ? window.CurrencyManager.format(subtotalJMD) : `J$ ${regionAdjustedSubtotalJMD}`
+            finalDisplay: window.CurrencyManager ? window.CurrencyManager.format(regionAdjustedSubtotalJMD) : `J$ ${regionAdjustedSubtotalJMD}`
         };
     },
 
