@@ -37,6 +37,9 @@
     <script src="js/currency-manager.js"></script>
 
     <style>
+        .hidden-initial {
+            display: none !important;
+        }
         /* ========================================
            THEME: MIDNIGHT GOLD (Wizard Edition)
            ========================================
@@ -750,11 +753,11 @@
         </div>
     </nav>
 
-    <div class="wizard-container" id="app">
+    <div class="wizard-container hidden-initial" id="app">
         <!-- Injected by JS -->
     </div>
 
-    <div class="wizard-footer">
+    <div class="wizard-footer hidden-initial">
         <button id="btn-back" class="btn-nav btn-prev" onclick="handleBack()">
             <i data-lucide="arrow-left"></i> Back
         </button>
@@ -766,8 +769,10 @@
         <button id="btn-next" class="btn-nav btn-next" onclick="handleNext()">
             Next Step <i data-lucide="arrow-right"></i>
         </button>
-        <!-- Gender Selection Modal -->
-        <div id="gender-modal" class="gender-modal-overlay">
+    </div>
+
+    <!-- Gender Selection Modal -->
+    <div id="gender-modal" class="gender-modal-overlay">
             <div class="gender-modal-content">
                 <h2>Who are you customizing for?</h2>
                 <p>Select a collection to begin your bespoke journey.</p>
@@ -783,9 +788,6 @@
                 </div>
             </div>
         </div>
-
-
-    </div>
 
     <script>
         // --- DATA WITH DYNAMIC RELATIONSHIPS ---
@@ -941,9 +943,7 @@
         // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
             // 0. Always Show Modal on Load (User Request)
-            setTimeout(() => {
-                document.getElementById('gender-modal').classList.add('active');
-            }, 500);
+            document.getElementById('gender-modal').classList.add('active');
 
             // Pre-select defaults for static steps ONLY
             steps.forEach(step => {
@@ -1486,7 +1486,11 @@
             const orderKeys = ['texture', 'color', 'jacket', 'lapels', 'pants', 'vest', 'buttons', 'lining'];
             orderKeys.forEach(key => {
                 if (selections[key]) {
-                    config[key] = selections[key].name;
+                    config[key] = {
+                        name: selections[key].name || selections[key].id || key,
+                        priceJMD: selections[key].priceJMD || 0,
+                        img: selections[key].img || selections[key].image || null
+                    };
                     if (selections[key].id) optionIds.push(selections[key].id);
                 }
             });
@@ -1515,9 +1519,11 @@
                 pricing: estimate
             };
 
-            // 3. Save & Redirect
+            // 3. Save to Session
             sessionStorage.setItem('custom_suit_data', JSON.stringify(checkoutData));
-            window.location.href = 'purchase-flow.html?suit=Custom';
+            
+            // Trigger native checkout overlay
+            initiateNativeCheckout(checkoutData);
         }
 
         function capitalize(s) {
@@ -1534,6 +1540,9 @@
         function selectGender(gender) {
             selections.gender = gender;
             // sessionStorage.setItem('custom_gender_selection', gender); // Disabled per user request to show modal on refresh
+
+            document.getElementById('app').classList.remove('hidden-initial');
+            document.querySelector('.wizard-footer').classList.remove('hidden-initial');
 
             // Update Nav Display
             const navCenter = document.querySelector('.nav-center');
@@ -1582,6 +1591,270 @@
         window.addEventListener('pricing-engine-ready', render);
     </script>
     <script src="js/back-to-top.js"></script>
+
+    <!-- Native Checkout Code -->
+    <div id="native-checkout-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; backdrop-filter:blur(5px); justify-content:center; align-items:center;">
+        <div style="background:var(--bg-panel); border:1px solid var(--gold-primary); max-width:600px; width:90%; border-radius:10px; padding:40px; text-align:center;">
+            <div id="nco-loading">
+                <i data-lucide="loader-2" class="spin" style="color:var(--gold-primary); width:40px; height:40px;"></i>
+                <h2 style="margin-top:20px;">Preparing Your Order...</h2>
+            </div>
+            
+            <div id="nco-payment" style="display:none; text-align:left;">
+                <h2 style="margin-bottom:20px; text-align:center;">Review & Pay</h2>
+                <div style="background:var(--bg-input); padding:20px; margin-bottom:20px; border-radius:8px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>Suit Customization</span>
+                        <span id="nco-suit-price" style="font-weight:bold;">$0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>Shipping (<span id="nco-shipping-method">DHL</span>)</span>
+                        <span id="nco-shipping-price" style="font-weight:bold;">$0</span>
+                    </div>
+                    <hr style="border-color:var(--bg-border); margin:15px 0;">
+                    <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:bold; color:var(--gold-primary);">
+                        <span>Total Due</span>
+                        <span id="nco-total-price">$0</span>
+                    </div>
+                </div>
+                
+                <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px; text-align:center;">
+                    All transactions are secure. You will complete your payment via Bank Transfer.
+                </p>
+                
+                <button id="nco-pay-btn" class="btn-primary" style="width:100%; margin-bottom:15px;" onclick="processNativePayment()">
+                    Complete Order (<span id="nco-btn-total"></span>)
+                </button>
+                <button class="btn-secondary" style="width:100%;" onclick="closeNativeCheckout()">Return to Editor</button>
+            </div>
+            
+            <div id="nco-success" style="display:none; text-align:center;">
+                <div style="width:80px; height:80px; border-radius:50%; background:var(--gold-primary); color:black; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                    <i data-lucide="check" width="40" height="40"></i>
+                </div>
+                <h2>Order Placed Successfully!</h2>
+                <p style="color:var(--text-muted); margin:20px 0;">We have sent a confirmation email with your custom profile, images, and receipt.</p>
+                <button id="nco-whatsapp-btn" class="btn-primary" style="margin-bottom:15px; width:100%;">
+                    <i data-lucide="message-circle" width="20" height="20"></i> Send WhatsApp to Finalize
+                </button>
+                <button class="btn-secondary" style="width:100%;" onclick="window.location.href='index.html'">Return Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nativeOrderSessionId = null;
+        let nativeFinalTotal = 0;
+        let nativeCheckoutData = null;
+        let isIntl = false;
+
+        async function initiateNativeCheckout(checkoutData) {
+            nativeCheckoutData = checkoutData;
+            document.getElementById('native-checkout-overlay').style.display = 'flex';
+            document.getElementById('nco-loading').style.display = 'block';
+            document.getElementById('nco-payment').style.display = 'none';
+            document.getElementById('nco-success').style.display = 'none';
+            lucide.createIcons();
+
+            try {
+                // Determine Region explicitly from checkoutData location
+                isIntl = checkoutData.details && checkoutData.details.location === 'abroad';
+
+                // Base Pricing
+                const baseJMD = checkoutData.pricing ? checkoutData.pricing.subtotalJMD : checkoutData.price;
+                const finalJMD = window.calculateDisplayPrice ? window.calculateDisplayPrice(baseJMD) : baseJMD;
+
+                // 1. Create Draft
+                try {
+                    const draftRes = await fetch('/api/orders/draft', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            suitId: checkoutData.suitId || 'Custom Bespoke Suit',
+                            gender: checkoutData.gender,
+                            measurements: { ...checkoutData.measurements, _config: checkoutData.config },
+                            region: isIntl ? 'INTL' : 'JM',
+                            basePriceJMD: baseJMD,
+                            finalPriceJMD: finalJMD,
+                            appliedMarkupPercent: isIntl ? 85 : 0,
+                            currencyDisplay: isIntl ? 'USD' : 'JMD',
+                            pricingEngineSelection: checkoutData.pricingEngineSelection,
+                            pricing: checkoutData.pricing,
+                            quantity: checkoutData.quantity || 1,
+                            additionalColors: checkoutData.additionalColors || 'same',
+                            extraColors: checkoutData.extraColors || {}
+                        })
+                    });
+                    if (draftRes.ok) {
+                        const draftData = await draftRes.json();
+                        nativeOrderSessionId = draftData.sessionId;
+                    } else {
+                        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                            nativeOrderSessionId = 'DEV_SESSION_' + Date.now();
+                        } else {
+                            throw new Error("Draft API failed");
+                        }
+                    }
+                } catch (e) {
+                    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                        console.warn("Draft API offline, using dev session", e);
+                        nativeOrderSessionId = 'DEV_SESSION_' + Date.now();
+                    } else {
+                        throw e;
+                    }
+                }
+
+                // 2. Map & Push Shipping
+                const shipData = {
+                    name: checkoutData.details.name || '',
+                    email: checkoutData.details.email || '',
+                    phone: checkoutData.details.phone || '',
+                    address: checkoutData.details.address1 + (checkoutData.details.address2 ? ', ' + checkoutData.details.address2 : ''),
+                    city: checkoutData.details.city || '',
+                    country: checkoutData.details.country || 'Jamaica',
+                    zip: '',
+                    region: ''
+                };
+
+                try {
+                    await fetch('/api/orders/shipping', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sessionId: nativeOrderSessionId,
+                            shipping: shipData
+                        })
+                    });
+                } catch (e) {
+                    console.warn("Shipping API offline, ignoring", e);
+                }
+
+                // 3. Calculate Shipping Cost dynamically
+                let shippingJMD = 0;
+                let shipmentType = 'large';
+
+                if (checkoutData.details.location === 'abroad' || checkoutData.details.deliveryMethod === 'delivery') {
+                    try {
+                        const calcRes = await fetch('/api/shipping/calculate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                country: shipData.country,
+                                city: shipData.city,
+                                zip: shipData.zip,
+                                shipmentType: shipmentType,
+                                weight: 2.0 * (checkoutData.quantity || 1)
+                            })
+                        });
+                        if (calcRes.ok) {
+                            const calcData = await calcRes.json();
+                            if (calcData.cost) {
+                                shippingJMD = calcData.cost;
+                            }
+                        } else {
+                            throw new Error("Shipping calc failed");
+                        }
+                    } catch (e) {
+                        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                            console.warn("Shipping Calc API offline, using default", e);
+                            shippingJMD = isIntl ? 7000 : 2500; // rough fallback for dev viewing
+                        } else {
+                            throw e;
+                        }
+                    }
+                    document.getElementById('nco-shipping-method').textContent = "DHL Express";
+                } else {
+                    document.getElementById('nco-shipping-method').textContent = "Store Pickup";
+                }
+
+                // 4. Present Totals
+                const suitPriceJMD = getActivePriceJMDForNative(baseJMD);
+                const totalJMD = suitPriceJMD + shippingJMD;
+
+                const activeTotal = CurrencyManager.convert(totalJMD);
+                nativeFinalTotal = parseFloat(activeTotal.toFixed(2));
+
+                document.getElementById('nco-suit-price').textContent = CurrencyManager.format(suitPriceJMD);
+                document.getElementById('nco-shipping-price').textContent = CurrencyManager.format(shippingJMD);
+                document.getElementById('nco-total-price').textContent = CurrencyManager.format(totalJMD);
+                document.getElementById('nco-btn-total').textContent = CurrencyManager.format(totalJMD);
+
+                // Show Payment Screen
+                document.getElementById('nco-loading').style.display = 'none';
+                document.getElementById('nco-payment').style.display = 'block';
+
+            } catch (err) {
+                console.error("Native checkout initialization failed", err);
+                alert("Failed to initialize checkout. Please check your connection and try again.");
+                closeNativeCheckout();
+            }
+        }
+
+        function getActivePriceJMDForNative(baseJMD) {
+            let cappedBaseJMD = baseJMD;
+            if (cappedBaseJMD > 65000) cappedBaseJMD = 65000;
+            return window.calculateDisplayPrice ? window.calculateDisplayPrice(cappedBaseJMD) : cappedBaseJMD;
+        }
+
+        function closeNativeCheckout() {
+            document.getElementById('native-checkout-overlay').style.display = 'none';
+        }
+
+        async function processNativePayment() {
+            const btn = document.getElementById('nco-pay-btn');
+            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Processing...';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            try {
+                let res;
+                try {
+                    res = await fetch('/api/payment/bank-transfer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sessionId: nativeOrderSessionId,
+                            total: nativeFinalTotal,
+                            currency: CurrencyManager.state.currency || 'JMD'
+                        })
+                    });
+                    
+                    const contentType = res.headers.get("content-type");
+                    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                        throw new Error("Backend not running or returned HTML");
+                    }
+                } catch (e) {
+                    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                        console.warn("Payment API offline or returned 404, simulating success for local dev", e);
+                        res = { ok: true, json: async () => ({ success: true }) };
+                    } else {
+                        throw e;
+                    }
+                }
+                const data = await res.json();
+
+                if (data.success || data.orderId) {
+                    document.getElementById('nco-payment').style.display = 'none';
+                    document.getElementById('nco-success').style.display = 'block';
+
+                    const phone = "18765986434";
+                    const totalFormatted = document.getElementById('nco-total-price').textContent;
+                    const msg = `*New Custom Order Confirmed*\\nOrder Ref: ${nativeOrderSessionId}\\nName: ${nativeCheckoutData.details.name}\\nItem: Custom Bespoke Suit\\nTotal: ${totalFormatted}`;
+                    
+                    document.getElementById('nco-whatsapp-btn').onclick = () => {
+                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                    };
+                } else {
+                    throw new Error(data.error || "Payment saving failed");
+                }
+            } catch (err) {
+                console.error("Bank transfer failed", err);
+                btn.innerHTML = `Complete Order (<span id="nco-btn-total">${document.getElementById('nco-total-price').textContent}</span>)`;
+                btn.disabled = false;
+                alert("Payment initiation failed. Please try again.");
+            }
+        }
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const isJM = window.Region && window.Region.isJamaica();

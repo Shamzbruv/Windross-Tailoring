@@ -32,9 +32,9 @@
         <a href="index.html" class="logo">Windross</a>
         <div
             style="font-family:'Playfair Display'; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase;">
-            Secure Checkout
+            Secure Custom Checkout
         </div>
-        <button class="btn-secondary" onclick="window.location.href = new URLSearchParams(window.location.search).get('suit') === 'Custom' ? 'customize.html' : 'ready-to-wear.html'">Cancel</button>
+        <button class="btn-secondary" onclick="window.location.href='customize.html'">Cancel</button>
     </nav>
 
     <!-- Main Container -->
@@ -253,25 +253,26 @@
 
     </div>
 
-    <!-- Scripts -->
-    <script src="js/purchase-flow.js"></script>
+    <!-- App JS -->
+    <script src="js/custom-purchase-flow.js"></script>
     <script>
         lucide.createIcons();
     </script>
     <script src="js/back-to-top.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const isJM = window.Region && window.Region.isJamaica();
-        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-            if (!isJM) {
-                link.style.display = "none";
-            }
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const isJM = window.Region && window.Region.isJamaica();
+            document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
+                if (!isJM) {
+                    link.style.display = "none";
+                }
+            });
         });
-    });
-</script>
-<script>
-    console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: window.Region.getRegion() });
-</script>
+    </script>
+    <script>
+        console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: window.Region.getRegion() });
+    </script>
 </body>
+</html>
 
 </html>

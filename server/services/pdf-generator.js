@@ -29,9 +29,22 @@ async function generateOrderPDF(order, items, callback) {
             Object.entries(measures).forEach(([key, val]) => {
                 const ignoredKeys = ['suggestedSize', 'suggestedConfidence', 'suggestedGender', '_config', '_pricing'];
                 if (!ignoredKeys.includes(key) && typeof val !== 'object') {
-                    detailsHtml += `${key}: ${val}<br>`;
+                    detailsHtml += `<strong>${key}</strong>: ${val}<br>`;
                 }
             });
+
+            if (measures._config) {
+                detailsHtml += `<br><strong style="color:#D4AF37;">Custom Selections:</strong><br>`;
+                Object.entries(measures._config).forEach(([configKey, configVal]) => {
+                    const label = configKey.charAt(0).toUpperCase() + configKey.slice(1);
+                    if (typeof configVal === 'object' && configVal !== null) {
+                        const priceStr = configVal.priceJMD ? ` (+$${configVal.priceJMD})` : '';
+                        detailsHtml += `<strong>${label}</strong>: ${configVal.name || 'Selected'}${priceStr}<br>`;
+                    } else if (typeof configVal === 'string') {
+                        detailsHtml += `<strong>${label}</strong>: ${configVal}<br>`;
+                    }
+                });
+            }
 
             // Set authoritative total if available
             if (measures._pricing) {

@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Get Suit from URL
     const params = new URLSearchParams(window.location.search);
-    const suitName = params.get('suit') || 'The Windsor';
+    let suitName = params.get('suit') || 'Custom';
     state.suitId = suitName;
 
     // Load suit details
@@ -534,28 +534,15 @@ async function calculateShipping() {
 
     } catch (e) {
         console.error("Shipping calc failed", e);
+        document.getElementById('summary-shipping').textContent = 'Error: ' + e.message;
         
-        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-            const isIntl = window.RegionManager ? window.RegionManager.state.region === 'INTL' : false;
-            const fallbackShipping = isIntl ? 7000 : 2500;
-            state.shippingJMD = fallbackShipping;
-            updateTotal(fallbackShipping);
-            
-            const payBtn = document.getElementById('pay-btn');
-            if (payBtn) payBtn.disabled = false;
-            
-            document.getElementById('summary-shipping').textContent = CurrencyManager ? CurrencyManager.format(fallbackShipping) : `J$ ${fallbackShipping}`;
-        } else {
-            document.getElementById('summary-shipping').textContent = 'Error: ' + e.message;
-            
-            // Disable purchase button completely to enforce real shipping rules
-            const payBtn = document.getElementById('pay-btn');
-            if (payBtn) payBtn.disabled = true;
+        // Disable purchase button completely to enforce real shipping rules
+        const payBtn = document.getElementById('pay-btn');
+        if (payBtn) payBtn.disabled = true;
 
-            alert("Failed to calculate shipping rate: " + e.message + "\nPlease verify your address details.");
-            state.shippingJMD = 0;
-            updateTotal(0);
-        }
+        alert("Failed to calculate shipping rate: " + e.message + "\nPlease verify your address details.");
+        state.shippingJMD = 0;
+        updateTotal(0);
     }
 }
 
@@ -661,9 +648,8 @@ function updateTotal(shippingJMD) {
     }
 }
 
-async function handlePayment() {
+function handlePayment() {
     const btn = document.getElementById('pay-btn');
-    const originalText = btn.innerHTML;
     btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Processing...';
     btn.disabled = true;
 
@@ -675,43 +661,29 @@ async function handlePayment() {
     const activeTotal = CurrencyManager ? CurrencyManager.convert(totalJMD) : totalJMD;
     const finalTotal = parseFloat(activeTotal.toFixed(2));
 
-    try {
-        let res;
-        try {
-            res = await fetch('/api/payment/bank-transfer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId: state.sessionId,
-                    total: finalTotal,
-                    currency: CurrencyManager ? CurrencyManager.state.currency : 'JMD'
-                })
-            });
-            const contentType = res.headers.get("content-type");
-            if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                throw new Error("Backend not running or returned HTML");
-            }
-        } catch (e) {
-            if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-                console.warn("Payment API offline or returned 404, simulating success for local dev", e);
-                res = { ok: true, json: async () => ({ success: true }) };
+    fetch('/api/payment/bank-transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            sessionId: state.sessionId,
+            total: finalTotal,
+            currency: CurrencyManager ? CurrencyManager.state.currency : 'JMD'
+        })
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success || data.orderId) {
+                renderStep(4);
             } else {
-                throw e; // Production should strictly fail
+                throw new Error(data.error || "Payment saving failed");
             }
-        }
-        
-        const data = await res.json();
-        if (data.success || data.orderId) {
-            renderStep(4);
-        } else {
-            throw new Error(data.error || "Payment saving failed");
-        }
-    } catch (e) {
-        console.error("Payment init failed", e);
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        alert("Payment initialization failed. Please try again.");
-    }
+        })
+        .catch(e => {
+            console.error("Payment init failed", e);
+            btn.innerHTML = 'Try Again';
+            btn.disabled = false;
+            alert("Payment initialization failed. Please try again.");
+        });
 }
 
 function verifyPayment(sessionId, txnId) {

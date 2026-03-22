@@ -1,7 +1,23 @@
 const { Resend } = require('resend');
 const fs = require('fs');
+const https = require('https');
+const http = require('http');
 
-async function sendOrderConfirmation(order, pdfPath) {
+function fetchImageBuffer(url) {
+    return new Promise((resolve, reject) => {
+        const fetcher = url.startsWith('https') ? https : http;
+        fetcher.get(url, (res) => {
+            if (res.statusCode !== 200) {
+                return resolve(null); // Return null quietly to not block email
+            }
+            const chunks = [];
+            res.on('data', chunk => chunks.push(chunk));
+            res.on('end', () => resolve(Buffer.concat(chunks)));
+        }).on('error', (err) => resolve(null)); // Resolve null on error
+    });
+}
+
+async function sendOrderConfirmation(order, items, pdfPath) {
     // 1. Setup Resend
     // In production, use real credentials from process.env
     const resendApiKey = process.env.RESEND_API_KEY;
@@ -14,27 +30,56 @@ async function sendOrderConfirmation(order, pdfPath) {
 
     const resend = new Resend(resendApiKey);
 
-    // 2. Prepare Attachment
-    let attachmentBase64;
+    // 2. Prepare PDF Attachment
+    let pdfBase64;
     try {
         const fileData = fs.readFileSync(pdfPath);
-        attachmentBase64 = fileData.toString('base64');
+        pdfBase64 = fileData.toString('base64');
     } catch (e) {
         console.error("Error reading PDF attachment for email:", e);
         return;
     }
 
-    // 3. Send Email
+    // 3. Extract item images from _config
+    const ccEmail = process.env.ADMIN_EMAIL || '876david@gmail.com';
+    let imageAttachments = [];
+    
+    if (items && Array.isArray(items)) {
+        for (const item of items) {
+            try {
+                const measures = JSON.parse(item.measurements || '{}');
+                if (measures._config) {
+                    for (const [key, val] of Object.entries(measures._config)) {
+                        if (val && val.img) {
+                            const ext = val.img.split('.').pop().split('?')[0] || 'jpg';
+                            const buffer = await fetchImageBuffer(val.img);
+                            if (buffer) {
+                                imageAttachments.push({
+                                    filename: `${key}_selection.${ext}`,
+                                    content: buffer.toString('base64')
+                                });
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing item measurements for images:", e);
+            }
+        }
+    }
+
+    // 4. Send Email
     try {
         const data = await resend.emails.send({
             from: 'Windross Tailoring <orders@windrosstailoringanddesign.com>',
             to: [order.customer_email],
+            cc: [ccEmail],
             subject: `Order Confirmation #${order.id} - Windross Tailoring`,
             html: `
                 <div style="font-family: Arial, sans-serif; color: #020B13;">
                     <h1 style="color: #DAA520;">Thank you for your order, ${order.customer_name}</h1>
-                    <p>We have received your measurements and payment of <strong>${order.currency === 'GBP' ? '£' : (order.currency === 'JMD' ? 'J$ ' : '$')}${order.total_amount}</strong>.</p>
-                    <p>Attached is your order specification and luxury invoice.</p>
+                    <p>We have received your measurements and order totaling <strong>${order.currency === 'GBP' ? '£' : (order.currency === 'JMD' ? 'J$ ' : '$')}${order.total_amount}</strong>.</p>
+                    <p>Attached is your order specification and luxury invoice. If you purchased a custom suit, images of your selected fabrics and options are also attached for your records.</p>
                     <br>
                     <p>Warm regards,<br><strong>Windross Tailoring Team</strong></p>
                 </div>
@@ -42,11 +87,12 @@ async function sendOrderConfirmation(order, pdfPath) {
             attachments: [
                 {
                     filename: `Windross_Invoice_${order.id}.pdf`,
-                    content: attachmentBase64
-                }
+                    content: pdfBase64
+                },
+                ...imageAttachments
             ]
         });
-        console.log(`Email sent via Resend to ${order.customer_email}, ID: ${data.id}`);
+        console.log(`Email sent via Resend to ${order.customer_email} (CC: ${ccEmail}), ID: ${data.id}`);
     } catch (error) {
         console.error("Error sending email via Resend:", error);
     }

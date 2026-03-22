@@ -261,9 +261,14 @@ router.post('/payment/bank-transfer', (req, res) => {
             if (err || !order) return res.status(404).json({ error: 'Order not found' });
             
             db.all(`SELECT * FROM order_items WHERE order_id=?`, [order.id], (err, items) => {
-                generateOrderPDF(order, items, (pdfPath) => {
-                    sendOrderConfirmation(order, pdfPath);
-                });
+                // Ensure front-end is not blocked or crashed by PDF generation
+                try {
+                    generateOrderPDF(order, items, (pdfPath) => {
+                        sendOrderConfirmation(order, items, pdfPath).catch(console.error);
+                    });
+                } catch (pdfErr) {
+                    console.error("PDF generation error skipped:", pdfErr);
+                }
             });
             res.json({ success: true, orderId: order.id });
         });
@@ -284,10 +289,14 @@ router.post('/payment/verify', (req, res) => {
             // 2. Post-Purchase Automation
             db.all(`SELECT * FROM order_items WHERE order_id=?`, [order.id], (err, items) => {
                 // Generate PDF
-                generateOrderPDF(order, items, (pdfPath) => {
-                    // Send Email
-                    sendOrderConfirmation(order, pdfPath);
-                });
+                try {
+                    generateOrderPDF(order, items, (pdfPath) => {
+                        // Send Email
+                        sendOrderConfirmation(order, items, pdfPath).catch(console.error);
+                    });
+                } catch (pdfErr) {
+                    console.error("PDF generation error skipped:", pdfErr);
+                }
             });
 
             res.json({ success: true, orderId: order.id });
