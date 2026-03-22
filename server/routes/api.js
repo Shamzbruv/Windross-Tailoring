@@ -482,4 +482,23 @@ router.get('/bookings/list', (req, res) => {
     });
 });
 
+// 7. Custom Design Submission
+router.post('/design/submit', (req, res) => {
+    const data = req.body;
+    
+    // Basic validation
+    if (!data.customerName || !data.customerEmail || !data.designName || !data.description) {
+        return res.status(400).json({ error: 'Missing core design details.' });
+    }
+
+    try {
+        const { sendDesignInquiryEmail } = require('../services/email');
+        sendDesignInquiryEmail(data);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error dispatching design email:", err);
+        res.status(500).json({ error: 'Failed to submit design.' });
+    }
+});
+
 module.exports = router;

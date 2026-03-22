@@ -115,4 +115,63 @@ async function sendBookingConfirmation(booking) {
     }
 }
 
-module.exports = { sendOrderConfirmation, sendBookingConfirmation };
+async function sendDesignInquiryEmail(data) {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    
+    if (!resendApiKey) {
+        console.warn("No RESEND_API_KEY configured. Design Inquiry from:", data.customerEmail);
+        return;
+    }
+
+    const { Resend } = require('resend');
+    const resend = new Resend(resendApiKey);
+
+    const attachments = [];
+    if (data.photoBase64) {
+        attachments.push({
+            filename: data.photoName || 'design-inspiration.jpg',
+            content: data.photoBase64
+        });
+    }
+
+    try {
+        const adminEmail = process.env.ADMIN_EMAIL || 'info@windrosstailoringanddesign.com';
+        
+        const responseData = await resend.emails.send({
+            from: 'Windross Tailoring <inquiries@windrosstailoringanddesign.com>',
+            to: [adminEmail],
+            subject: `New Custom Design Inquiry: ${data.designName}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; color: #020B13; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #DAA520; letter-spacing: 2px;">WINDROSS TAILORING & DESIGN</h2>
+                        <h3 style="margin-top:0;">New Design Inquiry</h3>
+                    </div>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #DAA520; margin: 25px 0;">
+                        <p style="margin: 5px 0;"><strong>Client Name:</strong> ${data.customerName}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${data.customerEmail}">${data.customerEmail}</a></p>
+                        <p style="margin: 5px 0;"><strong>Phone:</strong> ${data.customerPhone || 'Not provided'}</p>
+                    </div>
+
+                    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px;">Design Specifications</h4>
+                    <p><strong>Design Name:</strong> ${data.designName}</p>
+                    <p><strong>Target Demographic:</strong> ${data.gender === 'male' ? 'Men' : 'Women'}</p>
+                    <p><strong>Fabric Preference:</strong> ${data.fabric || 'Not provided'}</p>
+                    <p><strong>Target Date:</strong> ${data.targetDate || 'Not provided'}</p>
+                    
+                    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top:20px;">Description</h4>
+                    <p style="white-space: pre-wrap;">${data.description}</p>
+                    
+                    ${attachments.length > 0 ? `<p style="margin-top: 20px; color: #DAA520;"><strong><em>* Inspiration photo is attached to this email.</em></strong></p>` : ''}
+                </div>
+            `,
+            attachments: attachments.length > 0 ? attachments : undefined
+        });
+        console.log(`Design inquiry sent via Resend, ID: ${responseData.id}`);
+    } catch (error) {
+        console.error("Error sending design inquiry via Resend:", error);
+    }
+}
+
+module.exports = { sendOrderConfirmation, sendBookingConfirmation, sendDesignInquiryEmail };
