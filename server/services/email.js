@@ -27,7 +27,7 @@ async function sendOrderConfirmation(order, pdfPath) {
     // 3. Send Email
     try {
         const data = await resend.emails.send({
-            from: 'Windross Tailoring <orders@windross.com>',
+            from: 'Windross Tailoring <orders@windrosstailoringanddesign.com>',
             to: [order.customer_email],
             subject: `Order Confirmation #${order.id} - Windross Tailoring`,
             html: `
@@ -82,7 +82,7 @@ async function sendBookingConfirmation(booking) {
     // 3. Send Email
     try {
         const data = await resend.emails.send({
-            from: 'Windross Tailoring <appointments@windross.com>',
+            from: 'Windross Tailoring <appointments@windrosstailoringanddesign.com>',
             to: [booking.email],
             subject: `Appointment Confirmed - Windross Tailoring`,
             html: `
@@ -135,7 +135,7 @@ async function sendDesignInquiryEmail(data) {
     }
 
     try {
-        const adminEmail = process.env.ADMIN_EMAIL || 'info@windrosstailoringanddesign.com';
+        const adminEmail = process.env.ADMIN_EMAIL || '876david@gmail.com';
         
         const responseData = await resend.emails.send({
             from: 'Windross Tailoring <inquiries@windrosstailoringanddesign.com>',
