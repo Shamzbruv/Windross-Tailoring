@@ -105,7 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 pricingEngineSelection: customData.pricingEngineSelection,
                 image: 'images/logo.png', // Default logo for custom
                 gender: customData.gender,
-                config: customData.config || {}
+                config: customData.config || {},
+                quantity: customData.quantity || 1,
+                additionalColors: customData.additionalColors || 'same',
+                extraColors: customData.extraColors || {}
             };
             suitData = suits[state.suitId];
 
@@ -406,7 +409,10 @@ function nextStep() {
                 appliedMarkupPercent: isIntl ? 85 : 0,
                 currencyDisplay: isIntl ? 'USD' : 'JMD',
                 pricingEngineSelection: pricingEngineSelection,
-                pricing: pricingPayload
+                pricing: pricingPayload,
+                quantity: suits[state.suitId] ? suits[state.suitId].quantity || 1 : 1,
+                additionalColors: suits[state.suitId] ? suits[state.suitId].additionalColors || 'same' : 'same',
+                extraColors: suits[state.suitId] ? suits[state.suitId].extraColors || {} : {}
             })
         }).then(r => r.json()).then(d => {
             console.log("Draft created:", d);
@@ -589,12 +595,31 @@ function updateSummaryPrices() {
         imgEl.src = suitData.image;
     }
 
-    // Show Custom Description in Summary if present
+    let descriptionHtml = 'Made to Measure';
+
     if (suitData.config && suitData.config.description) {
-        const subtitleEl = document.querySelector('.suit-preview > div > div:nth-child(2)');
-        if (subtitleEl) {
-            subtitleEl.innerHTML = `Made to Measure<br><span style="font-size:0.75rem; color:#aaa; display:block; margin-top:5px; line-height:1.3;">${suitData.config.description.substring(0, 50)}...</span>`;
+        descriptionHtml += `<br><span style="font-size:0.75rem; color:#aaa; display:block; margin-top:5px; line-height:1.3;">${suitData.config.description.substring(0, 50)}...</span>`;
+    }
+
+    if (suitData.quantity && suitData.quantity > 1) {
+        if (suitData.additionalColors === 'different') {
+            let colorsDesc = `Item 1: ${suitData.config.color || 'Default'}`;
+            for (let i = 2; i <= suitData.quantity; i++) {
+                if (suitData.extraColors && suitData.extraColors[i]) {
+                    colorsDesc += `, Item ${i}: ${suitData.extraColors[i]}`;
+                } else {
+                    colorsDesc += `, Item ${i}: ${suitData.config.color || 'Default'}`;
+                }
+            }
+            descriptionHtml += `<br><span style="font-size:0.85rem; color:var(--gold-primary); display:block; margin-top:5px; font-weight:600;">Qty: ${suitData.quantity} (Colors: <span style="font-size:0.75rem;">${colorsDesc}</span>)</span>`;
+        } else {
+            descriptionHtml += `<br><span style="font-size:0.85rem; color:var(--gold-primary); display:block; margin-top:5px; font-weight:600;">Qty: ${suitData.quantity} (Same Color: ${suitData.config.color || 'Default'})</span>`;
         }
+    }
+
+    const subtitleEl = document.querySelector('.suit-preview > div > div:nth-child(2)');
+    if (subtitleEl) {
+        subtitleEl.innerHTML = descriptionHtml;
     }
 }
 

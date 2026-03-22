@@ -36,8 +36,8 @@ const PricingEngine = {
                 "suit_2_piece": { "basePriceJMD": 38000 },
                 "suit_3_piece": { "basePriceJMD": 58000 },
                 "tuxedo": { "basePriceJMD": 42000 },
-                "jacket_only": { "basePriceJMD": 28000 },
-                "pants_only": { "basePriceJMD": 15000 }
+                "jacket_only": { "basePriceJMD": 19500 },
+                "pants_only": { "basePriceJMD": 4500 }
             },
             "fabricGrades": {
                 "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 1800 },
@@ -156,6 +156,9 @@ const PricingEngine = {
         if (subtotalJMD > 65000) {
             subtotalJMD = 65000;
         }
+
+        let quantity = selection.quantity || 1;
+        subtotalJMD = subtotalJMD * quantity;
 
         // Apply Region Markup
         let appliedMarkupPercent = 0;

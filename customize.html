@@ -896,6 +896,12 @@
                 ]
             },
             {
+                id: 'quantity',
+                title: 'Order Quantity',
+                desc: 'How many of this custom package would you like?',
+                type: 'quantity'
+            },
+            {
                 id: 'details',
                 title: 'Final Details',
                 desc: 'Please provide your contact and delivery information to complete the order.',
@@ -1054,6 +1060,83 @@
                     });
                     contentHtml += `</div></div>`;
                 });
+                contentHtml += '</div>';
+            }
+            // TYPE: QUANTITY
+            else if (step.type === 'quantity') {
+                const qty = selections.quantity || 1;
+                const additionalColors = selections.additionalColors || 'same';
+
+                contentHtml += '<div class="measurement-form" style="padding-bottom:50px;">';
+                contentHtml += `
+                    <div class="measurement-group">
+                        <h3>Select Quantity</h3>
+                        <div class="options-grid" style="grid-template-columns: 1fr;">
+                            <div class="measure-field" style="display:flex; align-items:center; gap:20px; background:var(--bg-panel); padding:30px;">
+                                <button onclick="updateQuantity(-1)" style="padding:15px 25px; background:var(--bg-border); color:white; border:none; border-radius:4px; cursor:pointer; font-size:1.5rem;">-</button>
+                                <span style="font-size:2rem; font-weight:bold; color:var(--gold-primary); width:60px; text-align:center;">${qty}</span>
+                                <button onclick="updateQuantity(1)" style="padding:15px 25px; background:var(--bg-border); color:white; border:none; border-radius:4px; cursor:pointer; font-size:1.5rem;">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (qty > 1) {
+                    contentHtml += `
+                        <div class="measurement-group" style="animation: slideUp 0.3s ease;">
+                            <h3>Color Preferences for Additional Items</h3>
+                            <p style="color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">Since you are ordering more than one, how would you like the colors?</p>
+                            <div class="options-grid">
+                                <div class="option-card ${additionalColors === 'same' ? 'selected' : ''}" onclick="saveQuantityOption('same')">
+                                    <div class="card-header">
+                                        <i data-lucide="copy" class="card-icon" width="24"></i>
+                                        <div class="card-title">Same Color</div>
+                                    </div>
+                                    <div class="card-desc">Make all ${qty} items the same color.</div>
+                                </div>
+                                <div class="option-card ${additionalColors === 'different' ? 'selected' : ''}" onclick="saveQuantityOption('different')">
+                                    <div class="card-header">
+                                        <i data-lucide="palette" class="card-icon" width="24"></i>
+                                        <div class="card-title">Different Colors</div>
+                                    </div>
+                                    <div class="card-desc">I will choose different colors for the extra items.</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (additionalColors === 'different') {
+                         const currentTextureId = selections['texture'] ? selections['texture'].id : Object.keys(fabricData)[0];
+                         const availableColors = fabricData[currentTextureId].colors;
+                         
+                         contentHtml += '<div class="measurement-group" style="margin-top: 30px; animation: slideUp 0.3s ease;">';
+                         contentHtml += '<h3>Select Colors for Additional Items</h3>';
+                         
+                         for (let i = 2; i <= qty; i++) {
+                             const selectedColorForExtra = (selections.extraColors && selections.extraColors[i]) ? selections.extraColors[i] : availableColors[0];
+                             
+                             contentHtml += `<div class="measure-field" style="margin-bottom:15px; background:var(--bg-panel); padding:20px; border:1px solid var(--bg-border);">`;
+                             contentHtml += `<label style="display:block; margin-bottom:15px; color:var(--gold-primary);">Item #${i} Color</label>`;
+                             
+                             contentHtml += `<div style="display:flex; flex-wrap:wrap; gap:10px;">`;
+                             availableColors.forEach(color => {
+                                 const hex = getColorHex(color);
+                                 const isSelected = selectedColorForExtra === color;
+                                 contentHtml += `
+                                     <div onclick="saveExtraColor(${i}, '${color}')" 
+                                          style="padding:10px 15px; border:1px solid ${isSelected ? 'var(--gold-primary)' : 'var(--bg-border)'}; 
+                                                 border-radius:4px; cursor:pointer; display:flex; align-items:center; gap:10px;
+                                                 background:${isSelected ? 'rgba(212, 175, 55, 0.1)' : 'var(--bg-body)'}; transition:0.3s;">
+                                         <div class="color-dot" style="margin:0; background-color:${hex}; width:16px; height:16px;"></div>
+                                         <span style="font-size:0.85rem; color:${isSelected ? 'white' : 'var(--text-muted)'}; font-weight:${isSelected ? '600' : '400'};">${color}</span>
+                                     </div>
+                                 `;
+                             });
+                             contentHtml += `</div></div>`;
+                         }
+                         contentHtml += '</div>';
+                    }
+                }
                 contentHtml += '</div>';
             }
             // TYPE: DETAILS
@@ -1229,6 +1312,34 @@
             render();
         }
 
+        function updateQuantity(change) {
+            let qty = selections.quantity || 1;
+            qty += change;
+            if (qty < 1) qty = 1;
+            if (qty > 10) qty = 10; // reasonable max
+            selections.quantity = qty;
+            
+            if (qty === 1) {
+                delete selections.additionalColors;
+            } else if (!selections.additionalColors) {
+                selections.additionalColors = 'same';
+            }
+            render();
+        }
+
+        function saveQuantityOption(option) {
+            selections.additionalColors = option;
+            render();
+        }
+
+        function saveExtraColor(itemIndex, color) {
+            if (!selections.extraColors) {
+                selections.extraColors = {};
+            }
+            selections.extraColors[itemIndex] = color;
+            render();
+        }
+
         function saveMeasurement(fieldId, value) {
             if (!selections.measurements) selections.measurements = {};
             selections.measurements[fieldId] = value;
@@ -1314,7 +1425,8 @@
                     fabricGrade: selections.texture ? selections.texture.id : 'cool-wool', // Mapped one-to-one in config
                     constructionType: 'half_canvas',
                     options: [],
-                    measurements: selections.measurements || {}
+                    measurements: selections.measurements || {},
+                    quantity: selections.quantity || 1
                 };
 
                 ['jacket', 'lapels', 'pants', 'vest'].forEach(k => {
@@ -1364,6 +1476,9 @@
                 suitId: 'Custom Bespoke Suit',
                 gender: selections.gender || 'male',
                 measurements: selections.measurements || {},
+                quantity: selections.quantity || 1,
+                additionalColors: selections.additionalColors || 'same',
+                extraColors: selections.extraColors || {},
                 config: config,
                 details: selections.details || {},
                 // Pricing Engine Output
