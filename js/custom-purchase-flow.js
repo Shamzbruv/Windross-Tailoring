@@ -666,8 +666,9 @@ function handlePayment() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             sessionId: state.sessionId,
-            total: finalTotal,
-            currency: CurrencyManager ? CurrencyManager.state.currency : 'JMD'
+            // Force JMD for WiPay specifically to avoid banking errors on USD checkout
+            total: parseFloat(totalJMD).toFixed(2),
+            currency: 'JMD'
         })
     })
         .then(r => r.json())
