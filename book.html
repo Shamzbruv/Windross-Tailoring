@@ -1066,7 +1066,7 @@
 
             // Better Developer UX: Route requests to port 3000 if we're on a Live Server (5500 etc)
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const apiBase = isLocal ? 'http://localhost:3000' : 'https://windross-api-production.up.railway.app';
+            const apiBase = isLocal ? 'http://localhost:3000' : 'https://windrosstailoringanddesign.com';
 
             try {
                 const response = await fetch(`${apiBase}/api/bookings/availability?date=${dateStr}`);
@@ -1173,7 +1173,7 @@
 
             // Better Developer UX: Route requests to port 3000 if we're on a Live Server (5500 etc)
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const apiBase = isLocal ? 'http://localhost:3000' : 'https://windross-api-production.up.railway.app';
+            const apiBase = isLocal ? 'http://localhost:3000' : 'https://windrosstailoringanddesign.com';
 
             try {
                 const res = await fetch(`${apiBase}/api/bookings/create`, {
