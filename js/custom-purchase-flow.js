@@ -661,7 +661,7 @@ function handlePayment() {
     const activeTotal = CurrencyManager ? CurrencyManager.convert(totalJMD) : totalJMD;
     const finalTotal = parseFloat(activeTotal.toFixed(2));
 
-    fetch('/api/payment/bank-transfer', {
+    fetch('/api/payment/wipay/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -672,8 +672,19 @@ function handlePayment() {
     })
         .then(r => r.json())
         .then(data => {
-            if (data.success || data.orderId) {
-                renderStep(4);
+            if (data.actionUrl && data.params) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = data.actionUrl;
+                for (const key in data.params) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = data.params[key];
+                    form.appendChild(input);
+                }
+                document.body.appendChild(form);
+                form.submit();
             } else {
                 throw new Error(data.error || "Payment saving failed");
             }

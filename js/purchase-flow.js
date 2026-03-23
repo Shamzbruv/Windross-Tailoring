@@ -676,33 +676,30 @@ async function handlePayment() {
     const finalTotal = parseFloat(activeTotal.toFixed(2));
 
     try {
-        let res;
-        try {
-            res = await fetch('/api/payment/bank-transfer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId: state.sessionId,
-                    total: finalTotal,
-                    currency: CurrencyManager ? CurrencyManager.state.currency : 'JMD'
-                })
-            });
-            const contentType = res.headers.get("content-type");
-            if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                throw new Error("Backend not running or returned HTML");
-            }
-        } catch (e) {
-            if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-                console.warn("Payment API offline or returned 404, simulating success for local dev", e);
-                res = { ok: true, json: async () => ({ success: true }) };
-            } else {
-                throw e; // Production should strictly fail
-            }
-        }
+        const res = await fetch('/api/payment/wipay/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: state.sessionId,
+                total: finalTotal,
+                currency: CurrencyManager ? CurrencyManager.state.currency : 'JMD'
+            })
+        });
         
         const data = await res.json();
-        if (data.success || data.orderId) {
-            renderStep(4);
+        if (data.actionUrl && data.params) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = data.actionUrl;
+            for (const key in data.params) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = data.params[key];
+                form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
         } else {
             throw new Error(data.error || "Payment saving failed");
         }
