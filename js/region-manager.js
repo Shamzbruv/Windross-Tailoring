@@ -308,12 +308,12 @@ const RegionManager = {
             @media (max-width: 768px) {
                 .region-overlay { 
                     flex-direction: column; 
-                    justify-content: flex-start; /* Stop pushing elements off the top */
-                    padding: 15px;
-                    gap: 15px; /* Smaller gaps for small screens */
-                    padding-bottom: 25px;
-                    overflow-y: auto; /* Allow scrolling on extremely small devices */
+                    justify-content: center; /* Center everything beautifully */
+                    padding: 10px 15px; 
+                    gap: 15px; /* Slightly better spacing */
+                    overflow-y: auto; 
                     align-items: center;
+                    background: #050505 !important;
                 }
                 .region-welcome-layer { 
                     position: relative;
@@ -321,22 +321,25 @@ const RegionManager = {
                     left: auto;
                     transform: none;
                     width: 100%;
-                    margin-top: 5vh; /* Reduced top margin to save space */
-                    margin-bottom: 5vh; /* Natural spacing to panels */
-                    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+                    margin-top: 3vh; /* Significantly reduced to save space */
+                    margin-bottom: 2vh; 
+                    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+                    text-align: center;
                 }
                 
-                /* On select, move logo/welcome down beautifully centered on mobile screen */
+                /* Selection Animation Mobile Center Rule */
                 .region-overlay.selecting .region-welcome-layer {
-                    transform: translateY(2vh) scale(1.05); /* Calibrated dead center */
+                    /* On selection, move to visual center. Because panels are collapsing, this stays near the middle natively */
+                    transform: translateY(20vh) scale(1.1) !important; 
                 }
                 .region-overlay.closing .region-welcome-layer {
-                    transform: translateY(0vh) scale(1.05);
+                    transform: translateY(15vh) scale(1.1) !important;
                     opacity: 0;
                 }
-                .region-logo { width: 110px; margin-bottom: 10px; } /* Smaller logo for mobile */
-                .region-welcome-text { font-size: 1.8rem; margin-bottom: 5px; } /* Improved fitting */
-                .region-welcome-sub { font-size: 0.85rem; line-height: 1.2; }
+
+                .region-logo { width: 90px; margin-bottom: 5px; } /* Minimized for space */
+                .region-welcome-text { font-size: 1.6rem; margin-bottom: 2px; }
+                .region-welcome-sub { font-size: 0.8rem; line-height: 1.2; }
                 
                 .region-panel { 
                     flex: none; 
@@ -346,36 +349,54 @@ const RegionManager = {
                     min-height: auto;
                     border: 1px solid rgba(255,255,255,0.1);
                     width: 100%;
+                    transition: all 0.6s ease;
                 }
-                .region-panel.jm { transform: translateY(100%); animation: slideInBottom 1s cubic-bezier(0.23, 1, 0.32, 1) forwards; animation-delay: 0.1s; }
-                .region-panel.intl { transform: translateY(100%); animation: slideInBottom 1s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+                /* Crucial Fix: Completely collapse panels gracefully when selected so they don't push the screen down into wasted space */
+                .region-overlay.selecting .region-panel {
+                    opacity: 0 !important;
+                    height: 0px !important;
+                    min-height: 0px !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    border: none !important;
+                    overflow: hidden !important;
+                    pointer-events: none;
+                }
+
+                .region-panel.jm { transform: translateY(30px); animation: slideInBottom 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; animation-delay: 0.1s; }
+                .region-panel.intl { transform: translateY(30px); animation: slideInBottom 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; animation-delay: 0.2s; }
                 
                 @keyframes slideInBottom { to { transform: translateY(0); } }
                 
                 .region-panel-content { 
                     width: 100%; 
-                    padding: 1.25rem; 
+                    padding: 1rem; 
                     background: transparent;
                     border: none;
+                    transition: opacity 0.4s ease;
                 }
-                .region-panel h2 { font-size: 1.4rem; margin-bottom: 0px; }
-                .region-panel p { font-size: 0.8rem; margin-bottom: 10px; margin-top: 5px; }
-                .region-flag { font-size: 1.5rem; margin-bottom: 0px; }
+                .region-overlay.selecting .region-panel-content {
+                    opacity: 0;
+                }
+
+                .region-panel h2 { font-size: 1.3rem; margin-bottom: 0px; }
+                .region-panel p { font-size: 0.8rem; margin-bottom: 10px; margin-top: 5px; line-height: 1.3; }
+                .region-flag { font-size: 1.4rem; margin-bottom: 0px; }
                 .region-btn { width: 100%; padding: 10px 15px; font-size: 0.85rem; }
                 
-                /* Keep the badge un-clipped entirely by placing it inside flow */
                 .recommended-badge {
                     position: relative;
                     display: inline-block;
                     top: 0;
                     left: auto;
-                    transform: none !important; /* Override absolute positioning */
-                    margin-bottom: 15px;
+                    transform: none !important; 
+                    margin-bottom: 10px;
                     font-size: 0.65rem;
-                    padding: 4px 12px;
+                    padding: 4px 10px;
                 }
                 .region-panel.recommended .recommended-badge {
-                    transform: none !important; /* Keep it static */
+                    transform: none !important; 
                     opacity: 1;
                 }
             }
