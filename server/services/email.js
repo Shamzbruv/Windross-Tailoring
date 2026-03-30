@@ -206,6 +206,12 @@ async function sendDesignInquiryEmail(data) {
                     <p><strong>Fabric Preference:</strong> ${data.fabric || 'Not provided'}</p>
                     <p><strong>Target Date:</strong> ${data.targetDate || 'Not provided'}</p>
                     
+                    ${data.bookingDate && data.bookingTime ? `
+                    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top:20px;">Fitting Appointment</h4>
+                    <p><strong>Date:</strong> ${data.bookingDate}</p>
+                    <p><strong>Time:</strong> ${data.bookingTime}</p>
+                    ` : ''}
+
                     <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top:20px;">Description</h4>
                     <p style="white-space: pre-wrap;">${data.description}</p>
                     
