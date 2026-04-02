@@ -512,6 +512,132 @@ router.get('/bookings/list', (req, res) => {
     });
 });
 
+// 7a. Initiate Design Deposit Payment (dedicated WiPay route, J$30,000)
+router.post('/payment/deposit/create', (req, res) => {
+    const { customerName, customerEmail, customerPhone, designData } = req.body;
+
+    if (!customerName || !customerEmail) {
+        return res.status(400).json({ error: 'Customer name and email are required.' });
+    }
+
+    const depositId = `dep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const amount = 30000; // J$30,000 fixed deposit
+    const currency = 'JMD';
+
+    db.run(
+        `INSERT INTO deposit_sessions (deposit_id, customer_name, customer_email, customer_phone, design_data, amount, currency)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [depositId, customerName, customerEmail, customerPhone || '', JSON.stringify(designData || {}), amount, currency],
+        function (err) {
+            if (err) {
+                console.error('Deposit session creation error:', err);
+                return res.status(500).json({ error: 'Failed to initiate deposit session.' });
+            }
+
+            const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
+            const wipayEnvironment = process.env.WIPAY_ENVIRONMENT || 'sandbox';
+
+            const baseUrl = req.headers.origin || (req.protocol + '://' + req.get('host'));
+            // Return back to the submit-style page so we can complete the booking post-payment
+            const responseUrl = `${baseUrl}/submit-style.html`;
+
+            res.json({
+                depositId,
+                actionUrl: 'https://jm.wipayfinancial.com/plugins/payments/request',
+                params: {
+                    account_number: wipayAccountNumber,
+                    country_code: 'JM',
+                    currency: currency,
+                    environment: wipayEnvironment,
+                    fee_structure: 'customer_pay',
+                    method: 'credit_card',
+                    order_id: depositId,
+                    origin: 'Windross_Tailoring_Deposit',
+                    response_url: responseUrl,
+                    total: parseFloat(amount).toFixed(2)
+                }
+            });
+        }
+    );
+});
+
+// 7b. Verify Design Deposit Payment (WiPay callback)
+router.post('/payment/deposit/verify', (req, res) => {
+    const { depositId, transactionId } = req.body;
+
+    if (!depositId) {
+        return res.status(400).json({ error: 'depositId is required.' });
+    }
+
+    db.get(`SELECT * FROM deposit_sessions WHERE deposit_id = ?`, [depositId], (err, session) => {
+        if (err || !session) {
+            return res.status(404).json({ error: 'Deposit session not found.' });
+        }
+
+        if (session.status === 'paid') {
+            return res.json({ success: true, alreadyPaid: true, session });
+        }
+
+        db.run(
+            `UPDATE deposit_sessions SET status = 'paid', payment_ref = ? WHERE deposit_id = ?`,
+            [transactionId || 'verified', depositId],
+            function (err) {
+                if (err) {
+                    console.error('Deposit verify update error:', err);
+                    return res.status(500).json({ error: 'Failed to mark deposit as paid.' });
+                }
+                res.json({ success: true, session });
+            }
+        );
+    });
+});
+
+// 7c. International Full Design Payment ($750.99 USD + shipping)
+router.post('/payment/design-full/create', (req, res) => {
+    const { customerName, customerEmail, customerPhone, designData, total, currency } = req.body;
+
+    if (!customerName || !customerEmail || !total) {
+        return res.status(400).json({ error: 'Customer name, email, and total are required.' });
+    }
+
+    const depositId = `dsn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const finalCurrency = currency || 'USD';
+
+    db.run(
+        `INSERT INTO deposit_sessions (deposit_id, customer_name, customer_email, customer_phone, design_data, amount, currency)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [depositId, customerName, customerEmail, customerPhone || '', JSON.stringify(designData || {}), parseFloat(total), finalCurrency],
+        function (err) {
+            if (err) {
+                console.error('Design full payment session error:', err);
+                return res.status(500).json({ error: 'Failed to initiate payment session.' });
+            }
+
+            const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
+            const wipayEnvironment = process.env.WIPAY_ENVIRONMENT || 'sandbox';
+            const baseUrl = req.headers.origin || (req.protocol + '://' + req.get('host'));
+            const responseUrl = `${baseUrl}/submit-style.html`;
+
+            res.json({
+                depositId,
+                actionUrl: 'https://jm.wipayfinancial.com/plugins/payments/request',
+                params: {
+                    account_number: wipayAccountNumber,
+                    country_code: 'JM',
+                    currency: finalCurrency,
+                    environment: wipayEnvironment,
+                    fee_structure: 'customer_pay',
+                    method: 'credit_card',
+                    order_id: depositId,
+                    origin: 'Windross_Tailoring_Design',
+                    response_url: responseUrl,
+                    total: parseFloat(total).toFixed(2)
+                }
+            });
+        }
+    );
+});
+
 // 7. Custom Design Submission
 router.post('/design/submit', (req, res) => {
     const data = req.body;

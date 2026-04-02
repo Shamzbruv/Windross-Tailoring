@@ -380,6 +380,207 @@
             display: none;
             font-size: 0.9rem;
         }
+
+        /* --- DEPOSIT NOTICE --- */
+        .deposit-notice {
+            margin-top: 40px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(191, 149, 63, 0.03) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            padding: 28px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deposit-notice::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gold-gradient);
+        }
+
+        .deposit-notice-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .deposit-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            animation: pulseGold 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseGold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.25); }
+            50% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
+        }
+
+        .deposit-notice-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--gold-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .deposit-amount {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+
+        .deposit-notice-body {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.75;
+            margin-bottom: 20px;
+        }
+
+        .deposit-notice-body strong {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .deposit-divider {
+            border: none;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            margin: 18px 0;
+        }
+
+        .deposit-acknowledge {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .deposit-acknowledge input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            accent-color: var(--gold-primary);
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .deposit-acknowledge-label {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            cursor: pointer;
+        }
+
+        .deposit-acknowledge-label strong {
+            color: var(--gold-primary);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* --- INTERNATIONAL SECTIONS --- */
+        .section-intl, .section-jamaica {
+            display: none;
+        }
+
+        /* Measurement grid */
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .measurement-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Payment summary */
+        .payment-summary-card {
+            background: rgba(212, 175, 55, 0.04);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+            padding: 24px;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--gold-gradient);
+        }
+
+        .payment-summary-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--gold-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .summary-row:last-child { border-bottom: none; }
+
+        .summary-row.total-row {
+            margin-top: 6px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(212,175,55,0.2);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .summary-val-gold {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .shipping-calc-status {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            min-height: 20px;
+        }
     </style>
 <script src="js/region-manager.js"></script>
 </head>
@@ -452,33 +653,141 @@
                     placeholder="Describe the cut, lapels, and any specific details you envision..."></textarea>
             </div>
 
-            <hr style="border-color: var(--bg-border); margin: 40px 0;">
-
-            <div class="form-section">
-                <h3><i data-lucide="calendar"></i> Fitting Appointment (Required)</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Please pick a date and time for us to take your precise measurements or review your design in person.</p>
-                <div class="calendar-header">
-                    <button type="button" id="prev-month">&lt;</button>
-                    <strong id="calendar-month-year" style="font-family: 'Inter', sans-serif;">Month Year</strong>
-                    <button type="button" id="next-month">&gt;</button>
-                </div>
-                <div class="calendar-grid" id="calendar-grid">
-                    <!-- Days will be generated here -->
-                </div>
-
-                <div class="slots-container" id="slots-container" style="display: none;">
-                    <h4 style="margin-bottom: 5px; color: var(--gold-primary); font-family: 'Inter', sans-serif;" id="slots-date-label">Available times</h4>
-                    <div id="slots-loader" style="display: none; font-size: 0.9rem; color: var(--text-muted);">Loading times...</div>
-                    <div class="slots-grid" id="slots-grid">
-                        <!-- Slots will be generated here -->
+            <!-- ════════════ JAMAICA ONLY: Fitting Appointment ════════════ -->
+            <div class="section-jamaica" id="section-booking">
+                <hr style="border-color: var(--bg-border); margin: 40px 0;">
+                <div class="form-section">
+                    <h3><i data-lucide="calendar"></i> Fitting Appointment (Required)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Please pick a date and time for us to take your precise measurements or review your design in person.</p>
+                    <div class="calendar-header">
+                        <button type="button" id="prev-month">&lt;</button>
+                        <strong id="calendar-month-year" style="font-family: 'Inter', sans-serif;">Month Year</strong>
+                        <button type="button" id="next-month">&gt;</button>
                     </div>
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                    <div class="slots-container" id="slots-container" style="display: none;">
+                        <h4 style="margin-bottom: 5px; color: var(--gold-primary); font-family: 'Inter', sans-serif;" id="slots-date-label">Available times</h4>
+                        <div id="slots-loader" style="display: none; font-size: 0.9rem; color: var(--text-muted);">Loading times...</div>
+                        <div class="slots-grid" id="slots-grid"></div>
+                    </div>
+                    <input type="hidden" id="selected-date">
+                    <input type="hidden" id="selected-time">
+                    <div id="booking-error-msg" class="booking-error"></div>
                 </div>
-                <input type="hidden" name="date" id="selected-date" required>
-                <input type="hidden" name="time" id="selected-time" required>
-                <div id="booking-error-msg" class="booking-error"></div>
             </div>
 
-            <button class="btn-submit" onclick="submitDesign()">
+            <!-- ════════════ INTERNATIONAL ONLY: Measurements ════════════ -->
+            <div class="section-intl" id="section-measurements">
+                <hr style="border-color: var(--bg-border); margin: 40px 0;">
+                <div class="form-section">
+                    <h3><i data-lucide="ruler"></i> Your Measurements</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+                        All measurements should be in <strong style="color:white;">inches</strong>, except height (feet) and weight (lbs).
+                        Our master tailor uses these to craft your garment to an exact fit.
+                    </p>
+                    <div class="measurement-grid" id="intl-measurement-fields"></div>
+                </div>
+            </div>
+
+            <!-- ════════════ INTERNATIONAL ONLY: Shipping + Payment Summary ════════════ -->
+            <div class="section-intl" id="section-shipping">
+                <hr style="border-color: var(--bg-border); margin: 40px 0;">
+                <div class="form-section">
+                    <h3><i data-lucide="package"></i> Shipping Address</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+                        Your completed garment ships via <strong style="color:white;">DHL Express</strong>. Enter your full delivery address below to calculate the shipping fee.
+                    </p>
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" id="ship-address" placeholder="123 Example Street">
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="ship-city" placeholder="New York">
+                        </div>
+                        <div class="form-group">
+                            <label id="label-ship-region">State / Region</label>
+                            <input type="text" id="ship-region" placeholder="NY">
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div class="form-group">
+                            <label>Country</label>
+                            <select id="ship-country" onchange="onShipCountryChange()">
+                                <option value="USA">United States</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id="label-ship-zip">Zip / Postal Code</label>
+                            <input type="text" id="ship-zip" placeholder="10001">
+                        </div>
+                    </div>
+                    <button type="button" class="action-btn" id="calc-shipping-btn" onclick="calculateIntlShipping()"
+                        style="width:100%;margin-top:4px;padding:14px;font-size:0.85rem;letter-spacing:1.5px;">
+                        Calculate Shipping Cost
+                    </button>
+                    <div class="shipping-calc-status" id="shipping-status"></div>
+                </div>
+
+                <!-- Payment Summary Card -->
+                <div class="payment-summary-card" id="intl-payment-summary" style="display:none;">
+                    <div class="payment-summary-title">
+                        <i data-lucide="credit-card" width="18" height="18"></i>
+                        Order Summary
+                    </div>
+                    <div class="summary-row">
+                        <span>Bespoke Design &amp; Tailoring</span>
+                        <span style="color:white;">$750.99 USD</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>DHL Express Shipping</span>
+                        <span style="color:white;" id="summary-shipping-val">—</span>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total Due Today</span>
+                        <span class="summary-val-gold" id="summary-total-val">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════ JAMAICA ONLY: Deposit Notice ════════════ -->
+            <div class="section-jamaica deposit-notice" id="section-deposit">
+                <div class="deposit-notice-header">
+                    <div class="deposit-icon-wrap">
+                        <i data-lucide="shield-check" color="#D4AF37" width="22" height="22"></i>
+                    </div>
+                    <div>
+                        <div class="deposit-notice-title">Reservation Deposit Required</div>
+                        <div class="deposit-amount">J$30,000</div>
+                    </div>
+                </div>
+                <div class="deposit-notice-body">
+                    <strong>Why is this required?</strong> We take bespoke tailoring seriously — and so should you.
+                    Each custom design submission reserves dedicated time with our master tailor for your fitting appointment,
+                    plus time spent sourcing fabrics and preparing detailed patterns tailored to your measurements.
+                    <br><br>
+                    Unfortunately, we have experienced instances where clients submit a design and <strong>do not show up</strong>
+                    for their scheduled appointment — leaving booked time and prepared materials wasted.
+                    The <strong>J$30,000 deposit</strong> ensures that only committed clients proceed, and it goes
+                    <strong>directly toward the cost of your garment</strong> — it is not an extra charge.
+                    Please note that this deposit is <strong>non-refundable</strong> in the event of a cancellation or no-show.
+                </div>
+                <hr class="deposit-divider">
+                <label class="deposit-acknowledge">
+                    <input type="checkbox" id="deposit-confirm" onchange="toggleSubmitBtn()">
+                    <span class="deposit-acknowledge-label">
+                        I understand that a <strong>J$30,000 deposit</strong> is required before my design can be processed.
+                        I agree to submit this payment upon confirmation and acknowledge that it will be applied to my final garment cost.
+                        I also understand that this deposit is <strong>non-refundable</strong>.
+                    </span>
+                </label>
+            </div>
+
+            <button class="btn-submit" id="submit-btn" onclick="submitDesign()" disabled>
                 Submit Design to Tailor <i data-lucide="send" style="vertical-align: middle; margin-left: 8px;" width="18"></i>
             </button>
         </div>
@@ -486,6 +795,14 @@
 
     <script>
         lucide.createIcons();
+
+        function toggleSubmitBtn() {
+            const checked = document.getElementById('deposit-confirm').checked;
+            document.getElementById('submit-btn').disabled = !checked;
+        }
+
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiBase = isLocal ? 'http://localhost:3000' : 'https://windrosstailoringanddesign.com';
 
         let currentDate = new Date();
         let selectedDateStr = null;
@@ -620,26 +937,223 @@
             document.getElementById('booking-error-msg').style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCalendar();
-        });
+        // -------------------------------------------------------
+        // Region setup — show Jamaica or INTL sections
+        // -------------------------------------------------------
+        const DESIGN_BASE_USD   = 750.99;
+        let   intlShippingJMD   = 0;
+        let   intlShippingUSD   = 0;
+        let   shippingConfirmed = false;
 
-        async function submitDesign() {
-            const customerName = document.getElementById('customer-name').value.trim();
-            const customerEmail = document.getElementById('customer-email').value.trim();
-            const customerPhone = document.getElementById('customer-phone').value.trim();
-            
-            const designName = document.getElementById('design-name').value.trim();
-            const gender = document.getElementById('gender').value;
-            const fabric = document.getElementById('fabric').value.trim();
-            const targetDate = document.getElementById('target-date').value;
-            const desc = document.getElementById('design-desc').value.trim();
+        function setupForRegion(isJamaica) {
+            document.querySelectorAll('.section-jamaica').forEach(el => el.style.display = isJamaica ? 'block' : 'none');
+            document.querySelectorAll('.section-intl').forEach(el    => el.style.display = isJamaica ? 'none'  : 'block');
 
-            if (!customerName || !customerEmail || !designName || !desc) {
-                alert("Please fill in your Contact Details, Design Name, and Description.");
+            if (isJamaica) {
+                // Jamaica: submit is gated by the checkbox
+                document.getElementById('submit-btn').disabled = true;
+                renderCalendar();
+            } else {
+                // INTL: submit stays disabled until shipping is calculated
+                document.getElementById('submit-btn').disabled = true;
+                renderMeasurementFields();
+                // Re-render fields when gender changes
+                document.getElementById('gender').addEventListener('change', renderMeasurementFields);
+            }
+        }
+
+        function detectAndSetupRegion() {
+            if (window.Region) {
+                setupForRegion(window.Region.isJamaica());
+            } else {
+                setTimeout(detectAndSetupRegion, 150);
+            }
+        }
+
+        // -------------------------------------------------------
+        // Measurement rendering (INTL)
+        // -------------------------------------------------------
+        function renderMeasurementFields() {
+            const container = document.getElementById('intl-measurement-fields');
+            if (!container) return;
+            const isFemale = document.getElementById('gender').value === 'female';
+
+            const fields = [
+                { id: 'm-height',   label: 'Total Height (ft)',        placeholder: 'e.g. 5.9' },
+                { id: 'm-weight',   label: 'Weight (lbs)',             placeholder: 'e.g. 165' },
+                { id: 'm-chest',    label: 'Chest (inches)',           placeholder: 'Fullest part' },
+                { id: 'm-waist',    label: 'Waist (inches)',           placeholder: 'Natural waistline' },
+                { id: 'm-hips',     label: 'Hips (inches)',            placeholder: 'Fullest part' },
+                { id: 'm-shoulder', label: 'Shoulder Width (inches)',  placeholder: 'Edge to edge' },
+                { id: 'm-sleeve',   label: 'Sleeve Length (inches)',   placeholder: 'Shoulder to wrist' },
+            ];
+            if (isFemale) {
+                fields.push({ id: 'm-bust',     label: 'Bust (inches)',      placeholder: 'Fullest part of bust' });
+                fields.push({ id: 'm-underbust', label: 'Underbust (inches)', placeholder: 'Ribcage under bust'  });
+            } else {
+                fields.push({ id: 'm-neck', label: 'Neck (inches)', placeholder: 'Collar size' });
+            }
+
+            // Preserve existing values
+            const vals = {};
+            container.querySelectorAll('input').forEach(i => { vals[i.id] = i.value; });
+
+            container.innerHTML = fields.map(f => `
+                <div class="form-group">
+                    <label>${f.label}</label>
+                    <input type="number" step="0.1" id="${f.id}" placeholder="${f.placeholder}"
+                           value="${vals[f.id] || ''}">
+                </div>`).join('');
+        }
+
+        function getMeasurements() {
+            const ids = ['m-height','m-weight','m-chest','m-waist','m-hips','m-shoulder','m-sleeve','m-bust','m-underbust','m-neck'];
+            const out = {};
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value) out[id.replace('m-','')] = el.value;
+            });
+            return out;
+        }
+
+        // -------------------------------------------------------
+        // Shipping address country change
+        // -------------------------------------------------------
+        function onShipCountryChange() {
+            const country = document.getElementById('ship-country').value;
+            const regionLabel = document.getElementById('label-ship-region');
+            const zipLabel    = document.getElementById('label-ship-zip');
+            const zipInput    = document.getElementById('ship-zip');
+            if (country === 'USA') {
+                regionLabel.textContent = 'State';
+                zipLabel.textContent = 'Zip Code';
+                zipInput.placeholder = '10001';
+            } else if (country === 'UK') {
+                regionLabel.textContent = 'County';
+                zipLabel.textContent = 'Postcode';
+                zipInput.placeholder = 'SW1A 1AA';
+            } else if (country === 'Canada') {
+                regionLabel.textContent = 'Province';
+                zipLabel.textContent = 'Postal Code';
+                zipInput.placeholder = 'K1A 0A9';
+            } else {
+                regionLabel.textContent = 'Region / State';
+                zipLabel.textContent = 'Postal Code';
+                zipInput.placeholder = '';
+            }
+            // Reset shipping confirmation if country changes
+            shippingConfirmed = false;
+            document.getElementById('intl-payment-summary').style.display = 'none';
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('shipping-status').textContent = '';
+        }
+
+        // -------------------------------------------------------
+        // DHL Shipping calculation (INTL)
+        // -------------------------------------------------------
+        async function calculateIntlShipping() {
+            const city    = document.getElementById('ship-city').value.trim();
+            const country = document.getElementById('ship-country').value;
+            const zip     = document.getElementById('ship-zip').value.trim();
+
+            if (!city || !country) {
+                document.getElementById('shipping-status').textContent = '⚠ Please enter your city and country first.';
                 return;
             }
-            
+
+            const btn = document.getElementById('calc-shipping-btn');
+            btn.textContent = 'Calculating…';
+            btn.disabled    = true;
+            document.getElementById('shipping-status').textContent = 'Fetching live DHL rate…';
+            document.getElementById('intl-payment-summary').style.display = 'none';
+            document.getElementById('submit-btn').disabled = true;
+
+            try {
+                const res  = await fetch(`${apiBase}/api/shipping/calculate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country, city, zip, shipmentType: 'large' })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.cost) throw new Error(data.error || 'Could not get shipping rate.');
+
+                // data.cost is in JMD — convert to USD (approx 157 JMD/USD)
+                intlShippingJMD = data.cost;
+                intlShippingUSD = parseFloat((data.cost / 157.05).toFixed(2));
+                const totalUSD  = parseFloat((DESIGN_BASE_USD + intlShippingUSD).toFixed(2));
+
+                document.getElementById('summary-shipping-val').textContent = `$${intlShippingUSD.toFixed(2)} USD`;
+                document.getElementById('summary-total-val').textContent    = `$${totalUSD.toFixed(2)} USD`;
+                document.getElementById('intl-payment-summary').style.display = 'block';
+                document.getElementById('shipping-status').textContent = `✓ Shipping rate confirmed via DHL Express (${data.service || 'Express'}).`;
+                shippingConfirmed = true;
+                document.getElementById('submit-btn').disabled = false;
+                lucide.createIcons();
+
+            } catch (err) {
+                document.getElementById('shipping-status').textContent = `⚠ ${err.message}`;
+                shippingConfirmed = false;
+            } finally {
+                btn.textContent = 'Recalculate Shipping';
+                btn.disabled    = false;
+            }
+        }
+
+        // -------------------------------------------------------
+        // On page load
+        // -------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams   = new URLSearchParams(window.location.search);
+            const wipayStatus = urlParams.get('status');
+            const orderId     = urlParams.get('order_id');
+            const txnId       = urlParams.get('transaction_id');
+
+            // Jamaica deposit return
+            if (wipayStatus === 'success' && orderId && orderId.startsWith('dep_')) {
+                handleDepositReturn(orderId, txnId); return;
+            }
+            if ((wipayStatus === 'failed' || wipayStatus === 'error') && orderId && orderId.startsWith('dep_')) {
+                showFailureState(); return;
+            }
+            // International full-pay return
+            if (wipayStatus === 'success' && orderId && orderId.startsWith('dsn_')) {
+                handleIntlReturn(orderId, txnId); return;
+            }
+            if ((wipayStatus === 'failed' || wipayStatus === 'error') && orderId && orderId.startsWith('dsn_')) {
+                showFailureState(); return;
+            }
+
+            detectAndSetupRegion();
+        });
+
+        // -------------------------------------------------------
+        // Submit — branches on region
+        // -------------------------------------------------------
+        async function submitDesign() {
+            const isJamaica = window.Region && window.Region.isJamaica();
+            if (isJamaica) {
+                await submitJamaicaDeposit();
+            } else {
+                await submitIntlFullPayment();
+            }
+        }
+
+        // ---- Jamaica: J$30,000 WiPay deposit ----
+        async function submitJamaicaDeposit() {
+            const customerName  = document.getElementById('customer-name').value.trim();
+            const customerEmail = document.getElementById('customer-email').value.trim();
+            const customerPhone = document.getElementById('customer-phone').value.trim();
+            const designName    = document.getElementById('design-name').value.trim();
+            const gender        = document.getElementById('gender').value;
+            const fabric        = document.getElementById('fabric').value.trim();
+            const targetDate    = document.getElementById('target-date').value;
+            const desc          = document.getElementById('design-desc').value.trim();
+
+            if (!customerName || !customerEmail || !designName || !desc) {
+                alert('Please fill in your Contact Details, Design Name, and Description.');
+                return;
+            }
             const errorMsg = document.getElementById('booking-error-msg');
             if (!selectedDateStr || !selectedTimeStr) {
                 errorMsg.textContent = 'Please select an available date and time for your fitting appointment.';
@@ -647,109 +1161,271 @@
                 return;
             }
 
-            const btn = document.querySelector('.btn-submit');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = 'Sending...';
-            btn.disabled = true;
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = 'Preparing Payment…';
+            btn.disabled  = true;
 
             try {
-                // File reading
                 const fileInput = document.getElementById('design-photo');
-                let photoBase64 = null;
-                let photoName = null;
-                
+                let photoBase64 = null, photoName = null;
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
-                    photoName = file.name;
-                    photoBase64 = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result.split(',')[1]); // remove data URL prefix
-                        reader.onerror = error => reject(error);
-                        reader.readAsDataURL(file);
+                    photoName   = file.name;
+                    photoBase64 = await new Promise((res, rej) => {
+                        const r = new FileReader();
+                        r.onload  = () => res(r.result.split(',')[1]);
+                        r.onerror = e  => rej(e);
+                        r.readAsDataURL(file);
                     });
                 }
 
-                const payload = {
-                    customerName,
-                    customerEmail,
-                    customerPhone,
-                    designName,
-                    gender,
-                    fabric,
-                    targetDate,
-                    description: desc,
-                    photoBase64,
-                    photoName,
-                    bookingDate: selectedDateStr,
-                    bookingTime: selectedTimeStr
+                const designPayload = {
+                    customerName, customerEmail, customerPhone,
+                    designName, gender, fabric, targetDate,
+                    description: desc, photoBase64, photoName,
+                    bookingDate: selectedDateStr, bookingTime: selectedTimeStr
                 };
+                sessionStorage.setItem('windross_design_pending', JSON.stringify(designPayload));
 
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const apiBase = isLocal ? 'http://localhost:3000' : 'https://windrosstailoringanddesign.com';
-                
-                // 1. Create the booking FIRST
-                const region = window.Region && window.Region.isJamaica() ? 'Jamaica' : 'INTL';
-                const bookingPayload = { 
-                    name: customerName, 
-                    email: customerEmail, 
-                    phone: customerPhone, 
-                    date: selectedDateStr, 
-                    time: selectedTimeStr, 
-                    notes: "Submitted via Custom Design form: " + designName, 
-                    region 
-                };
-                
-                const bookRes = await fetch(`${apiBase}/api/bookings/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bookingPayload)
+                const res  = await fetch(`${apiBase}/api/payment/deposit/create`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerName, customerEmail, customerPhone, designData: designPayload })
                 });
-                
-                const bookData = await bookRes.json();
-                
-                if (!bookRes.ok || !bookData.success) {
-                    throw new Error("Failed to reserve the fitting appointment. " + (bookData.error || ""));
+                const data = await res.json();
+                if (!res.ok || !data.actionUrl) throw new Error(data.error || 'Failed to initiate payment.');
+
+                submitToWipay(data.actionUrl, data.params);
+            } catch (error) {
+                alert('An error occurred: ' + error.message);
+                btn.innerHTML = 'Submit Design to Tailor <i data-lucide="send" style="vertical-align:middle;margin-left:8px;" width="18"></i>';
+                btn.disabled  = false;
+                lucide.createIcons();
+            }
+        }
+
+        // ---- International: $750.99 + shipping full payment ----
+        async function submitIntlFullPayment() {
+            const customerName  = document.getElementById('customer-name').value.trim();
+            const customerEmail = document.getElementById('customer-email').value.trim();
+            const customerPhone = document.getElementById('customer-phone').value.trim();
+            const designName    = document.getElementById('design-name').value.trim();
+            const gender        = document.getElementById('gender').value;
+            const fabric        = document.getElementById('fabric').value.trim();
+            const targetDate    = document.getElementById('target-date').value;
+            const desc          = document.getElementById('design-desc').value.trim();
+
+            if (!customerName || !customerEmail || !designName || !desc) {
+                alert('Please fill in your Contact Details, Design Name, and Description.'); return;
+            }
+            if (!shippingConfirmed) {
+                alert('Please calculate your shipping cost before proceeding.'); return;
+            }
+
+            const measurements = getMeasurements();
+            const shipping = {
+                address: document.getElementById('ship-address').value.trim(),
+                city:    document.getElementById('ship-city').value.trim(),
+                region:  document.getElementById('ship-region').value.trim(),
+                country: document.getElementById('ship-country').value,
+                zip:     document.getElementById('ship-zip').value.trim(),
+            };
+
+            if (!shipping.address || !shipping.city || !shipping.country) {
+                alert('Please fill in your shipping address.'); return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = 'Preparing Payment…';
+            btn.disabled  = true;
+
+            try {
+                const fileInput = document.getElementById('design-photo');
+                let photoBase64 = null, photoName = null;
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    photoName   = file.name;
+                    photoBase64 = await new Promise((res, rej) => {
+                        const r = new FileReader();
+                        r.onload  = () => res(r.result.split(',')[1]);
+                        r.onerror = e  => rej(e);
+                        r.readAsDataURL(file);
+                    });
                 }
-                
-                // 2. Submit the Design
-                const res = await fetch('/api/design/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+
+                const totalUSD = parseFloat((DESIGN_BASE_USD + intlShippingUSD).toFixed(2));
+
+                const designPayload = {
+                    customerName, customerEmail, customerPhone,
+                    designName, gender, fabric, targetDate,
+                    description: desc, photoBase64, photoName,
+                    measurements, shipping,
+                    shippingCostUSD: intlShippingUSD,
+                    totalUSD
+                };
+                sessionStorage.setItem('windross_design_pending', JSON.stringify(designPayload));
+
+                const res  = await fetch(`${apiBase}/api/payment/design-full/create`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerName, customerEmail, customerPhone,
+                        designData: designPayload,
+                        total: totalUSD,
+                        currency: 'USD'
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.actionUrl) throw new Error(data.error || 'Failed to initiate payment.');
+
+                submitToWipay(data.actionUrl, data.params);
+            } catch (error) {
+                alert('An error occurred: ' + error.message);
+                btn.innerHTML = 'Submit Design to Tailor <i data-lucide="send" style="vertical-align:middle;margin-left:8px;" width="18"></i>';
+                btn.disabled  = false;
+                lucide.createIcons();
+            }
+        }
+
+        function submitToWipay(actionUrl, params) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+            for (const key in params) {
+                const inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = key; inp.value = params[key];
+                form.appendChild(inp);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // ---- Jamaica: deposit return handler ----
+        async function handleDepositReturn(depositId, txnId) {
+            const formEl = document.querySelector('.submit-form');
+            formEl.innerHTML = `
+                <div style="text-align:center;padding:60px 20px;">
+                    <i data-lucide="loader-2" color="var(--gold-primary)" width="48" height="48"
+                       style="margin-bottom:20px;animation:spin 1s linear infinite;"></i>
+                    <h2 style="font-family:'Playfair Display',serif;color:var(--gold-primary);margin-bottom:10px;">Verifying Payment…</h2>
+                    <p style="color:var(--text-muted);">Please wait while we confirm your deposit and reserve your appointment.</p>
+                </div>
+                <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>`;
+            lucide.createIcons();
+
+            try {
+                const verifyRes  = await fetch(`${apiBase}/api/payment/deposit/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ depositId, transactionId: txnId })
+                });
+                const verifyData = await verifyRes.json();
+                if (!verifyRes.ok || !verifyData.success) throw new Error(verifyData.error || 'Deposit verification failed.');
+
+                const pendingStr = sessionStorage.getItem('windross_design_pending');
+                if (!pendingStr) throw new Error('Design data not found. Please contact us directly.');
+                const payload = JSON.parse(pendingStr);
+
+                const region   = 'Jamaica';
+                const bookRes  = await fetch(`${apiBase}/api/bookings/create`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: payload.customerName, email: payload.customerEmail,
+                        phone: payload.customerPhone, date: payload.bookingDate,
+                        time: payload.bookingTime,
+                        notes: 'Custom Design form (deposit paid ✓): ' + payload.designName, region
+                    })
+                });
+                const bookData = await bookRes.json();
+                if (!bookRes.ok || !bookData.success) throw new Error('Failed to reserve appointment. ' + (bookData.error || ''));
+
+                await fetch(`${apiBase}/api/design/submit`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (res.ok) {
-                    const niceTime = (() => {
-                        const [h, m] = selectedTimeStr.split(':').map(Number);
-                        const hour12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-                        const ampm = h >= 12 ? 'PM' : 'AM';
-                        return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;
-                    })();
-                
-                    document.querySelector('.submit-form').innerHTML = `
-                        <div style="text-align: center; padding: 40px 0;">
-                            <i data-lucide="check-circle" color="var(--gold-primary)" width="64" height="64" style="margin-bottom:20px;"></i>
-                            <h2 style="font-family: 'Playfair Display', serif; color: var(--gold-primary); font-size: 2.5rem; margin-bottom: 10px;">Design & Booking Confirmed</h2>
-                            <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">Our master tailor will review your bespoke requirements and contact you shortly.</p>
-                            <p style="color: white; font-size: 1rem; line-height: 1.6; margin-top: 20px; border-top: 1px solid var(--bg-border); padding-top: 20px;">
-                                Appointment set for <strong>${selectedDateStr}</strong> at <strong>${niceTime}</strong>
-                            </p>
-                            <button class="action-btn" onclick="window.location.href='index.html'" style="margin-top: 30px;">Return to Home</button>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                } else {
-                    const data = await res.json();
-                    alert("Failed to send: " + (data.error || "Unknown error"));
-                    btn.innerHTML = originalContent;
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                console.error(error);
-                alert("An error occurred: " + error.message);
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }
+                sessionStorage.removeItem('windross_design_pending');
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                const [h, m] = payload.bookingTime.split(':').map(Number);
+                const niceTime = `${h > 12 ? h-12 : (h===0?12:h)}:${m.toString().padStart(2,'0')} ${h>=12?'PM':'AM'}`;
+
+                formEl.innerHTML = `
+                    <div style="text-align:center;padding:40px 0;">
+                        <i data-lucide="check-circle" color="var(--gold-primary)" width="64" height="64" style="margin-bottom:20px;"></i>
+                        <h2 style="font-family:'Playfair Display',serif;color:var(--gold-primary);font-size:2.5rem;margin-bottom:10px;">Design &amp; Booking Confirmed</h2>
+                        <p style="color:var(--text-muted);font-size:1.1rem;line-height:1.6;">
+                            Your <strong style="color:var(--gold-primary);">J$30,000 deposit</strong> has been received. Our master tailor will review your bespoke requirements and contact you shortly.
+                        </p>
+                        <p style="color:white;font-size:1rem;line-height:1.6;margin-top:20px;border-top:1px solid var(--bg-border);padding-top:20px;">
+                            Appointment set for <strong>${payload.bookingDate}</strong> at <strong>${niceTime}</strong>
+                        </p>
+                        <button class="action-btn" onclick="window.location.href='index.html'" style="margin-top:30px;">Return to Home</button>
+                    </div>`;
+                lucide.createIcons();
+            } catch (err) { showFailureState(err.message); }
+        }
+
+        // ---- International: full payment return handler ----
+        async function handleIntlReturn(orderId, txnId) {
+            const formEl = document.querySelector('.submit-form');
+            formEl.innerHTML = `
+                <div style="text-align:center;padding:60px 20px;">
+                    <i data-lucide="loader-2" color="var(--gold-primary)" width="48" height="48"
+                       style="margin-bottom:20px;animation:spin 1s linear infinite;"></i>
+                    <h2 style="font-family:'Playfair Display',serif;color:var(--gold-primary);margin-bottom:10px;">Verifying Payment…</h2>
+                    <p style="color:var(--text-muted);">Finalising your order and sending it to our master tailor.</p>
+                </div>
+                <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>`;
+            lucide.createIcons();
+
+            try {
+                const verifyRes  = await fetch(`${apiBase}/api/payment/deposit/verify`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ depositId: orderId, transactionId: txnId })
+                });
+                const verifyData = await verifyRes.json();
+                if (!verifyRes.ok || !verifyData.success) throw new Error(verifyData.error || 'Payment verification failed.');
+
+                const pendingStr = sessionStorage.getItem('windross_design_pending');
+                if (!pendingStr) throw new Error('Order data not found. Please contact us directly.');
+                const payload = JSON.parse(pendingStr);
+
+                await fetch(`${apiBase}/api/design/submit`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                sessionStorage.removeItem('windross_design_pending');
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                formEl.innerHTML = `
+                    <div style="text-align:center;padding:40px 0;">
+                        <i data-lucide="check-circle" color="var(--gold-primary)" width="64" height="64" style="margin-bottom:20px;"></i>
+                        <h2 style="font-family:'Playfair Display',serif;color:var(--gold-primary);font-size:2.5rem;margin-bottom:10px;">Order Confirmed</h2>
+                        <p style="color:var(--text-muted);font-size:1.1rem;line-height:1.6;">
+                            Your payment of <strong style="color:var(--gold-primary);">$${payload.totalUSD ? payload.totalUSD.toFixed(2) : '750.99'} USD</strong> has been received.
+                            Your design details and measurements are now with our master tailor.
+                        </p>
+                        <p style="color:white;font-size:1rem;line-height:1.6;margin-top:20px;border-top:1px solid var(--bg-border);padding-top:20px;">
+                            Your garment will ship to <strong>${payload.shipping ? payload.shipping.city + ', ' + payload.shipping.country : 'your address'}</strong> via DHL Express once complete.
+                        </p>
+                        <button class="action-btn" onclick="window.location.href='index.html'" style="margin-top:30px;">Return to Home</button>
+                    </div>`;
+                lucide.createIcons();
+            } catch (err) { showFailureState(err.message); }
+        }
+
+        function showFailureState(msg) {
+            const formEl = document.querySelector('.submit-form');
+            if (!formEl) return;
+            formEl.innerHTML = `
+                <div style="text-align:center;padding:40px 0;">
+                    <i data-lucide="x-circle" color="#ff4d4d" width="64" height="64" style="margin-bottom:20px;"></i>
+                    <h2 style="font-family:'Playfair Display',serif;color:#ff4d4d;font-size:2rem;margin-bottom:10px;">Payment Unsuccessful</h2>
+                    <p style="color:var(--text-muted);font-size:1rem;line-height:1.6;max-width:500px;margin:0 auto;">
+                        ${msg || 'Your payment was not completed. Please try again or contact us directly.'}
+                    </p>
+                    <button class="action-btn" onclick="window.location.href='submit-style.html'" style="margin-top:30px;">Try Again</button>
+                </div>`;
+            lucide.createIcons();
         }
     </script>
 <script>

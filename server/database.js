@@ -57,6 +57,21 @@ function initTables() {
             UNIQUE(booking_date, booking_time)
         )`);
 
+        // Design Deposit Sessions Table
+        db.run(`CREATE TABLE IF NOT EXISTS deposit_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            deposit_id TEXT UNIQUE,
+            customer_name TEXT,
+            customer_email TEXT,
+            customer_phone TEXT,
+            design_data JSON,       -- Full design form payload as JSON
+            amount REAL DEFAULT 30000,
+            currency TEXT DEFAULT 'JMD',
+            status TEXT DEFAULT 'pending', -- pending, paid, failed
+            payment_ref TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         console.log('Database tables initialized.');
     });
 }
