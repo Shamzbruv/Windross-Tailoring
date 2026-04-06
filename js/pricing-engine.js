@@ -33,17 +33,17 @@ const PricingEngine = {
             "internationalMarkupMultiplier": 1.85,
             "exchangeRate_USD_to_JMD": 155,
             "styles": {
-                "suit_2_piece": { "basePriceJMD": 38000 },
-                "suit_3_piece": { "basePriceJMD": 58000 },
-                "tuxedo": { "basePriceJMD": 42000 },
-                "jacket_only": { "basePriceJMD": 37200 },
-                "pants_only": { "basePriceJMD": 13700 }
+                "suit_2_piece": { "basePriceJMD": 55000 },
+                "suit_3_piece": { "basePriceJMD": 60000 },
+                "tuxedo": { "basePriceJMD": 60000 },
+                "jacket_only": { "basePriceJMD": 45000 },
+                "pants_only": { "basePriceJMD": 15000 }
             },
             "fabricGrades": {
-                "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 1800 },
-                "king-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 1600 },
-                "2020-material": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 1400 },
-                "termal-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 5600 }
+                "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
+                "king-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
+                "2020-material": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
+                "termal-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 4500 }
             },
             "construction": {
                 "half_canvas": { "priceJMD": 0 },
@@ -66,7 +66,7 @@ const PricingEngine = {
                 "p-pleat": { "priceJMD": 3450 },
                 "p-cuff": { "priceJMD": 2300 },
                 "v-none": { "priceJMD": 0 },
-                "v-add": { "priceJMD": 20000 }
+                "v-add": { "priceJMD": 0 }
             },
             "sizing": {
                 "wasteFactor": 0.15,
@@ -151,11 +151,6 @@ const PricingEngine = {
         }
 
         let subtotalJMD = basePriceJMD + fabricPriceJMD + constructionPriceJMD + optionsPriceJMD + sizeSurchargeJMD;
-
-        // Hard cap ALL custom suits to 65,000 JMD as per client request
-        if (subtotalJMD > 65000) {
-            subtotalJMD = 65000;
-        }
 
         let quantity = selection.quantity || 1;
         subtotalJMD = subtotalJMD * quantity;

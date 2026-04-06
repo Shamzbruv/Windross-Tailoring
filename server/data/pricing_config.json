@@ -5,41 +5,41 @@
     "exchangeRate_USD_to_JMD": 155,
     "styles": {
         "suit_2_piece": {
-            "basePriceJMD": 38000
+            "basePriceJMD": 55000
         },
         "suit_3_piece": {
-            "basePriceJMD": 58000
+            "basePriceJMD": 60000
         },
         "tuxedo": {
-            "basePriceJMD": 42000
+            "basePriceJMD": 60000
         },
         "jacket_only": {
-            "basePriceJMD": 37200
+            "basePriceJMD": 45000
         },
         "pants_only": {
-            "basePriceJMD": 13700
+            "basePriceJMD": 15000
         }
     },
     "fabricGrades": {
         "cool-wool": {
             "multiplier": 1.00,
             "costPerMeterJMD": 6000,
-            "priceJMD": 1800
+            "priceJMD": 0
         },
         "king-wool": {
             "multiplier": 1.00,
             "costPerMeterJMD": 6000,
-            "priceJMD": 1600
+            "priceJMD": 0
         },
         "2020-material": {
             "multiplier": 1.00,
             "costPerMeterJMD": 6000,
-            "priceJMD": 1400
+            "priceJMD": 0
         },
         "termal-wool": {
             "multiplier": 1.00,
             "costPerMeterJMD": 6000,
-            "priceJMD": 5600
+            "priceJMD": 4500
         }
     },
     "construction": {
@@ -100,7 +100,7 @@
             "priceJMD": 0
         },
         "v-add": {
-            "priceJMD": 20000
+            "priceJMD": 0
         }
     },
     "sizing": {
