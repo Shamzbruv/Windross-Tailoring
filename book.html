@@ -1208,15 +1208,22 @@
                     const message = `*Windross Tailoring — Appointment Confirmed*\nBooking ID: WT-${data.bookingId}\n\n*CLIENT DETAILS*\nName: ${name}\nEmail: ${email}\nPhone: ${clientPhone}\n\n*CONFIRMED SLOT*\nDate: ${date}\nTime: ${niceTime}\n\nNotes: ${notes || 'None'}\n\nThis slot is now reserved.`;
 
                     // Tell user they are redirecting
-                    const redirectMsg = document.createElement('p');
+                    const redirectMsg = document.createElement('div');
                     redirectMsg.style.textAlign = 'center';
-                    redirectMsg.style.color = 'var(--gold-primary)';
-                    redirectMsg.style.marginTop = '15px';
-                    redirectMsg.innerHTML = 'Your slot is secured. <br> Opening WhatsApp to send your details to your tailor...';
+                    redirectMsg.style.marginTop = '20px';
+                    
+                    const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(message)}`;
+                    
+                    redirectMsg.innerHTML = `
+                        <p style="color:var(--gold-primary);margin-bottom:15px;">Your slot is secured. <br> Opening WhatsApp to send your details to your tailor...</p>
+                        <button type="button" class="action-btn" onclick="window.open('${waUrl}', '_blank')" style="background-color: #25D366; color: white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">
+                            Confirm on WhatsApp
+                        </button>
+                    `;
                     form.appendChild(redirectMsg);
 
                     setTimeout(() => {
-                        window.open(`https://wa.me/${supportPhone}?text=${encodeURIComponent(message)}`, '_blank');
+                        window.open(waUrl, '_blank');
                     }, 2000);
 
                 } else {

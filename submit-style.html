@@ -1348,6 +1348,11 @@
                 const [h, m] = payload.bookingTime.split(':').map(Number);
                 const niceTime = `${h > 12 ? h-12 : (h===0?12:h)}:${m.toString().padStart(2,'0')} ${h>=12?'PM':'AM'}`;
 
+                const niceDate = payload.bookingDate;
+                const supportPhone = "18765986434";
+                const waMessage = `*Deposit Confirmed & Fitting Appointment Set*\n\n*CLIENT DETAILS*\nName: ${payload.customerName}\nEmail: ${payload.customerEmail}\nPhone: ${payload.customerPhone}\n\n*APPOINTMENT*\nDate: ${niceDate}\nTime: ${niceTime}\n\nDeposit Paid: J$30,000\nDesign: ${payload.designName}`;
+                const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(waMessage)}`;
+
                 formEl.innerHTML = `
                     <div style="text-align:center;padding:40px 0;">
                         <i data-lucide="check-circle" color="var(--gold-primary)" width="64" height="64" style="margin-bottom:20px;"></i>
@@ -1356,10 +1361,20 @@
                             Your <strong style="color:var(--gold-primary);">J$30,000 deposit</strong> has been received. Our master tailor will review your bespoke requirements and contact you shortly.
                         </p>
                         <p style="color:white;font-size:1rem;line-height:1.6;margin-top:20px;border-top:1px solid var(--bg-border);padding-top:20px;">
-                            Appointment set for <strong>${payload.bookingDate}</strong> at <strong>${niceTime}</strong>
+                            Appointment set for <strong>${niceDate}</strong> at <strong>${niceTime}</strong>
                         </p>
-                        <button class="action-btn" onclick="window.location.href='index.html'" style="margin-top:30px;">Return to Home</button>
+                        <p style="color:var(--gold-primary);margin-top:20px;">
+                            Opening WhatsApp to confirm details with your tailor...
+                        </p>
+                        <div style="display:flex; justify-content:center; gap: 15px; margin-top:30px; flex-wrap: wrap;">
+                            <button class="action-btn" onclick="window.open('${waUrl}', '_blank')" style="background-color: #25D366; color: white;">Confirm on WhatsApp</button>
+                            <button class="action-btn" onclick="window.location.href='index.html'" style="background: transparent; border: 1px solid var(--border-glass);">Return to Home</button>
+                        </div>
                     </div>`;
+
+                setTimeout(() => {
+                    window.open(waUrl, '_blank');
+                }, 2500);
                 lucide.createIcons();
             } catch (err) { showFailureState(err.message); }
         }
