@@ -1108,17 +1108,18 @@
             const wipayStatus = urlParams.get('status');
             const orderId     = urlParams.get('order_id');
             const txnId       = urlParams.get('transaction_id');
+            const hash        = urlParams.get('hash') || urlParams.get('hash_verification');
 
             // Jamaica deposit return
             if (wipayStatus === 'success' && orderId && orderId.startsWith('dep_')) {
-                handleDepositReturn(orderId, txnId); return;
+                handleDepositReturn(orderId, txnId, hash); return;
             }
             if ((wipayStatus === 'failed' || wipayStatus === 'error') && orderId && orderId.startsWith('dep_')) {
                 showFailureState(); return;
             }
             // International full-pay return
             if (wipayStatus === 'success' && orderId && orderId.startsWith('dsn_')) {
-                handleIntlReturn(orderId, txnId); return;
+                handleIntlReturn(orderId, txnId, hash); return;
             }
             if ((wipayStatus === 'failed' || wipayStatus === 'error') && orderId && orderId.startsWith('dsn_')) {
                 showFailureState(); return;
@@ -1299,7 +1300,7 @@
         }
 
         // ---- Jamaica: deposit return handler ----
-        async function handleDepositReturn(depositId, txnId) {
+        async function handleDepositReturn(depositId, txnId, hash = null) {
             const formEl = document.querySelector('.submit-form');
             formEl.innerHTML = `
                 <div style="text-align:center;padding:60px 20px;">
@@ -1314,7 +1315,7 @@
             try {
                 const verifyRes  = await fetch(`${apiBase}/api/payment/deposit/verify`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ depositId, transactionId: txnId })
+                    body: JSON.stringify({ depositId, transactionId: txnId, hash })
                 });
                 const verifyData = await verifyRes.json();
                 if (!verifyRes.ok || !verifyData.success) throw new Error(verifyData.error || 'Deposit verification failed.');
@@ -1364,7 +1365,7 @@
         }
 
         // ---- International: full payment return handler ----
-        async function handleIntlReturn(orderId, txnId) {
+        async function handleIntlReturn(orderId, txnId, hash = null) {
             const formEl = document.querySelector('.submit-form');
             formEl.innerHTML = `
                 <div style="text-align:center;padding:60px 20px;">
@@ -1379,7 +1380,7 @@
             try {
                 const verifyRes  = await fetch(`${apiBase}/api/payment/deposit/verify`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ depositId: orderId, transactionId: txnId })
+                    body: JSON.stringify({ depositId: orderId, transactionId: txnId, hash })
                 });
                 const verifyData = await verifyRes.json();
                 if (!verifyRes.ok || !verifyData.success) throw new Error(verifyData.error || 'Payment verification failed.');

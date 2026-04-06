@@ -125,11 +125,14 @@ async function sendBookingConfirmation(booking) {
         displayTime = `${hour12}:${m} ${ampm}`;
     } catch(e) {}
 
+    const ccEmail = process.env.ADMIN_EMAIL || '876david@gmail.com';
+
     // 3. Send Email
     try {
         const data = await resend.emails.send({
             from: 'Windross Tailoring <appointments@windrosstailoringanddesign.com>',
             to: [booking.email],
+            cc: [ccEmail],
             subject: `Appointment Confirmed - Windross Tailoring`,
             html: `
                 <div style="font-family: Arial, sans-serif; color: #020B13; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee;">

@@ -277,11 +277,38 @@ router.post('/payment/bank-transfer', (req, res) => {
 
 // 5. Payment Callback / Verification
 router.post('/payment/verify', (req, res) => {
-    const { sessionId, txnId } = req.body;
+    const { sessionId, txnId, hash } = req.body;
+
+    if (!sessionId) return res.status(400).json({ error: 'Session ID required' });
 
     // 1. Mark Order as Paid
     db.get(`SELECT * FROM orders WHERE session_id = ?`, [sessionId], (err, order) => {
         if (err || !order) return res.status(404).json({ error: 'Order not found' });
+
+        // --- ENFORCE WIPAY HASH VERIFICATION ---
+        const apiKey = process.env.WIPAY_API_KEY;
+        const total = parseFloat(order.total_amount).toFixed(2);
+        
+        let validHash = false;
+        if (hash && apiKey) {
+            const crypto = require('crypto');
+            // WiPay standard hash combinations for the response payload
+            const expectedHash1 = crypto.createHash('md5').update(txnId + total + apiKey).digest('hex');
+            const expectedHash2 = crypto.createHash('md5').update(sessionId + txnId + apiKey).digest('hex');
+            const expectedHash3 = crypto.createHash('md5').update(txnId + apiKey).digest('hex');
+            const expectedHash4 = crypto.createHash('md5').update(sessionId + total + apiKey).digest('hex');
+
+            if (hash === expectedHash1 || hash === expectedHash2 || hash === expectedHash3 || hash === expectedHash4) {
+                validHash = true;
+            }
+        }
+        
+        // Block fraudulent requests
+        if (!validHash) {
+            console.error(`Invalid payment verification attempt for session ${sessionId}. Hash mismatch.`);
+            return res.status(403).json({ error: 'Payment verification failed: Invalid transaction hash.' });
+        }
+        // ----------------------------------------
 
         db.run(`UPDATE orders SET status='paid', payment_ref=? WHERE id=?`, [txnId, order.id], (err) => {
             if (err) console.error(err);
@@ -563,7 +590,7 @@ router.post('/payment/deposit/create', (req, res) => {
 
 // 7b. Verify Design Deposit Payment (WiPay callback)
 router.post('/payment/deposit/verify', (req, res) => {
-    const { depositId, transactionId } = req.body;
+    const { depositId, transactionId, hash } = req.body;
 
     if (!depositId) {
         return res.status(400).json({ error: 'depositId is required.' });
@@ -577,6 +604,30 @@ router.post('/payment/deposit/verify', (req, res) => {
         if (session.status === 'paid') {
             return res.json({ success: true, alreadyPaid: true, session });
         }
+
+        // --- ENFORCE WIPAY HASH VERIFICATION ---
+        const apiKey = process.env.WIPAY_API_KEY;
+        const total = parseFloat(session.amount).toFixed(2);
+        
+        let validHash = false;
+        if (hash && apiKey) {
+            const crypto = require('crypto');
+            const expectedHash1 = crypto.createHash('md5').update(transactionId + total + apiKey).digest('hex');
+            const expectedHash2 = crypto.createHash('md5').update(depositId + transactionId + apiKey).digest('hex');
+            const expectedHash3 = crypto.createHash('md5').update(transactionId + apiKey).digest('hex');
+            const expectedHash4 = crypto.createHash('md5').update(depositId + total + apiKey).digest('hex');
+
+            if (hash === expectedHash1 || hash === expectedHash2 || hash === expectedHash3 || hash === expectedHash4) {
+                validHash = true;
+            }
+        }
+        
+        // Block fraudulent requests
+        if (!validHash) {
+            console.error(`Invalid payment verification attempt for deposit ${depositId}. Hash mismatch.`);
+            return res.status(403).json({ error: 'Deposit verification failed: Invalid transaction hash.' });
+        }
+        // ----------------------------------------
 
         db.run(
             `UPDATE deposit_sessions SET status = 'paid', payment_ref = ? WHERE deposit_id = ?`,

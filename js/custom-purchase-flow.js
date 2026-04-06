@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Live WiPay Success
     if (wipayStatus === 'success' && orderId) {
-        verifyPayment(orderId, transactionId);
+        verifyPayment(orderId, transactionId, urlParams.get('hash') || urlParams.get('hash_verification'));
         return;
     } else if (wipayStatus === 'failed' || wipayStatus === 'error') {
         alert("Payment was unsuccessful. Please check your credentials or try again.");
@@ -698,7 +698,7 @@ function handlePayment() {
         });
 }
 
-function verifyPayment(sessionId, txnId) {
+function verifyPayment(sessionId, txnId, hash = null) {
     if (!sessionId) return;
 
     // Show loading state
@@ -707,21 +707,24 @@ function verifyPayment(sessionId, txnId) {
     fetch('/api/payment/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, txnId })
+        body: JSON.stringify({ sessionId, txnId, hash })
     })
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 renderStep(4);
             } else {
-                console.error("Verification failed");
-                // Show success for demo flow if verification fails (e.g. server restart lost session)
-                renderStep(4);
+                console.error("Verification failed", data.error);
+                // DO NOT show success if verification fails securely.
+                alert("Payment verification failed. Please contact support.");
+                // Optionally allow retry or return to step 3
+                renderStep(3); 
             }
         })
         .catch(e => {
             console.error("Verification error", e);
-            renderStep(4);
+            alert("Network error verifying payment.");
+            renderStep(3);
         });
 }
 
