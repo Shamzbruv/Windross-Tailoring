@@ -216,7 +216,7 @@ router.post('/shipping/calculate', async (req, res) => {
 
 // 4. Initiate Payment (Live WiPay Integration) - Bypass for Bank Transfer
 router.post('/payment/wipay/create', (req, res) => {
-    const { sessionId, total, currency } = req.body;
+    const { sessionId, total, currency, returnUrl } = req.body;
 
     // Update total in DB
     db.run(`UPDATE orders SET total_amount=?, currency=? WHERE session_id=?`, [total, currency, sessionId], function(err) {
@@ -227,7 +227,7 @@ router.post('/payment/wipay/create', (req, res) => {
 
         // Base URL strictly from the frontend origin
         const baseUrl = req.headers.origin || (req.protocol + '://' + req.get('host'));
-        const responseUrl = `${baseUrl}/purchase-flow.html`;
+        const responseUrl = returnUrl ? `${baseUrl}/${returnUrl}` : `${baseUrl}/purchase-flow.html`;
 
         res.json({
             actionUrl: wipayEnvironment === 'live' 

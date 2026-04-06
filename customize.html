@@ -1628,7 +1628,7 @@
                 </div>
                 
                 <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px; text-align:center;">
-                    All transactions are secure. You will complete your payment via Bank Transfer.
+                    All transactions are secure. You will be redirected securely to WiPay to complete your payment.
                 </p>
                 
                 <button id="nco-pay-btn" class="btn-primary" style="width:100%; margin-bottom:15px;" onclick="processNativePayment()">
@@ -1654,6 +1654,7 @@
     <script>
         let nativeOrderSessionId = null;
         let nativeFinalTotal = 0;
+        let nativeTotalJMD = 0;
         let nativeCheckoutData = null;
         let isIntl = false;
 
@@ -1782,6 +1783,7 @@
 
                 const activeTotal = CurrencyManager.convert(totalJMD);
                 nativeFinalTotal = parseFloat(activeTotal.toFixed(2));
+                nativeTotalJMD = parseFloat(totalJMD).toFixed(2);
 
                 document.getElementById('nco-suit-price').textContent = CurrencyManager.format(suitPriceJMD);
                 document.getElementById('nco-shipping-price').textContent = CurrencyManager.format(shippingJMD);
@@ -1818,13 +1820,14 @@
             try {
                 let res;
                 try {
-                    res = await fetch('/api/payment/bank-transfer', {
+                    res = await fetch('/api/payment/wipay/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             sessionId: nativeOrderSessionId,
-                            total: nativeFinalTotal,
-                            currency: CurrencyManager.state.currency || 'JMD'
+                            total: nativeTotalJMD,
+                            currency: 'JMD', // Force JMD for Jamaican WiPay integration
+                            returnUrl: 'custom-purchase-flow.html' // Redirect here for success handler
                         })
                     });
                     
@@ -1835,29 +1838,37 @@
                 } catch (e) {
                     if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
                         console.warn("Payment API offline or returned 404, simulating success for local dev", e);
-                        res = { ok: true, json: async () => ({ success: true }) };
+                        res = { ok: true, json: async () => ({
+                            success: true,
+                            actionUrl: window.location.href, // simulate bounce
+                            params: {}
+                        }) };
                     } else {
                         throw e;
                     }
                 }
                 const data = await res.json();
 
-                if (data.success || data.orderId) {
-                    document.getElementById('nco-payment').style.display = 'none';
-                    document.getElementById('nco-success').style.display = 'block';
+                if (data.actionUrl && data.params) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = data.actionUrl;
 
-                    const phone = "18765986434";
-                    const totalFormatted = document.getElementById('nco-total-price').textContent;
-                    const msg = `*New Custom Order Confirmed*\\nOrder Ref: ${nativeOrderSessionId}\\nName: ${nativeCheckoutData.details.name}\\nItem: Custom Bespoke Suit\\nTotal: ${totalFormatted}`;
-                    
-                    document.getElementById('nco-whatsapp-btn').onclick = () => {
-                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-                    };
+                    for (const key in data.params) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = data.params[key];
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
                 } else {
                     throw new Error(data.error || "Payment saving failed");
                 }
             } catch (err) {
-                console.error("Bank transfer failed", err);
+                console.error("WiPay checkout failed", err);
                 btn.innerHTML = `Complete Order (<span id="nco-btn-total">${document.getElementById('nco-total-price').textContent}</span>)`;
                 btn.disabled = false;
                 alert("Payment initiation failed. Please try again.");
