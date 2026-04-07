@@ -187,19 +187,37 @@ const PricingEngine = {
 
     _computeSuggestedSize(measurements) {
         // Simple heuristic (Convert to inches if necessary)
-        let chest = parseFloat(measurements.chest);
-        if (measurements.inputUnit === 'cm') chest = chest / 2.54;
+        const isMetric = measurements.inputUnit === 'cm';
 
-        if (!chest || isNaN(chest)) return 'M';
+        let chest = parseFloat(measurements.chest || measurements.bust);
+        if (chest && isMetric) chest = chest / 2.54;
 
-        if (chest < 36) return 'XS';
-        if (chest < 38) return 'S';
-        if (chest <= 40) return 'M';
-        if (chest <= 44) return 'L';
-        if (chest <= 48) return 'XL';
-        if (chest <= 52) return '2X';
-        if (chest <= 56) return '3X';
-        return '4X';
+        if (chest && !isNaN(chest)) {
+            if (chest < 36) return 'XS';
+            if (chest < 38) return 'S';
+            if (chest <= 40) return 'M';
+            if (chest <= 44) return 'L';
+            if (chest <= 48) return 'XL';
+            if (chest <= 52) return '2X';
+            if (chest <= 56) return '3X';
+            return '4X';
+        }
+
+        let waist = parseFloat(measurements.pant_waist || measurements.torso_waist);
+        if (waist && isMetric) waist = waist / 2.54;
+
+        if (waist && !isNaN(waist)) {
+            if (waist < 29) return 'XS';
+            if (waist < 32) return 'S';
+            if (waist <= 35) return 'M';
+            if (waist <= 37) return 'L';
+            if (waist <= 41) return 'XL';
+            if (waist <= 44) return '2X';
+            if (waist <= 48) return '3X';
+            return '4X';
+        }
+
+        return 'M';
     }
 };
 
