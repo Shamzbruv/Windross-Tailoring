@@ -5,19 +5,19 @@
     "exchangeRate_USD_to_JMD": 155,
     "styles": {
         "suit_2_piece": {
-            "basePriceJMD": 55000
+            "basePriceJMD": 65000
         },
         "suit_3_piece": {
-            "basePriceJMD": 60000
+            "basePriceJMD": 85000
         },
         "tuxedo": {
-            "basePriceJMD": 60000
+            "basePriceJMD": 75000
         },
         "jacket_only": {
-            "basePriceJMD": 45000
+            "basePriceJMD": 39000
         },
         "pants_only": {
-            "basePriceJMD": 15000
+            "basePriceJMD": 26000
         }
     },
     "fabricGrades": {
@@ -39,7 +39,7 @@
         "termal-wool": {
             "multiplier": 1.00,
             "costPerMeterJMD": 6000,
-            "priceJMD": 4500
+            "priceJMD": 0
         }
     },
     "construction": {
@@ -47,7 +47,7 @@
             "priceJMD": 0
         },
         "full_canvas": {
-            "priceJMD": 15000
+            "priceJMD": 0
         }
     },
     "options": {
@@ -58,43 +58,43 @@
             "priceJMD": 0
         },
         "j-3-roll-2": {
-            "priceJMD": 4600
+            "priceJMD": 0
         },
         "j-double-6": {
-            "priceJMD": 11500
+            "priceJMD": 0
         },
         "j-mandarin": {
-            "priceJMD": 18400
+            "priceJMD": 0
         },
         "l-notch": {
             "priceJMD": 0
         },
         "l-wide-notch": {
-            "priceJMD": 3450
+            "priceJMD": 0
         },
         "l-slim-notch": {
-            "priceJMD": 2300
+            "priceJMD": 0
         },
         "l-peak": {
-            "priceJMD": 4600
+            "priceJMD": 0
         },
         "l-shawl": {
-            "priceJMD": 6900
+            "priceJMD": 0
         },
         "l-ulster": {
-            "priceJMD": 9200
+            "priceJMD": 0
         },
         "l-gorge": {
-            "priceJMD": 2300
+            "priceJMD": 0
         },
         "p-no-pleat": {
             "priceJMD": 0
         },
         "p-pleat": {
-            "priceJMD": 3450
+            "priceJMD": 0
         },
         "p-cuff": {
-            "priceJMD": 2300
+            "priceJMD": 0
         },
         "v-none": {
             "priceJMD": 0
