@@ -33,38 +33,38 @@ const PricingEngine = {
             "internationalMarkupMultiplier": 1.85,
             "exchangeRate_USD_to_JMD": 155,
             "styles": {
-                "suit_2_piece": { "basePriceJMD": 55000 },
-                "suit_3_piece": { "basePriceJMD": 60000 },
-                "tuxedo": { "basePriceJMD": 60000 },
-                "jacket_only": { "basePriceJMD": 45000 },
-                "pants_only": { "basePriceJMD": 15000 }
+                "suit_2_piece": { "basePriceJMD": 65000 },
+                "suit_3_piece": { "basePriceJMD": 85000 },
+                "tuxedo": { "basePriceJMD": 75000 },
+                "jacket_only": { "basePriceJMD": 39000 },
+                "pants_only": { "basePriceJMD": 26000 }
             },
             "fabricGrades": {
                 "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
                 "king-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
                 "2020-material": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
-                "termal-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 4500 }
+                "termal-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 }
             },
             "construction": {
                 "half_canvas": { "priceJMD": 0 },
-                "full_canvas": { "priceJMD": 15000 }
+                "full_canvas": { "priceJMD": 0 }
             },
             "options": {
                 "j-single-2": { "priceJMD": 0 },
                 "j-single-1": { "priceJMD": 0 },
-                "j-3-roll-2": { "priceJMD": 4600 },
-                "j-double-6": { "priceJMD": 11500 },
-                "j-mandarin": { "priceJMD": 18400 },
+                "j-3-roll-2": { "priceJMD": 0 },
+                "j-double-6": { "priceJMD": 0 },
+                "j-mandarin": { "priceJMD": 0 },
                 "l-notch": { "priceJMD": 0 },
-                "l-wide-notch": { "priceJMD": 3450 },
-                "l-slim-notch": { "priceJMD": 2300 },
-                "l-peak": { "priceJMD": 4600 },
-                "l-shawl": { "priceJMD": 6900 },
-                "l-ulster": { "priceJMD": 9200 },
-                "l-gorge": { "priceJMD": 2300 },
+                "l-wide-notch": { "priceJMD": 0 },
+                "l-slim-notch": { "priceJMD": 0 },
+                "l-peak": { "priceJMD": 0 },
+                "l-shawl": { "priceJMD": 0 },
+                "l-ulster": { "priceJMD": 0 },
+                "l-gorge": { "priceJMD": 0 },
                 "p-no-pleat": { "priceJMD": 0 },
-                "p-pleat": { "priceJMD": 3450 },
-                "p-cuff": { "priceJMD": 2300 },
+                "p-pleat": { "priceJMD": 0 },
+                "p-cuff": { "priceJMD": 0 },
                 "v-none": { "priceJMD": 0 },
                 "v-add": { "priceJMD": 0 }
             },
@@ -151,6 +151,11 @@ const PricingEngine = {
         }
 
         let subtotalJMD = basePriceJMD + fabricPriceJMD + constructionPriceJMD + optionsPriceJMD + sizeSurchargeJMD;
+
+        // Hard cap ALL custom suits to 65,000 JMD as per client request
+        if (subtotalJMD > 65000) {
+            subtotalJMD = 65000;
+        }
 
         let quantity = selection.quantity || 1;
         subtotalJMD = subtotalJMD * quantity;
