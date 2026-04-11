@@ -980,8 +980,26 @@
         let currentDate = new Date();
         let selectedDateStr = null;
         let selectedTimeStr = null;
+        let adminBlockedDays = new Set(); // Full-day blocks from admin panel
 
-        function renderCalendar() {
+        async function loadAdminBlockedDays(year, month) {
+            const h = window.location.hostname;
+            const isLocal = h === 'localhost' || h === '127.0.0.1' || h === '';
+            const apiBase = isLocal ? 'http://localhost:3000' : 'https://windrosstailoringanddesign.com';
+            try {
+                const res = await fetch(`${apiBase}/api/admin/unavailable/month?year=${year}&month=${month}`);
+                const data = await res.json();
+                adminBlockedDays = new Set(
+                    (data.blocks || [])
+                        .filter(b => b.block_type === 'day')
+                        .map(b => b.block_date)
+                );
+            } catch {
+                adminBlockedDays = new Set();
+            }
+        }
+
+        async function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             const monthYear = document.getElementById('calendar-month-year');
             if (!grid || !monthYear) return;
@@ -992,6 +1010,9 @@
 
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             monthYear.textContent = `${monthNames[month]} ${year}`;
+
+            // Load admin-blocked full days for this month
+            await loadAdminBlockedDays(year, month + 1);
 
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const firstDayIndex = new Date(year, month, 1).getDay();
@@ -1021,7 +1042,7 @@
                 const dayDate = new Date(year, month, i);
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
 
-                if (dayDate < today) {
+                if (dayDate < today || adminBlockedDays.has(dateStr)) {
                     dayEl.classList.add('disabled');
                 } else {
                     if (selectedDateStr === dateStr) {
@@ -1034,13 +1055,13 @@
             }
         }
 
-        document.getElementById('prev-month')?.addEventListener('click', () => {
+        document.getElementById('prev-month')?.addEventListener('click', async () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
+            await renderCalendar();
         });
-        document.getElementById('next-month')?.addEventListener('click', () => {
+        document.getElementById('next-month')?.addEventListener('click', async () => {
             currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
+            await renderCalendar();
         });
 
         async function selectDate(dateStr, el) {
@@ -1110,8 +1131,8 @@
         }
 
         // On Load region checking and initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCalendar();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await renderCalendar();
 
             // Central Region Validation
             const isJM = window.Region.isJamaica();

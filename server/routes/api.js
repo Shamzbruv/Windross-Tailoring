@@ -352,7 +352,6 @@ const MIN_BOOKING_BUFFER_MINUTES = 60; // Reject slots less than 1 hour away
 const MAX_BOOKINGS_PER_DAY = 14;
 const MAX_BOOKING_DAYS_AHEAD = 30; // Prevent booking > 1 month out
 
-// 6. Booking Endpoints
 router.get('/bookings/availability', (req, res) => {
     const { date } = req.query;
     if (!date) return res.status(400).json({ error: 'Date is required' });
@@ -393,33 +392,64 @@ router.get('/bookings/availability', (req, res) => {
         }
     });
 
-    // DB Check for booked slots
-    db.all(`SELECT booking_time FROM bookings WHERE booking_date = ? AND status = 'confirmed'`, [date], (err, rows) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Failed to fetch availability' });
-        }
+    // Check admin-blocked slots first
+    db.all(
+        `SELECT block_type, block_time, reason FROM unavailable_slots WHERE block_date = ?`,
+        [date],
+        (err, adminBlocks) => {
+            if (err) { adminBlocks = []; }
 
-        if (rows.length >= MAX_BOOKINGS_PER_DAY) {
-            // Day is fully booked
-            slots.forEach(slot => {
-                slot.available = false;
-                if (!slot.reason) slot.reason = 'FULLY_BOOKED';
-            });
-            return res.json({ date, slots });
-        }
+            const isDayBlocked = adminBlocks.some(b => b.block_type === 'day');
+            const dayBlockReason = isDayBlocked ? (adminBlocks.find(b => b.block_type === 'day')?.reason || 'ADMIN') : null;
+            const blockedSlotTimes = adminBlocks
+                .filter(b => b.block_type === 'slot')
+                .map(b => b.block_time);
 
-        const bookedTimes = rows.map(r => r.booking_time);
-        slots.forEach(slot => {
-            if (slot.available && bookedTimes.includes(slot.time)) {
-                slot.available = false;
-                slot.reason = 'BOOKED';
+            if (isDayBlocked) {
+                slots.forEach(slot => {
+                    slot.available = false;
+                    if (!slot.reason) slot.reason = dayBlockReason || 'UNAVAILABLE';
+                });
+                return res.json({ date, slots, dayBlocked: true, dayBlockReason });
             }
-        });
 
-        res.json({ date, slots });
-    });
+            slots.forEach(slot => {
+                if (slot.available && blockedSlotTimes.includes(slot.time)) {
+                    slot.available = false;
+                    slot.reason = 'UNAVAILABLE';
+                }
+            });
+
+            // DB Check for booked slots
+            db.all(`SELECT booking_time FROM bookings WHERE booking_date = ? AND status = 'confirmed'`, [date], (err, rows) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ error: 'Failed to fetch availability' });
+                }
+
+                if (rows.length >= MAX_BOOKINGS_PER_DAY) {
+                    // Day is fully booked
+                    slots.forEach(slot => {
+                        slot.available = false;
+                        if (!slot.reason) slot.reason = 'FULLY_BOOKED';
+                    });
+                    return res.json({ date, slots });
+                }
+
+                const bookedTimes = rows.map(r => r.booking_time);
+                slots.forEach(slot => {
+                    if (slot.available && bookedTimes.includes(slot.time)) {
+                        slot.available = false;
+                        slot.reason = 'BOOKED';
+                    }
+                });
+
+                res.json({ date, slots });
+            });
+        }
+    );
 });
+
 
 router.post('/bookings/create', (req, res) => {
     const { name, email, phone, date, time, notes, region } = req.body;
@@ -706,6 +736,76 @@ router.post('/design/submit', (req, res) => {
         console.error("Error dispatching design email:", err);
         res.status(500).json({ error: 'Failed to submit design.' });
     }
+});
+
+// =============================================
+// ADMIN: Availability Management (No Auth - Private URL only)
+// =============================================
+
+// GET all unavailability blocks
+router.get('/admin/unavailable', (req, res) => {
+    db.all(`SELECT * FROM unavailable_slots ORDER BY block_date ASC, block_time ASC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch blocks' });
+        res.json({ blocks: rows });
+    });
+});
+
+// GET unavailability blocks for a specific month (for calendar colouring)
+router.get('/admin/unavailable/month', (req, res) => {
+    const { year, month } = req.query;
+    if (!year || !month) return res.status(400).json({ error: 'year and month required' });
+    const paddedMonth = String(month).padStart(2, '0');
+    const prefix = `${year}-${paddedMonth}`;
+    db.all(
+        `SELECT * FROM unavailable_slots WHERE block_date LIKE ? ORDER BY block_date ASC, block_time ASC`,
+        [`${prefix}%`],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: 'Failed to fetch blocks' });
+            res.json({ blocks: rows });
+        }
+    );
+});
+
+// POST create a new unavailability block
+router.post('/admin/unavailable', (req, res) => {
+    const { block_type, block_date, block_time, reason } = req.body;
+
+    if (!block_type || !block_date) {
+        return res.status(400).json({ error: 'block_type and block_date are required.' });
+    }
+    if (!['day', 'slot'].includes(block_type)) {
+        return res.status(400).json({ error: 'block_type must be "day" or "slot".' });
+    }
+    if (block_type === 'slot' && !block_time) {
+        return res.status(400).json({ error: 'block_time is required for slot blocks.' });
+    }
+
+    const sanitizedReason = reason ? reason.substring(0, 200).replace(/[<>&"']/g, '') : null;
+    const timeVal = block_type === 'day' ? null : block_time;
+
+    db.run(
+        `INSERT INTO unavailable_slots (block_type, block_date, block_time, reason) VALUES (?, ?, ?, ?)`,
+        [block_type, block_date, timeVal, sanitizedReason],
+        function(err) {
+            if (err) {
+                if (err.code === 'SQLITE_CONSTRAINT') {
+                    return res.status(409).json({ error: 'This date/slot is already blocked.' });
+                }
+                return res.status(500).json({ error: 'Failed to create block.' });
+            }
+            res.json({ success: true, id: this.lastID });
+        }
+    );
+});
+
+// DELETE a specific block by ID
+router.delete('/admin/unavailable/:id', (req, res) => {
+    const { id } = req.params;
+    db.run(`DELETE FROM unavailable_slots WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: 'Failed to delete block.' });
+        if (this.changes === 0) return res.status(404).json({ error: 'Block not found.' });
+        res.json({ success: true });
+    });
 });
 
 module.exports = router;

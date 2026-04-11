@@ -72,6 +72,16 @@ function initTables() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
+        // Unavailable Slots Table (Admin Controlled)
+        db.run(`CREATE TABLE IF NOT EXISTS unavailable_slots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            block_type TEXT NOT NULL,        -- 'day' or 'slot'
+            block_date TEXT NOT NULL,        -- YYYY-MM-DD
+            block_time TEXT,                 -- HH:MM (24h), NULL if block_type='day'
+            reason TEXT,                     -- Optional admin note e.g. "Holiday"
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         console.log('Database tables initialized.');
     });
 }
