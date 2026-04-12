@@ -82,6 +82,24 @@ function initTables() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
+        // Design Inquiries Table (submit-style.html submissions)
+        db.run(`CREATE TABLE IF NOT EXISTS design_inquiries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT NOT NULL,
+            customer_email TEXT NOT NULL,
+            customer_phone TEXT,
+            design_name TEXT,
+            gender TEXT,
+            fabric TEXT,
+            target_date TEXT,
+            description TEXT,
+            booking_date TEXT,
+            booking_time TEXT,
+            has_photo INTEGER DEFAULT 0,     -- 1 if inspiration photo was attached
+            status TEXT DEFAULT 'new',       -- new, reviewed, in_progress, completed
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         console.log('Database tables initialized.');
     });
 }

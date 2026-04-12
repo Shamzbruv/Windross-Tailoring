@@ -728,6 +728,29 @@ router.post('/design/submit', (req, res) => {
         return res.status(400).json({ error: 'Missing core design details.' });
     }
 
+    // Save to DB for admin portal tracking
+    db.run(
+        `INSERT INTO design_inquiries 
+         (customer_name, customer_email, customer_phone, design_name, gender, fabric, target_date, description, booking_date, booking_time, has_photo)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            data.customerName,
+            data.customerEmail,
+            data.customerPhone || null,
+            data.designName || null,
+            data.gender || null,
+            data.fabric || null,
+            data.targetDate || null,
+            data.description || null,
+            data.bookingDate || null,
+            data.bookingTime || null,
+            data.photoBase64 ? 1 : 0
+        ],
+        function(dbErr) {
+            if (dbErr) console.error('Failed to save design inquiry to DB:', dbErr);
+        }
+    );
+
     try {
         const { sendDesignInquiryEmail } = require('../services/email');
         sendDesignInquiryEmail(data);
@@ -737,6 +760,7 @@ router.post('/design/submit', (req, res) => {
         res.status(500).json({ error: 'Failed to submit design.' });
     }
 });
+
 
 // =============================================
 // ADMIN: Availability Management (No Auth - Private URL only)
@@ -805,6 +829,129 @@ router.delete('/admin/unavailable/:id', (req, res) => {
         if (err) return res.status(500).json({ error: 'Failed to delete block.' });
         if (this.changes === 0) return res.status(404).json({ error: 'Block not found.' });
         res.json({ success: true });
+    });
+});
+
+// =============================================
+// ADMIN: Dashboard — Bookings & Design Inquiries
+// =============================================
+
+// GET all bookings (with optional search/filter)
+router.get('/admin/bookings', (req, res) => {
+    const { search, date, status } = req.query;
+    let query = `SELECT * FROM bookings`;
+    const params = [];
+    const conditions = [];
+
+    if (date) {
+        conditions.push(`booking_date = ?`);
+        params.push(date);
+    }
+    if (status) {
+        conditions.push(`status = ?`);
+        params.push(status);
+    }
+    if (search) {
+        conditions.push(`(name LIKE ? OR email LIKE ? OR phone LIKE ?)`);
+        const term = `%${search}%`;
+        params.push(term, term, term);
+    }
+    if (conditions.length) query += ` WHERE ` + conditions.join(' AND ');
+    query += ` ORDER BY booking_date DESC, booking_time DESC`;
+
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch bookings' });
+        res.json({ bookings: rows, total: rows.length });
+    });
+});
+
+// GET single booking detail
+router.get('/admin/bookings/:id', (req, res) => {
+    db.get(`SELECT * FROM bookings WHERE id = ?`, [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch booking' });
+        if (!row) return res.status(404).json({ error: 'Booking not found' });
+        res.json({ booking: row });
+    });
+});
+
+// PATCH booking status (confirmed / cancelled)
+router.patch('/admin/bookings/:id/status', (req, res) => {
+    const { status } = req.body;
+    if (!['confirmed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status.' });
+    }
+    db.run(`UPDATE bookings SET status = ? WHERE id = ?`, [status, req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: 'Failed to update status.' });
+        if (this.changes === 0) return res.status(404).json({ error: 'Booking not found.' });
+        res.json({ success: true });
+    });
+});
+
+// GET all design inquiries
+router.get('/admin/designs', (req, res) => {
+    const { search, status } = req.query;
+    let query = `SELECT * FROM design_inquiries`;
+    const params = [];
+    const conditions = [];
+
+    if (status) {
+        conditions.push(`status = ?`);
+        params.push(status);
+    }
+    if (search) {
+        conditions.push(`(customer_name LIKE ? OR customer_email LIKE ? OR design_name LIKE ?)`);
+        const term = `%${search}%`;
+        params.push(term, term, term);
+    }
+    if (conditions.length) query += ` WHERE ` + conditions.join(' AND ');
+    query += ` ORDER BY created_at DESC`;
+
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch design inquiries' });
+        res.json({ designs: rows, total: rows.length });
+    });
+});
+
+// GET single design inquiry
+router.get('/admin/designs/:id', (req, res) => {
+    db.get(`SELECT * FROM design_inquiries WHERE id = ?`, [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch inquiry' });
+        if (!row) return res.status(404).json({ error: 'Design inquiry not found' });
+        res.json({ design: row });
+    });
+});
+
+// PATCH design inquiry status
+router.patch('/admin/designs/:id/status', (req, res) => {
+    const { status } = req.body;
+    if (!['new', 'reviewed', 'in_progress', 'completed'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status.' });
+    }
+    db.run(`UPDATE design_inquiries SET status = ? WHERE id = ?`, [status, req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: 'Failed to update status.' });
+        if (this.changes === 0) return res.status(404).json({ error: 'Inquiry not found.' });
+        res.json({ success: true });
+    });
+});
+
+// GET dashboard summary counts
+router.get('/admin/summary', (req, res) => {
+    const results = {};
+    db.get(`SELECT COUNT(*) as total FROM bookings WHERE status='confirmed'`, [], (err, r) => {
+        results.confirmedBookings = r?.total || 0;
+        db.get(`SELECT COUNT(*) as total FROM bookings WHERE status='cancelled'`, [], (err, r2) => {
+            results.cancelledBookings = r2?.total || 0;
+            db.get(`SELECT COUNT(*) as total FROM design_inquiries WHERE status='new'`, [], (err, r3) => {
+                results.newDesigns = r3?.total || 0;
+                db.get(`SELECT COUNT(*) as total FROM design_inquiries`, [], (err, r4) => {
+                    results.totalDesigns = r4?.total || 0;
+                    db.get(`SELECT COUNT(*) as total FROM unavailable_slots`, [], (err, r5) => {
+                        results.activeBlocks = r5?.total || 0;
+                        res.json(results);
+                    });
+                });
+            });
+        });
     });
 });
 

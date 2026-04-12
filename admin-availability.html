@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Availability Control | Windross Admin</title>
-    <!-- No index -->
+    <title>Admin Portal | Windross Tailoring</title>
     <meta name="robots" content="noindex, nofollow">
 
     <link rel="icon" type="image/png" href="images/favicon.png">
@@ -14,939 +13,1260 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* ========================================
-           THEME: MIDNIGHT GOLD — Admin Panel
-        ======================================== */
         :root {
-            --gold-primary: #D4AF37;
+            --gold: #D4AF37;
             --gold-gradient: linear-gradient(135deg, #BF953F 0%, #FCF6BA 40%, #B38728 60%, #AA771C 100%);
-            --bg-body: #050505;
-            --bg-panel: rgba(20, 20, 20, 0.7);
-            --bg-input: rgba(255, 255, 255, 0.04);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --text-main: #F5F5F7;
-            --text-muted: #86868B;
-            --ease-lux: cubic-bezier(0.25, 1, 0.5, 1);
+            --bg: #050505;
+            --panel: rgba(18, 18, 18, 0.75);
+            --panel-solid: #111;
+            --input: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #F5F5F7;
+            --muted: #86868B;
+            --ease: cubic-bezier(0.25, 1, 0.5, 1);
             --red: #ff4d4d;
             --green: #2ed573;
             --amber: #ffa502;
+            --blue: #70a1ff;
         }
 
         * { box-sizing: border-box; outline: none; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--bg-body);
-            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000000 80%);
-            color: var(--text-main);
+            background: var(--bg);
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 80%);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            line-height: 1.6;
         }
 
-        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 400; color: white; }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 400; color: white; }
 
         /* ── NAV ── */
         nav {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            width: 95%; max-width: 1200px; z-index: 1000;
-            background: rgba(15, 15, 15, 0.9);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            border-radius: 100px; padding: 12px 30px;
-            display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(8,8,8,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; height: 62px;
         }
 
-        .logo {
-            font-family: 'Playfair Display', serif; font-size: 1.4rem;
-            font-weight: 700; letter-spacing: 2px; color: white; text-decoration: none;
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem; font-weight: 700;
+            letter-spacing: 2px; color: white; text-decoration: none;
         }
 
-        .admin-pill {
-            background: rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: var(--gold-primary);
-            padding: 5px 14px; border-radius: 50px;
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px;
-            display: flex; align-items: center; gap: 6px;
+        .nav-tabs {
+            display: flex; gap: 4px;
         }
 
-        /* ── PAGE LAYOUT ── */
-        .page {
-            padding-top: 120px; padding-bottom: 80px;
-            max-width: 1100px; margin: 0 auto;
-            padding-left: 20px; padding-right: 20px;
+        .nav-tab {
+            background: transparent; border: none;
+            color: var(--muted); padding: 8px 16px;
+            border-radius: 6px; cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem; text-transform: uppercase;
+            letter-spacing: 1px; transition: 0.2s;
+            display: flex; align-items: center; gap: 7px;
         }
 
-        .page-header {
-            text-align: center; margin-bottom: 50px;
-            animation: fadeUp 0.8s var(--ease-lux);
+        .nav-tab:hover { color: white; background: var(--input); }
+        .nav-tab.active { color: var(--gold); background: rgba(212,175,55,0.1); }
+
+        .admin-badge {
+            background: rgba(212,175,55,0.12);
+            border: 1px solid rgba(212,175,55,0.25);
+            color: var(--gold); padding: 4px 12px;
+            border-radius: 50px; font-size: 0.72rem;
+            text-transform: uppercase; letter-spacing: 1.5px;
         }
 
-        .eyebrow {
-            color: var(--gold-primary); letter-spacing: 2px;
-            font-size: 0.8rem; text-transform: uppercase;
-            margin-bottom: 12px; display: block;
-        }
+        /* ── LAYOUT ── */
+        .main-wrap { padding: 62px 0 0; min-height: 100vh; }
 
-        .page-header h1 { font-size: 3rem; margin-bottom: 10px; }
-        .page-header p { color: var(--text-muted); font-size: 1rem; }
+        .tab-view { display: none; padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .tab-view.active { display: block; }
 
-        /* ── LAYOUT GRID ── */
-        .admin-grid {
+        /* ── SUMMARY CARDS ── */
+        .summary-grid {
             display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 30px;
-            align-items: start;
-            animation: fadeUp 0.9s var(--ease-lux) 0.1s backwards;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 30px;
         }
 
         @media (max-width: 900px) {
-            .admin-grid { grid-template-columns: 1fr; }
-            .page-header h1 { font-size: 2.2rem; }
+            .summary-grid { grid-template-columns: repeat(2,1fr); }
+            .nav-tabs { display: none; }
+            .mobile-nav-select { display: block; }
         }
 
-        /* ── GLASS PANEL ── */
-        .panel {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-glass);
-            border-radius: 8px;
-            padding: 28px;
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px; padding: 22px 24px;
             backdrop-filter: blur(10px);
+            transition: 0.2s var(--ease);
+        }
+
+        .stat-card:hover { border-color: rgba(255,255,255,0.15); }
+
+        .stat-label {
+            font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--muted); margin-bottom: 10px;
+            display: flex; align-items: center; gap: 7px;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem; color: white; line-height: 1;
+        }
+
+        .stat-card.gold .stat-value { color: var(--gold); }
+        .stat-card.green .stat-value { color: var(--green); }
+        .stat-card.red .stat-value { color: var(--red); }
+        .stat-card.blue .stat-value { color: var(--blue); }
+
+        /* ── PANEL ── */
+        .panel {
+            background: var(--panel); border: 1px solid var(--border);
+            border-radius: 8px; backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 16px; flex-wrap: wrap;
         }
 
         .panel-title {
-            color: var(--gold-primary); font-size: 0.8rem;
-            text-transform: uppercase; letter-spacing: 2px;
-            margin-bottom: 22px; display: flex;
-            align-items: center; gap: 8px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--border-glass);
+            font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--gold);
+            display: flex; align-items: center; gap: 8px;
         }
 
-        /* ── CALENDAR ── */
-        .cal-nav {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 20px;
+        /* ── SEARCH/FILTER BAR ── */
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .search-input {
+            background: var(--input); border: 1px solid var(--border);
+            color: white; padding: 8px 14px 8px 36px;
+            border-radius: 6px; font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s; width: 220px;
+        }
+        .search-wrap { position: relative; }
+        .search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 14px; }
+        .search-input:focus { border-color: var(--gold); }
+
+        .filter-select {
+            background: var(--input); border: 1px solid var(--border);
+            color: white; padding: 8px 12px; border-radius: 6px;
+            font-size: 0.82rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: 0.2s;
+        }
+        .filter-select:focus { border-color: var(--gold); }
+        .filter-select option { background: #111; }
+
+        /* ── TABLE ── */
+        .data-table { width: 100%; border-collapse: collapse; }
+
+        .data-table thead tr { border-bottom: 1px solid var(--border); }
+
+        .data-table th {
+            padding: 12px 20px; text-align: left;
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1.2px; color: var(--muted);
+            font-weight: 500;
         }
 
-        .cal-nav h2 { font-size: 1.4rem; }
+        .data-table td { padding: 14px 20px; font-size: 0.88rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
 
-        .cal-nav-btn {
-            background: transparent; border: 1px solid var(--border-glass);
-            color: white; width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.25s var(--ease-lux);
+        .data-table tr:last-child td { border-bottom: none; }
+
+        .data-table tbody tr {
+            cursor: pointer; transition: 0.15s;
         }
-        .cal-nav-btn:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
+        .data-table tbody tr:hover { background: rgba(255,255,255,0.03); }
 
-        .cal-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-            text-align: center;
+        .name-cell { font-weight: 500; color: white; }
+        .sub-cell { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 50px; font-size: 0.68rem;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            font-weight: 600;
         }
+        .badge.confirmed { background: rgba(46,213,115,0.12); color: var(--green); border: 1px solid rgba(46,213,115,0.25); }
+        .badge.cancelled { background: rgba(255,77,77,0.12); color: var(--red); border: 1px solid rgba(255,77,77,0.25); }
+        .badge.new { background: rgba(112,161,255,0.12); color: var(--blue); border: 1px solid rgba(112,161,255,0.25); }
+        .badge.reviewed { background: rgba(255,165,2,0.12); color: var(--amber); border: 1px solid rgba(255,165,2,0.25); }
+        .badge.in_progress { background: rgba(212,175,55,0.12); color: var(--gold); border: 1px solid rgba(212,175,55,0.25); }
+        .badge.completed { background: rgba(46,213,115,0.12); color: var(--green); border: 1px solid rgba(46,213,115,0.25); }
 
-        .cal-day-hdr {
-            color: var(--text-muted); font-size: 0.72rem;
-            text-transform: uppercase; padding-bottom: 8px; letter-spacing: 0.5px;
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            color: var(--muted); font-size: 0.9rem;
         }
+        .empty-state svg { opacity: 0.2; margin-bottom: 14px; display: block; margin: 0 auto 14px; }
 
-        .cal-day {
-            position: relative; padding: 10px 4px;
-            border: 1px solid var(--border-glass);
-            border-radius: 4px; cursor: pointer;
-            transition: 0.2s var(--ease-lux);
-            font-size: 0.88rem; color: white;
-            background: var(--bg-input);
-            min-height: 48px;
+        /* ── DRAWER SIDEBAR ── */
+        .drawer-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(6px);
+            z-index: 500;
+            opacity: 0; pointer-events: none;
+            transition: 0.3s var(--ease);
+        }
+        .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+        .drawer {
+            position: fixed; top: 0; right: -520px; bottom: 0;
+            width: 480px; max-width: 95vw;
+            background: var(--panel-solid);
+            border-left: 1px solid var(--border);
+            z-index: 501;
+            overflow-y: auto;
+            transition: 0.4s var(--ease);
             display: flex; flex-direction: column;
+        }
+        .drawer.open { right: 0; }
+
+        .drawer-head {
+            padding: 24px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: flex-start; justify-content: space-between;
+            position: sticky; top: 0;
+            background: var(--panel-solid);
+            z-index: 10;
+        }
+
+        .drawer-head h3 { font-size: 1.4rem; margin-bottom: 4px; }
+        .drawer-head p { color: var(--muted); font-size: 0.82rem; }
+
+        .close-btn {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--muted); width: 34px; height: 34px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .close-btn:hover { border-color: white; color: white; }
+
+        .drawer-body { padding: 28px; flex: 1; }
+
+        .detail-section { margin-bottom: 28px; }
+
+        .detail-section-title {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--gold);
+            margin-bottom: 14px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 16px;
+            margin-bottom: 12px; font-size: 0.88rem;
+        }
+
+        .detail-key { color: var(--muted); flex-shrink: 0; min-width: 120px; }
+        .detail-val { color: white; text-align: right; word-break: break-word; }
+
+        .detail-desc {
+            background: var(--input); border: 1px solid var(--border);
+            border-radius: 6px; padding: 14px 16px;
+            font-size: 0.85rem; color: var(--text);
+            line-height: 1.6; white-space: pre-wrap;
+        }
+
+        .drawer-footer {
+            padding: 20px 28px;
+            border-top: 1px solid var(--border);
+            background: var(--panel-solid);
+            position: sticky; bottom: 0;
+        }
+
+        .status-select-wrap { display: flex; gap: 10px; align-items: center; }
+        .status-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .status-dropdown {
+            flex: 1; background: var(--input); border: 1px solid var(--border);
+            color: white; padding: 10px 14px; border-radius: 6px;
+            font-family: 'Inter', sans-serif; font-size: 0.88rem; cursor: pointer;
+        }
+        .status-dropdown option { background: #111; }
+
+        .save-status-btn {
+            background: var(--gold-gradient); color: #050505;
+            border: none; padding: 10px 20px; border-radius: 6px;
+            font-weight: 700; font-size: 0.82rem;
+            text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .save-status-btn:hover { box-shadow: 0 0 16px rgba(212,175,55,0.4); }
+
+        /* ── AVAILABILITY TAB ── */
+        .avail-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px; align-items: start;
+        }
+        @media (max-width: 900px) { .avail-grid { grid-template-columns: 1fr; } }
+
+        .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .cal-nav h3 { font-size: 1.3rem; }
+        .cal-nav-btn {
+            background: transparent; border: 1px solid var(--border);
+            color: white; width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .cal-nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; text-align: center; }
+        .cal-day-hdr { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; padding-bottom: 8px; }
+        .cal-day {
+            padding: 10px 4px; border: 1px solid var(--border);
+            border-radius: 4px; cursor: pointer; transition: 0.15s;
+            font-size: 0.85rem; background: var(--input);
+            min-height: 44px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; gap: 3px;
         }
-
-        .cal-day:hover:not(.cal-empty):not(.cal-past) {
-            border-color: var(--gold-primary);
-            transform: translateY(-1px);
-        }
-
+        .cal-day:hover:not(.cal-empty):not(.cal-past) { border-color: var(--gold); }
         .cal-day.cal-empty { border: none; background: transparent; cursor: default; }
-        .cal-day.cal-past { opacity: 0.25; cursor: not-allowed; }
-
-        .cal-day.cal-selected {
-            border-color: var(--gold-primary);
-            background: rgba(212, 175, 55, 0.12);
-        }
-
-        /* Status dots on calendar */
-        .cal-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            display: block;
-        }
+        .cal-day.cal-past { opacity: 0.2; cursor: not-allowed; }
+        .cal-day.cal-selected { border-color: var(--gold); background: rgba(212,175,55,0.1); }
+        .cal-dot { width: 5px; height: 5px; border-radius: 50%; }
         .cal-dot.red { background: var(--red); }
         .cal-dot.amber { background: var(--amber); }
-        .cal-dot.green { background: var(--green); }
 
-        /* ── RIGHT PANEL: Day Detail ── */
+        .cal-legend { display: flex; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+        .cal-legend span { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+
+        /* Right panel for day detail */
         .day-detail-placeholder {
-            text-align: center; padding: 40px 20px;
-            color: var(--text-muted); font-size: 0.9rem;
-        }
-
-        .day-detail-date {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.3rem; color: white;
-            margin-bottom: 6px;
-        }
-
-        .day-detail-sub {
-            font-size: 0.8rem; color: var(--text-muted);
-            margin-bottom: 20px;
+            text-align: center; padding: 50px 20px; color: var(--muted); font-size: 0.88rem;
         }
 
         .block-day-btn {
-            width: 100%; padding: 12px;
-            border-radius: 4px; font-size: 0.85rem;
-            text-transform: uppercase; letter-spacing: 1px;
+            width: 100%; padding: 11px; border-radius: 4px;
+            font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px;
             cursor: pointer; font-family: 'Inter', sans-serif;
-            transition: 0.25s var(--ease-lux); margin-bottom: 16px;
+            transition: 0.2s; margin-bottom: 14px;
         }
+        .block-day-btn.do-block { background: rgba(255,77,77,0.08); border: 1px solid rgba(255,77,77,0.35); color: var(--red); }
+        .block-day-btn.do-block:hover { background: rgba(255,77,77,0.15); }
+        .block-day-btn.do-unblock { background: rgba(46,213,115,0.08); border: 1px solid rgba(46,213,115,0.35); color: var(--green); }
+        .block-day-btn.do-unblock:hover { background: rgba(46,213,115,0.15); }
 
-        .block-day-btn.block {
-            background: rgba(255, 77, 77, 0.1);
-            border: 1px solid rgba(255, 77, 77, 0.4);
-            color: var(--red);
-        }
-        .block-day-btn.block:hover {
-            background: rgba(255, 77, 77, 0.2);
-        }
-
-        .block-day-btn.unblock {
-            background: rgba(46, 213, 115, 0.1);
-            border: 1px solid rgba(46, 213, 115, 0.4);
-            color: var(--green);
-        }
-        .block-day-btn.unblock:hover {
-            background: rgba(46, 213, 115, 0.2);
-        }
-
-        /* Time slots in day detail */
-        .slots-list { display: flex; flex-direction: column; gap: 8px; }
-
+        .slots-list { display: flex; flex-direction: column; gap: 7px; }
         .slot-row {
-            display: flex; align-items: center;
-            justify-content: space-between;
-            background: var(--bg-input); border: 1px solid var(--border-glass);
-            border-radius: 4px; padding: 10px 14px;
-            transition: 0.2s;
+            display: flex; align-items: center; gap: 10px;
+            background: var(--input); border: 1px solid var(--border);
+            border-radius: 4px; padding: 9px 12px; transition: 0.15s;
         }
-
-        .slot-row.blocked-slot {
-            border-color: rgba(255, 77, 77, 0.35);
-            background: rgba(255, 77, 77, 0.05);
-        }
-
-        .slot-label { font-size: 0.9rem; }
-        .slot-status {
-            font-size: 0.72rem; text-transform: uppercase;
-            letter-spacing: 0.5px; color: var(--text-muted);
-        }
-        .slot-status.unavailable { color: var(--red); }
-        .slot-status.booked { color: var(--amber); }
-        .slot-status.available { color: var(--green); }
+        .slot-row.admin-blocked { border-color: rgba(255,77,77,0.3); background: rgba(255,77,77,0.04); }
+        .slot-label { font-size: 0.88rem; flex: 1; }
+        .slot-status-tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .slot-status-tag.available { color: var(--green); }
+        .slot-status-tag.unavailable { color: var(--red); }
+        .slot-status-tag.booked { color: var(--amber); }
+        .slot-status-tag.passed { color: var(--muted); }
 
         .slot-toggle {
-            background: transparent; border: 1px solid var(--border-glass);
+            background: transparent; border: 1px solid var(--border);
             color: white; padding: 4px 10px; border-radius: 3px;
-            font-size: 0.75rem; cursor: pointer; transition: 0.2s;
-            font-family: 'Inter', sans-serif;
+            font-size: 0.72rem; cursor: pointer; transition: 0.15s;
+            font-family: 'Inter', sans-serif; white-space: nowrap;
         }
-        .slot-toggle:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
-        .slot-toggle.unblock-btn { border-color: rgba(46, 213, 115, 0.4); color: var(--green); }
-        .slot-toggle.unblock-btn:hover { background: rgba(46, 213, 115, 0.1); }
+        .slot-toggle:hover { border-color: var(--gold); color: var(--gold); }
+        .slot-toggle.do-unblock { border-color: rgba(46,213,115,0.35); color: var(--green); }
+        .slot-toggle.do-unblock:hover { background: rgba(46,213,115,0.1); }
 
-        /* ── REASON MODAL ── */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
+        .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+        .section-sub { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+        /* Blocks list */
+        .all-blocks-list { display: flex; flex-direction: column; gap: 8px; }
+        .blk-item {
+            display: grid; grid-template-columns: auto 1fr auto auto;
+            gap: 12px; align-items: center;
+            background: var(--input); border: 1px solid var(--border);
+            border-radius: 4px; padding: 12px 16px;
+        }
+        .blk-badge { padding: 3px 9px; border-radius: 50px; font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+        .blk-badge.day { background: rgba(255,77,77,0.12); color: var(--red); border: 1px solid rgba(255,77,77,0.25); }
+        .blk-badge.slot { background: rgba(255,165,2,0.12); color: var(--amber); border: 1px solid rgba(255,165,2,0.25); }
+        .blk-info { display: flex; flex-direction: column; gap: 1px; }
+        .blk-date { font-size: 0.88rem; color: white; }
+        .blk-reason { font-size: 0.76rem; color: var(--muted); font-style: italic; }
+        .blk-time { font-size: 0.82rem; color: var(--muted); }
+        .del-btn {
+            background: transparent; border: 1px solid rgba(255,77,77,0.25);
+            color: var(--red); width: 30px; height: 30px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: 0.3s var(--ease-lux);
+            cursor: pointer; transition: 0.15s;
         }
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .del-btn:hover { background: rgba(255,77,77,0.12); }
 
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px); z-index: 600;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s var(--ease);
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
         .modal-box {
-            background: #111; border: 1px solid var(--border-glass);
-            border-radius: 8px; padding: 36px;
-            width: 90%; max-width: 420px;
-            transform: translateY(20px);
-            transition: 0.3s var(--ease-lux);
+            background: #111; border: 1px solid var(--border);
+            border-radius: 10px; padding: 32px; width: 90%; max-width: 400px;
+            transform: translateY(16px); transition: 0.3s var(--ease);
         }
-        .modal-overlay.active .modal-box { transform: translateY(0); }
-
-        .modal-box h3 { margin-bottom: 6px; font-size: 1.3rem; }
-        .modal-box p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px; }
-
+        .modal-overlay.open .modal-box { transform: translateY(0); }
+        .modal-box h3 { font-size: 1.2rem; margin-bottom: 6px; }
+        .modal-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 18px; }
         .modal-input {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-glass);
-            color: white; padding: 12px 14px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem; border-radius: 4px;
-            margin-bottom: 20px;
-            transition: 0.25s;
+            width: 100%; background: var(--input); border: 1px solid var(--border);
+            color: white; padding: 11px 14px; border-radius: 6px;
+            font-family: 'Inter', sans-serif; font-size: 0.9rem;
+            margin-bottom: 18px; transition: 0.2s;
         }
-        .modal-input:focus { border-color: var(--gold-primary); }
-
-        .modal-actions { display: flex; gap: 12px; }
-
+        .modal-input:focus { border-color: var(--gold); }
+        .modal-actions { display: flex; gap: 10px; }
         .btn-gold {
-            flex: 1; background: var(--gold-gradient);
-            color: #050505; padding: 12px;
-            border: none; border-radius: 4px;
-            font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1px; cursor: pointer;
-            transition: 0.25s; font-family: 'Inter', sans-serif;
+            flex: 1; background: var(--gold-gradient); color: #050505;
+            padding: 11px; border: none; border-radius: 6px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;
         }
-        .btn-gold:hover { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
-
         .btn-ghost {
-            flex: 1; background: transparent;
-            color: var(--text-muted); padding: 12px;
-            border: 1px solid var(--border-glass);
-            border-radius: 4px; font-size: 0.9rem;
-            cursor: pointer; transition: 0.25s;
-            font-family: 'Inter', sans-serif;
+            flex: 1; background: transparent; color: var(--muted);
+            padding: 11px; border: 1px solid var(--border); border-radius: 6px;
+            font-size: 0.88rem; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
         }
         .btn-ghost:hover { border-color: white; color: white; }
 
-        /* ── ALL BLOCKS TABLE ── */
-        .blocks-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-
-        .block-item {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-input);
-            border: 1px solid var(--border-glass);
-            border-radius: 4px;
-            padding: 14px 16px;
-            transition: 0.2s;
-        }
-
-        .block-item:hover { border-color: rgba(255,255,255,0.15); }
-
-        .block-type-badge {
-            padding: 3px 9px; border-radius: 50px;
-            font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px;
-            font-weight: 600;
-        }
-        .block-type-badge.day { background: rgba(255, 77, 77, 0.15); color: var(--red); border: 1px solid rgba(255,77,77,0.3); }
-        .block-type-badge.slot { background: rgba(255, 165, 2, 0.15); color: var(--amber); border: 1px solid rgba(255,165,2,0.3); }
-
-        .block-info { display: flex; flex-direction: column; gap: 2px; }
-        .block-date-str { font-size: 0.92rem; color: white; }
-        .block-reason-str { font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
-
-        .block-time-str { font-size: 0.85rem; color: var(--text-muted); text-align: right; }
-
-        .delete-btn {
-            background: transparent; border: 1px solid rgba(255,77,77,0.3);
-            color: var(--red); width: 32px; height: 32px;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; cursor: pointer;
-            transition: 0.2s; flex-shrink: 0;
-        }
-        .delete-btn:hover { background: rgba(255,77,77,0.15); }
-
-        .empty-state {
-            text-align: center; padding: 40px 20px;
-            color: var(--text-muted); font-size: 0.88rem;
-        }
-
         /* ── TOAST ── */
         .toast {
-            position: fixed; bottom: 30px; left: 50%;
+            position: fixed; bottom: 28px; left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: #1a1a1a; border: 1px solid var(--border-glass);
-            color: white; padding: 14px 24px;
-            border-radius: 8px; font-size: 0.88rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            z-index: 9999; transition: 0.4s var(--ease-lux);
-            display: flex; align-items: center; gap: 10px;
+            background: #1a1a1a; border: 1px solid var(--border);
+            color: white; padding: 12px 22px; border-radius: 8px;
+            font-size: 0.85rem; z-index: 9999;
+            transition: 0.35s var(--ease);
+            display: flex; align-items: center; gap: 9px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.success { border-color: rgba(46,213,115,0.3); }
-        .toast.error { border-color: rgba(255,77,77,0.3); }
+        .toast.ok { border-color: rgba(46,213,115,0.3); }
+        .toast.err { border-color: rgba(255,77,77,0.3); }
 
-        /* ── LOADER ── */
-        .loader {
-            display: flex; justify-content: center; padding: 30px;
-        }
-        .spinner {
-            width: 28px; height: 28px;
-            border: 2px solid var(--border-glass);
-            border-top-color: var(--gold-primary);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
+        /* spinner */
+        .loader { display: flex; justify-content: center; padding: 40px; }
+        .spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .tag-row { display: flex; gap: 8px; align-items: center; }
+        .photo-pill {
+            background: rgba(112,161,255,0.1); border: 1px solid rgba(112,161,255,0.25);
+            color: var(--blue); padding: 3px 10px; border-radius: 50px;
+            font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px;
         }
 
-        /* ── DIVIDER ── */
-        .divider { border: none; border-top: 1px solid var(--border-glass); margin: 20px 0; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 3px; }
-
+        @media (max-width: 600px) {
+            .tab-view { padding: 16px; }
+            .panel-head { flex-direction: column; align-items: flex-start; }
+            .data-table th:nth-child(4), .data-table td:nth-child(4) { display: none; }
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- NAV -->
-    <nav>
-        <a class="logo" href="index.html">WINDROSS</a>
-        <div class="admin-pill">
-            <i data-lucide="shield" style="width:13px;height:13px;"></i>
-            Admin Panel
-        </div>
-    </nav>
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="index.html">WINDROSS</a>
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('dashboard')" id="tab-dashboard">
+            <i data-lucide="layout-dashboard" style="width:14px;height:14px;"></i> Dashboard
+        </button>
+        <button class="nav-tab" onclick="switchTab('bookings')" id="tab-bookings">
+            <i data-lucide="calendar-check" style="width:14px;height:14px;"></i> Bookings
+        </button>
+        <button class="nav-tab" onclick="switchTab('designs')" id="tab-designs">
+            <i data-lucide="pen-tool" style="width:14px;height:14px;"></i> Designs
+        </button>
+        <button class="nav-tab" onclick="switchTab('availability')" id="tab-availability">
+            <i data-lucide="clock" style="width:14px;height:14px;"></i> Availability
+        </button>
+    </div>
+    <span class="admin-badge">Admin</span>
+</nav>
 
-    <!-- MAIN -->
-    <main class="page">
+<div class="main-wrap">
 
-        <div class="page-header">
-            <span class="eyebrow">Private Access</span>
-            <h1>Availability Control</h1>
-            <p>Manage the days and time slots clients can book. Changes reflect immediately on the booking page.</p>
-        </div>
-
-        <div class="admin-grid">
-
-            <!-- LEFT: Calendar -->
-            <div class="panel">
-                <div class="panel-title">
-                    <i data-lucide="calendar" style="width:15px;height:15px;"></i>
-                    Monthly Overview
-                </div>
-
-                <div class="cal-nav">
-                    <button class="cal-nav-btn" id="prev-month" aria-label="Previous month">
-                        <i data-lucide="chevron-left" style="width:16px;height:16px;"></i>
-                    </button>
-                    <h2 id="cal-month-label">—</h2>
-                    <button class="cal-nav-btn" id="next-month" aria-label="Next month">
-                        <i data-lucide="chevron-right" style="width:16px;height:16px;"></i>
-                    </button>
-                </div>
-
-                <div class="cal-grid" id="cal-grid">
-                    <!-- Generated by JS -->
-                </div>
-
-                <!-- Legend -->
-                <div style="display:flex;gap:18px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-glass);">
-                    <div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);">
-                        <span class="cal-dot red"></span> Day blocked
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);">
-                        <span class="cal-dot amber"></span> Partly blocked
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-muted);">
-                        <span class="cal-dot green"></span> Available
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT: Day Detail -->
-            <div class="panel" id="day-detail-panel">
-                <div class="panel-title">
-                    <i data-lucide="clock" style="width:15px;height:15px;"></i>
-                    Day Detail
-                </div>
-                <div class="day-detail-placeholder" id="day-placeholder">
-                    <i data-lucide="mouse-pointer-click" style="width:32px;height:32px;opacity:0.3;margin-bottom:12px;"></i>
-                    <p>Select a day on the calendar to manage its availability.</p>
-                </div>
-                <div id="day-detail-content" style="display:none;"></div>
-            </div>
-
+    <!-- ══════════════════ DASHBOARD TAB ══════════════════ -->
+    <div class="tab-view active" id="view-dashboard">
+        <div style="margin-bottom:28px;animation:fadeUp 0.6s ease;">
+            <span style="color:var(--gold);font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;display:block;margin-bottom:8px;">Private Access</span>
+            <h1 style="font-size:2.4rem;">Admin Portal</h1>
+            <p style="color:var(--muted);margin-top:6px;">Overview of your bookings, design inquiries and schedule.</p>
         </div>
 
-        <!-- ALL BLOCKS LIST -->
-        <div class="panel" style="margin-top:30px; animation: fadeUp 1s var(--ease-lux) 0.2s backwards;">
-            <div class="panel-title">
-                <i data-lucide="list" style="width:15px;height:15px;"></i>
-                All Unavailability Blocks
-                <span id="blocks-count" style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);background:var(--bg-input);padding:2px 10px;border-radius:50px;">0</span>
+        <div class="summary-grid" id="summary-grid">
+            <div class="stat-card gold"><div class="stat-label"><i data-lucide="calendar-check" style="width:13px;height:13px;"></i> Confirmed Bookings</div><div class="stat-value" id="s-confirmed">—</div></div>
+            <div class="stat-card blue"><div class="stat-label"><i data-lucide="pen-tool" style="width:13px;height:13px;"></i> New Design Inquiries</div><div class="stat-value" id="s-designs">—</div></div>
+            <div class="stat-card green"><div class="stat-label"><i data-lucide="layers" style="width:13px;height:13px;"></i> Total Designs</div><div class="stat-value" id="s-total-designs">—</div></div>
+            <div class="stat-card red"><div class="stat-label"><i data-lucide="ban" style="width:13px;height:13px;"></i> Active Blocks</div><div class="stat-value" id="s-blocks">—</div></div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="panel" style="margin-bottom:24px;animation:fadeUp 0.7s ease 0.1s backwards;">
+            <div class="panel-head">
+                <span class="panel-title"><i data-lucide="calendar" style="width:14px;height:14px;"></i> Recent Bookings</span>
+                <button class="btn-ghost" style="padding:7px 14px;font-size:0.78rem;" onclick="switchTab('bookings')">View All →</button>
             </div>
-            <div id="blocks-list-container">
+            <div id="recent-bookings-body">
                 <div class="loader"><div class="spinner"></div></div>
             </div>
         </div>
 
-    </main>
-
-    <!-- REASON MODAL -->
-    <div class="modal-overlay" id="reason-modal">
-        <div class="modal-box">
-            <h3 id="modal-title">Block Day</h3>
-            <p id="modal-desc">Add an optional note for this unavailability (personal reference only).</p>
-            <input type="text" class="modal-input" id="reason-input" placeholder="e.g. Holiday, Appointment, Sick day..." maxlength="200">
-            <div class="modal-actions">
-                <button class="btn-ghost" id="modal-cancel">Cancel</button>
-                <button class="btn-gold" id="modal-confirm">Confirm Block</button>
+        <!-- Recent Designs -->
+        <div class="panel" style="animation:fadeUp 0.7s ease 0.2s backwards;">
+            <div class="panel-head">
+                <span class="panel-title"><i data-lucide="pen-tool" style="width:14px;height:14px;"></i> Recent Design Inquiries</span>
+                <button class="btn-ghost" style="padding:7px 14px;font-size:0.78rem;" onclick="switchTab('designs')">View All →</button>
+            </div>
+            <div id="recent-designs-body">
+                <div class="loader"><div class="spinner"></div></div>
             </div>
         </div>
     </div>
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
+    <!-- ══════════════════ BOOKINGS TAB ══════════════════ -->
+    <div class="tab-view" id="view-bookings">
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><i data-lucide="calendar-check" style="width:14px;height:14px;"></i> All Bookings</span>
+                <div class="filter-bar">
+                    <div class="search-wrap">
+                        <i data-lucide="search"></i>
+                        <input type="text" class="search-input" id="booking-search" placeholder="Name, email, phone…" oninput="debounceBookings()">
+                    </div>
+                    <select class="filter-select" id="booking-status-filter" onchange="loadBookings()">
+                        <option value="">All Status</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div id="bookings-table-body">
+                <div class="loader"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
 
-    <script>
+    <!-- ══════════════════ DESIGNS TAB ══════════════════ -->
+    <div class="tab-view" id="view-designs">
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><i data-lucide="pen-tool" style="width:14px;height:14px;"></i> Design Submissions</span>
+                <div class="filter-bar">
+                    <div class="search-wrap">
+                        <i data-lucide="search"></i>
+                        <input type="text" class="search-input" id="design-search" placeholder="Name, email, design…" oninput="debounceDesigns()">
+                    </div>
+                    <select class="filter-select" id="design-status-filter" onchange="loadDesigns()">
+                        <option value="">All Status</option>
+                        <option value="new">New</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div id="designs-table-body">
+                <div class="loader"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ AVAILABILITY TAB ══════════════════ -->
+    <div class="tab-view" id="view-availability">
+        <div class="avail-grid">
+            <!-- Calendar -->
+            <div class="panel" style="padding:24px;">
+                <div class="panel-title" style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+                    <i data-lucide="calendar" style="width:14px;height:14px;"></i> Monthly Overview
+                </div>
+                <div class="cal-nav">
+                    <button class="cal-nav-btn" id="prev-month"><i data-lucide="chevron-left" style="width:15px;height:15px;"></i></button>
+                    <h3 id="cal-label">—</h3>
+                    <button class="cal-nav-btn" id="next-month"><i data-lucide="chevron-right" style="width:15px;height:15px;"></i></button>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+                <div class="cal-legend">
+                    <span><span class="cal-dot red"></span> Full day blocked</span>
+                    <span><span class="cal-dot amber"></span> Partly blocked</span>
+                </div>
+            </div>
+
+            <!-- Day Detail Panel -->
+            <div class="panel" style="padding:24px;" id="avail-right">
+                <div class="panel-title" style="margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+                    <i data-lucide="clock" style="width:14px;height:14px;"></i> Day Detail
+                </div>
+                <div class="day-detail-placeholder" id="avail-placeholder">
+                    <i data-lucide="mouse-pointer-click" style="width:30px;height:30px;opacity:0.25;display:block;margin:0 auto 12px;"></i>
+                    Select a day to manage availability.
+                </div>
+                <div id="avail-day-content" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- All Blocks List -->
+        <div class="panel" style="margin-top:24px;padding:24px;">
+            <div class="panel-title" style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+                <i data-lucide="list" style="width:14px;height:14px;"></i> All Blocks
+                <span id="blocks-count" style="margin-left:auto;font-size:0.75rem;color:var(--muted);background:var(--input);padding:2px 10px;border-radius:50px;">0</span>
+            </div>
+            <div id="all-blocks-container"><div class="loader"><div class="spinner"></div></div></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOOKING DETAIL DRAWER -->
+<div class="drawer-overlay" id="booking-drawer-overlay" onclick="closeDrawer('booking')"></div>
+<div class="drawer" id="booking-drawer">
+    <div class="drawer-head">
+        <div>
+            <h3 id="bd-name">—</h3>
+            <p id="bd-sub">—</p>
+        </div>
+        <button class="close-btn" onclick="closeDrawer('booking')"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+    </div>
+    <div class="drawer-body" id="bd-body"></div>
+    <div class="drawer-footer">
+        <div class="status-select-wrap">
+            <span class="status-label">Status</span>
+            <select class="status-dropdown" id="bd-status">
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <button class="save-status-btn" onclick="saveBookingStatus()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- DESIGN DETAIL DRAWER -->
+<div class="drawer-overlay" id="design-drawer-overlay" onclick="closeDrawer('design')"></div>
+<div class="drawer" id="design-drawer">
+    <div class="drawer-head">
+        <div>
+            <h3 id="dd-name">—</h3>
+            <p id="dd-sub">—</p>
+        </div>
+        <button class="close-btn" onclick="closeDrawer('design')"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+    </div>
+    <div class="drawer-body" id="dd-body"></div>
+    <div class="drawer-footer">
+        <div class="status-select-wrap">
+            <span class="status-label">Status</span>
+            <select class="status-dropdown" id="dd-status">
+                <option value="new">New</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+            </select>
+            <button class="save-status-btn" onclick="saveDesignStatus()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- REASON MODAL -->
+<div class="modal-overlay" id="reason-modal">
+    <div class="modal-box">
+        <h3 id="modal-title">Block Day</h3>
+        <p id="modal-desc">Add an optional note (personal reference only).</p>
+        <input type="text" class="modal-input" id="reason-input" placeholder="e.g. Holiday, Sick day…" maxlength="200">
+        <div class="modal-actions">
+            <button class="btn-ghost" id="modal-cancel">Cancel</button>
+            <button class="btn-gold" id="modal-confirm">Confirm Block</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+lucide.createIcons();
+
+/* ─── API BASE ─── */
+const API = (() => {
+    const h = window.location.hostname;
+    return (h === 'localhost' || h === '127.0.0.1' || h === '')
+        ? 'http://localhost:3000'
+        : 'https://windrosstailoringanddesign.com';
+})();
+
+/* ─── TOAST ─── */
+function toast(msg, type = 'ok') {
+    const el = document.getElementById('toast');
+    el.className = `toast ${type} show`;
+    el.innerHTML = `<i data-lucide="${type==='ok'?'check-circle':'alert-circle'}" style="width:15px;height:15px;color:${type==='ok'?'var(--green)':'var(--red)'}"></i>${msg}`;
+    lucide.createIcons();
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/* ─── TAB SWITCHING ─── */
+let activeTab = 'dashboard';
+function switchTab(tab) {
+    document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + tab).classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    activeTab = tab;
+
+    if (tab === 'bookings') loadBookings();
+    if (tab === 'designs') loadDesigns();
+    if (tab === 'availability') { loadAvailability(); loadAllBlocks(); }
+}
+
+/* ─── HELPERS ─── */
+function fmtDate(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtTime(t) {
+    if (!t) return '—';
+    const [h, m] = t.split(':').map(Number);
+    const h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return `${h12}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+function fmtDateTime(dt) {
+    if (!dt) return '—';
+    const d = new Date(dt);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+function ago(dt) {
+    if (!dt) return '';
+    const sec = Math.floor((Date.now() - new Date(dt)) / 1000);
+    if (sec < 60) return 'just now';
+    if (sec < 3600) return `${Math.floor(sec/60)}m ago`;
+    if (sec < 86400) return `${Math.floor(sec/3600)}h ago`;
+    return `${Math.floor(sec/86400)}d ago`;
+}
+
+/* ─── SUMMARY ─── */
+async function loadSummary() {
+    try {
+        const r = await fetch(`${API}/api/admin/summary`);
+        const d = await r.json();
+        document.getElementById('s-confirmed').textContent = d.confirmedBookings ?? 0;
+        document.getElementById('s-designs').textContent = d.newDesigns ?? 0;
+        document.getElementById('s-total-designs').textContent = d.totalDesigns ?? 0;
+        document.getElementById('s-blocks').textContent = d.activeBlocks ?? 0;
         lucide.createIcons();
+    } catch {}
+}
 
-        // ── STATE ──
-        const API = (() => {
-            const h = window.location.hostname;
-            const isLocal = h === 'localhost' || h === '127.0.0.1' || h === '';
-            return isLocal ? 'http://localhost:3000' : 'https://windrosstailoringanddesign.com';
-        })();
+/* ─── BOOKINGS ─── */
+let allBookings = [];
 
-        let viewDate = new Date();
-        let selectedDateStr = null;
-        let monthBlocks = {}; // { 'YYYY-MM-DD': { type: 'day'|'mixed'|'none', blocks: [] } }
-        let allBlocks = [];
-        let pendingAction = null; // { type: 'day'|'slot', date, time? }
+async function loadBookings(limit = 0) {
+    const search = document.getElementById('booking-search')?.value || '';
+    const status = document.getElementById('booking-status-filter')?.value || '';
+    let url = `${API}/api/admin/bookings?`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
+    if (status) url += `status=${status}&`;
+    try {
+        const r = await fetch(url);
+        const d = await r.json();
+        allBookings = d.bookings || [];
+        const show = limit ? allBookings.slice(0, limit) : allBookings;
+        renderBookingsTable(show, limit > 0 ? 'recent-bookings-body' : 'bookings-table-body');
+    } catch {
+        const el = document.getElementById(limit ? 'recent-bookings-body' : 'bookings-table-body');
+        if (el) el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--red);font-size:0.88rem;">Failed to load bookings.</div>';
+    }
+}
 
-        // ── TOAST ──
-        function showToast(msg, type = 'success') {
-            const el = document.getElementById('toast');
-            el.className = `toast ${type} show`;
-            el.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" style="width:16px;height:16px;color:${type === 'success' ? 'var(--green)' : 'var(--red)'}"></i> ${msg}`;
-            lucide.createIcons();
-            setTimeout(() => { el.classList.remove('show'); }, 3200);
-        }
+function renderBookingsTable(bookings, containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!bookings.length) {
+        el.innerHTML = '<div class="empty-state"><i data-lucide="calendar-x" style="width:36px;height:36px;"></i><br>No bookings found.</div>';
+        lucide.createIcons(); return;
+    }
+    el.innerHTML = `<table class="data-table">
+        <thead><tr>
+            <th>Client</th><th>Date</th><th>Time</th><th>Status</th>
+        </tr></thead>
+        <tbody>${bookings.map(b => `
+        <tr onclick="openBookingDrawer(${b.id})">
+            <td><div class="name-cell">${b.name}</div><div class="sub-cell">${b.email}</div></td>
+            <td>${fmtDate(b.booking_date)}</td>
+            <td>${fmtTime(b.booking_time)}</td>
+            <td><span class="badge ${b.status}">${b.status}</span></td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+    lucide.createIcons();
+}
 
-        // ── FETCH HELPERS ──
-        async function fetchMonthBlocks(year, month) {
-            try {
-                const res = await fetch(`${API}/api/admin/unavailable/month?year=${year}&month=${month}`);
-                const data = await res.json();
-                return data.blocks || [];
-            } catch { return []; }
-        }
+let bookingDebounce;
+function debounceBookings() { clearTimeout(bookingDebounce); bookingDebounce = setTimeout(loadBookings, 350); }
 
-        async function fetchAllBlocks() {
-            try {
-                const res = await fetch(`${API}/api/admin/unavailable`);
-                const data = await res.json();
-                return data.blocks || [];
-            } catch { return []; }
-        }
+/* ─── BOOKING DRAWER ─── */
+let currentBookingId = null;
 
-        async function createBlock(block_type, block_date, block_time, reason) {
-            const res = await fetch(`${API}/api/admin/unavailable`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ block_type, block_date, block_time, reason })
-            });
-            return res.json();
-        }
+async function openBookingDrawer(id) {
+    currentBookingId = id;
+    document.getElementById('booking-drawer-overlay').classList.add('open');
+    document.getElementById('booking-drawer').classList.add('open');
+    document.getElementById('bd-name').textContent = 'Loading…';
+    document.getElementById('bd-sub').textContent = '';
+    document.getElementById('bd-body').innerHTML = '<div class="loader"><div class="spinner"></div></div>';
 
-        async function deleteBlock(id) {
-            const res = await fetch(`${API}/api/admin/unavailable/${id}`, { method: 'DELETE' });
-            return res.json();
-        }
+    try {
+        const r = await fetch(`${API}/api/admin/bookings/${id}`);
+        const d = await r.json();
+        const b = d.booking;
+        document.getElementById('bd-name').textContent = b.name;
+        document.getElementById('bd-sub').textContent = `Booking #WT-${b.id} · ${ago(b.created_at)}`;
+        document.getElementById('bd-status').value = b.status;
 
-        // ── BUILD monthBlocks MAP ──
-        function buildMonthBlockMap(blocks) {
-            monthBlocks = {};
-            blocks.forEach(b => {
-                if (!monthBlocks[b.block_date]) {
-                    monthBlocks[b.block_date] = { dayBlocked: false, slotCount: 0, blocks: [] };
-                }
-                monthBlocks[b.block_date].blocks.push(b);
-                if (b.block_type === 'day') monthBlocks[b.block_date].dayBlocked = true;
-                if (b.block_type === 'slot') monthBlocks[b.block_date].slotCount++;
-            });
-        }
+        document.getElementById('bd-body').innerHTML = `
+            <div class="detail-section">
+                <div class="detail-section-title">Contact</div>
+                <div class="detail-row"><span class="detail-key">Email</span><span class="detail-val"><a href="mailto:${b.email}" style="color:var(--gold);text-decoration:none;">${b.email}</a></span></div>
+                <div class="detail-row"><span class="detail-key">Phone</span><span class="detail-val"><a href="tel:${b.phone}" style="color:var(--gold);text-decoration:none;">${b.phone}</a></span></div>
+                <div class="detail-row"><span class="detail-key">Region</span><span class="detail-val">${b.region || '—'}</span></div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Appointment</div>
+                <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${fmtDate(b.booking_date)}</span></div>
+                <div class="detail-row"><span class="detail-key">Time</span><span class="detail-val">${fmtTime(b.booking_time)}</span></div>
+                <div class="detail-row"><span class="detail-key">Booked On</span><span class="detail-val">${fmtDateTime(b.created_at)}</span></div>
+            </div>
+            ${b.notes ? `<div class="detail-section">
+                <div class="detail-section-title">Notes</div>
+                <div class="detail-desc">${b.notes}</div>
+            </div>` : ''}
+            <div class="detail-section" style="margin-top:20px;">
+                <a href="https://wa.me/${b.phone.replace(/\D/g,'')}" target="_blank" style="display:flex;align-items:center;gap:8px;color:#25D366;font-size:0.85rem;text-decoration:none;border:1px solid rgba(37,211,102,0.3);border-radius:6px;padding:10px 14px;background:rgba(37,211,102,0.06);">
+                    <i data-lucide="message-circle" style="width:16px;height:16px;"></i> Message on WhatsApp
+                </a>
+            </div>
+        `;
+        lucide.createIcons();
+    } catch {
+        document.getElementById('bd-body').innerHTML = '<p style="color:var(--red);text-align:center;padding:30px;">Failed to load booking.</p>';
+    }
+}
 
-        // ── CALENDAR RENDER ──
-        async function renderCalendar() {
-            const grid = document.getElementById('cal-grid');
-            const label = document.getElementById('cal-month-label');
-            grid.innerHTML = '<div class="cal-day cal-empty"></div>'.repeat(7) + '<div class="loader" style="grid-column:1/-1"><div class="spinner"></div></div>';
-
-            const year = viewDate.getFullYear();
-            const month = viewDate.getMonth();
-            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-            label.textContent = `${monthNames[month]} ${year}`;
-
-            const blocks = await fetchMonthBlocks(year, month + 1);
-            buildMonthBlockMap(blocks);
-
-            grid.innerHTML = '';
-
-            const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-            dayNames.forEach(d => {
-                const el = document.createElement('div');
-                el.className = 'cal-day-hdr'; el.textContent = d;
-                grid.appendChild(el);
-            });
-
-            const firstDay = new Date(year, month, 1).getDay();
-            for (let i = 0; i < firstDay; i++) {
-                const empty = document.createElement('div');
-                empty.className = 'cal-day cal-empty';
-                grid.appendChild(empty);
-            }
-
-            const today = new Date(); today.setHours(0,0,0,0);
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dayDate = new Date(year, month, d);
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const el = document.createElement('div');
-                el.className = 'cal-day';
-
-                const numEl = document.createElement('span');
-                numEl.textContent = d;
-                el.appendChild(numEl);
-
-                if (dayDate < today) {
-                    el.classList.add('cal-past');
-                } else {
-                    const info = monthBlocks[dateStr];
-                    if (info) {
-                        const dot = document.createElement('span');
-                        dot.className = 'cal-dot';
-                        if (info.dayBlocked) {
-                            dot.classList.add('red');
-                        } else if (info.slotCount > 0) {
-                            dot.classList.add('amber');
-                        }
-                        el.appendChild(dot);
-                    }
-
-                    el.addEventListener('click', () => selectDay(dateStr, el));
-                }
-
-                if (dateStr === selectedDateStr) el.classList.add('cal-selected');
-
-                grid.appendChild(el);
-            }
-        }
-
-        // ── DAY SELECTION ──
-        async function selectDay(dateStr, el) {
-            document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('cal-selected'));
-            el.classList.add('cal-selected');
-            selectedDateStr = dateStr;
-
-            const placeholder = document.getElementById('day-placeholder');
-            const content = document.getElementById('day-detail-content');
-            placeholder.style.display = 'none';
-            content.style.display = 'block';
-            content.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-
-            // Get availability from public endpoint (shows real state)
-            let slots = [];
-            let dayIsAdminBlocked = false;
-            try {
-                const res = await fetch(`${API}/api/bookings/availability?date=${dateStr}`);
-                const data = await res.json();
-                slots = data.slots || [];
-                dayIsAdminBlocked = data.dayBlocked || false;
-            } catch {
-                content.innerHTML = '<p style="color:var(--red);text-align:center;font-size:0.88rem;">Failed to load slots.</p>';
-                return;
-            }
-
-            // Get admin blocks for this day
-            const dayBlockInfo = monthBlocks[dateStr] || { dayBlocked: false, slotCount: 0, blocks: [] };
-
-            // Format display date
-            const d = new Date(dateStr + 'T00:00:00');
-            const nice = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-
-            let html = `
-                <div class="day-detail-date">${nice}</div>
-                <div class="day-detail-sub">${slots.length} time slots · ${slots.filter(s=>s.available).length} available</div>
-            `;
-
-            // Block/Unblock entire day button
-            if (dayIsAdminBlocked) {
-                html += `<button class="block-day-btn unblock" onclick="unblockDay('${dateStr}')">
-                    <i data-lucide="unlock" style="width:14px;height:14px;margin-right:6px;vertical-align:middle;"></i>
-                    Unblock Entire Day
-                </button>`;
-            } else {
-                html += `<button class="block-day-btn block" onclick="promptBlock('day','${dateStr}')">
-                    <i data-lucide="ban" style="width:14px;height:14px;margin-right:6px;vertical-align:middle;"></i>
-                    Block Entire Day
-                </button>`;
-            }
-
-            html += '<hr class="divider">';
-            html += '<div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Individual Slots</div>';
-
-            if (dayIsAdminBlocked) {
-                html += '<p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:20px 0;">This entire day is blocked. Unblock the day first to manage individual slots.</p>';
-            } else {
-                html += '<div class="slots-list">';
-                const allSlots = generateAllSlots();
-                allSlots.forEach(s => {
-                    const liveSlot = slots.find(ls => ls.time === s.time);
-                    const isAdminBlocked = dayBlockInfo.blocks.some(b => b.block_type === 'slot' && b.block_time === s.time);
-                    const isBooked = liveSlot && !liveSlot.available && liveSlot.reason === 'BOOKED';
-                    const isPast = liveSlot && !liveSlot.available && liveSlot.reason === 'PAST';
-
-                    let statusClass = 'available', statusText = 'Available';
-                    if (isPast) { statusClass = 'unavailable'; statusText = 'Passed'; }
-                    else if (isBooked) { statusClass = 'booked'; statusText = 'Booked'; }
-                    else if (isAdminBlocked) { statusClass = 'unavailable'; statusText = 'Blocked'; }
-
-                    const blockInfo = dayBlockInfo.blocks.find(b => b.block_type === 'slot' && b.block_time === s.time);
-                    const blockId = blockInfo ? blockInfo.id : null;
-
-                    html += `<div class="slot-row ${isAdminBlocked ? 'blocked-slot' : ''}">
-                        <span class="slot-label">${s.label}</span>
-                        <span class="slot-status ${statusClass}">${statusText}</span>`;
-
-                    if (!isPast && !isBooked) {
-                        if (isAdminBlocked && blockId) {
-                            html += `<button class="slot-toggle unblock-btn" onclick="removeBlock(${blockId})">Unblock</button>`;
-                        } else if (!isAdminBlocked) {
-                            html += `<button class="slot-toggle" onclick="promptBlock('slot','${dateStr}','${s.time}')">Block</button>`;
-                        }
-                    } else {
-                        html += `<span style="width:60px;"></span>`;
-                    }
-
-                    html += `</div>`;
-                });
-                html += '</div>';
-            }
-
-            content.innerHTML = html;
-            lucide.createIcons();
-        }
-
-        function generateAllSlots() {
-            const slots = [];
-            for (let current = 12*60; current <= 18.5*60; current += 30) {
-                const h = Math.floor(current/60), m = current%60;
-                const time = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-                const h12 = h>12?h-12:(h===0?12:h);
-                const ampm = h>=12?'PM':'AM';
-                const label = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
-                slots.push({ time, label });
-            }
-            return slots;
-        }
-
-        // ── MODAL ──
-        function promptBlock(type, date, time = null) {
-            pendingAction = { type, date, time };
-            const modal = document.getElementById('reason-modal');
-            const title = document.getElementById('modal-title');
-            const desc = document.getElementById('modal-desc');
-            const confirmBtn = document.getElementById('modal-confirm');
-
-            if (type === 'day') {
-                const d = new Date(date+'T00:00:00');
-                title.textContent = `Block ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
-                desc.textContent = 'This will make ALL time slots unavailable on this day for clients.';
-            } else {
-                const h = parseInt(time.split(':')[0]);
-                const m = parseInt(time.split(':')[1]);
-                const h12 = h>12?h-12:(h===0?12:h);
-                const ampm = h>=12?'PM':'AM';
-                const niceTime = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
-                title.textContent = `Block ${niceTime}`;
-                desc.textContent = 'This specific time slot will be marked unavailable for clients.';
-            }
-
-            document.getElementById('reason-input').value = '';
-            modal.classList.add('active');
-        }
-
-        document.getElementById('modal-cancel').addEventListener('click', () => {
-            document.getElementById('reason-modal').classList.remove('active');
-            pendingAction = null;
+async function saveBookingStatus() {
+    if (!currentBookingId) return;
+    const status = document.getElementById('bd-status').value;
+    try {
+        const r = await fetch(`${API}/api/admin/bookings/${currentBookingId}/status`, {
+            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
         });
+        const d = await r.json();
+        if (d.success) { toast('Status updated.'); loadBookings(); loadSummary(); }
+        else toast(d.error || 'Failed.', 'err');
+    } catch { toast('Network error.', 'err'); }
+}
 
-        document.getElementById('modal-confirm').addEventListener('click', async () => {
-            if (!pendingAction) return;
-            const reason = document.getElementById('reason-input').value.trim();
-            document.getElementById('reason-modal').classList.remove('active');
+function closeDrawer(type) {
+    document.getElementById(type + '-drawer-overlay').classList.remove('open');
+    document.getElementById(type + '-drawer').classList.remove('open');
+}
 
-            const confirmBtn = document.getElementById('modal-confirm');
-            confirmBtn.textContent = 'Saving...';
-            confirmBtn.disabled = true;
+/* ─── DESIGNS ─── */
+async function loadDesigns(limit = 0) {
+    const search = document.getElementById('design-search')?.value || '';
+    const status = document.getElementById('design-status-filter')?.value || '';
+    let url = `${API}/api/admin/designs?`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
+    if (status) url += `status=${status}&`;
+    try {
+        const r = await fetch(url);
+        const d = await r.json();
+        const designs = d.designs || [];
+        const show = limit ? designs.slice(0, limit) : designs;
+        renderDesignsTable(show, limit > 0 ? 'recent-designs-body' : 'designs-table-body');
+    } catch {
+        const el = document.getElementById(limit ? 'recent-designs-body' : 'designs-table-body');
+        if (el) el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--red);font-size:0.88rem;">Failed to load designs.</div>';
+    }
+}
 
-            try {
-                const res = await createBlock(pendingAction.type, pendingAction.date, pendingAction.time, reason);
-                if (res.success) {
-                    showToast('Block saved successfully.');
-                    await refreshAll();
-                } else {
-                    showToast(res.error || 'Failed to save block.', 'error');
+function renderDesignsTable(designs, containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!designs.length) {
+        el.innerHTML = '<div class="empty-state"><i data-lucide="pen-tool" style="width:36px;height:36px;"></i><br>No design inquiries yet.</div>';
+        lucide.createIcons(); return;
+    }
+    el.innerHTML = `<table class="data-table">
+        <thead><tr>
+            <th>Client</th><th>Design</th><th>Submitted</th><th>Status</th>
+        </tr></thead>
+        <tbody>${designs.map(d => `
+        <tr onclick="openDesignDrawer(${d.id})">
+            <td><div class="name-cell">${d.customer_name}</div><div class="sub-cell">${d.customer_email}</div></td>
+            <td><div class="name-cell">${d.design_name || '—'}</div><div class="sub-cell">${d.gender ? (d.gender === 'male' ? 'Men' : 'Women') : ''} ${d.fabric ? '· ' + d.fabric : ''}</div></td>
+            <td style="color:var(--muted);font-size:0.82rem;">${ago(d.created_at)}</td>
+            <td><span class="badge ${d.status}">${d.status.replace('_',' ')}</span></td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+    lucide.createIcons();
+}
+
+let designDebounce;
+function debounceDesigns() { clearTimeout(designDebounce); designDebounce = setTimeout(loadDesigns, 350); }
+
+/* ─── DESIGN DRAWER ─── */
+let currentDesignId = null;
+
+async function openDesignDrawer(id) {
+    currentDesignId = id;
+    document.getElementById('design-drawer-overlay').classList.add('open');
+    document.getElementById('design-drawer').classList.add('open');
+    document.getElementById('dd-name').textContent = 'Loading…';
+    document.getElementById('dd-sub').textContent = '';
+    document.getElementById('dd-body').innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+
+    try {
+        const r = await fetch(`${API}/api/admin/designs/${id}`);
+        const d = await r.json();
+        const des = d.design;
+        document.getElementById('dd-name').textContent = des.design_name || 'Design Inquiry';
+        document.getElementById('dd-sub').textContent = `Submitted by ${des.customer_name} · ${ago(des.created_at)}`;
+        document.getElementById('dd-status').value = des.status;
+
+        document.getElementById('dd-body').innerHTML = `
+            <div class="detail-section">
+                <div class="detail-section-title">Client</div>
+                <div class="detail-row"><span class="detail-key">Name</span><span class="detail-val">${des.customer_name}</span></div>
+                <div class="detail-row"><span class="detail-key">Email</span><span class="detail-val"><a href="mailto:${des.customer_email}" style="color:var(--gold);text-decoration:none;">${des.customer_email}</a></span></div>
+                <div class="detail-row"><span class="detail-key">Phone</span><span class="detail-val">${des.customer_phone ? `<a href="tel:${des.customer_phone}" style="color:var(--gold);text-decoration:none;">${des.customer_phone}</a>` : '—'}</span></div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Design Specs</div>
+                <div class="detail-row"><span class="detail-key">Design Name</span><span class="detail-val">${des.design_name || '—'}</span></div>
+                <div class="detail-row"><span class="detail-key">Gender</span><span class="detail-val">${des.gender === 'male' ? 'Men' : des.gender === 'female' ? 'Women' : '—'}</span></div>
+                <div class="detail-row"><span class="detail-key">Fabric</span><span class="detail-val">${des.fabric || '—'}</span></div>
+                <div class="detail-row"><span class="detail-key">Target Date</span><span class="detail-val">${des.target_date ? fmtDate(des.target_date) : '—'}</span></div>
+                ${des.has_photo ? `<div class="detail-row"><span class="detail-key">Photo</span><span class="detail-val"><span class="photo-pill">📎 Attached in email</span></span></div>` : ''}
+            </div>
+            ${(des.booking_date || des.booking_time) ? `<div class="detail-section">
+                <div class="detail-section-title">Requested Fitting</div>
+                <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${fmtDate(des.booking_date)}</span></div>
+                <div class="detail-row"><span class="detail-key">Time</span><span class="detail-val">${fmtTime(des.booking_time)}</span></div>
+            </div>` : ''}
+            ${des.description ? `<div class="detail-section">
+                <div class="detail-section-title">Description</div>
+                <div class="detail-desc">${des.description}</div>
+            </div>` : ''}
+            ${des.customer_phone ? `<div class="detail-section" style="margin-top:6px;">
+                <a href="https://wa.me/${des.customer_phone.replace(/\D/g,'')}" target="_blank" style="display:flex;align-items:center;gap:8px;color:#25D366;font-size:0.85rem;text-decoration:none;border:1px solid rgba(37,211,102,0.3);border-radius:6px;padding:10px 14px;background:rgba(37,211,102,0.06);">
+                    <i data-lucide="message-circle" style="width:16px;height:16px;"></i> Message on WhatsApp
+                </a>
+            </div>` : ''}
+        `;
+        lucide.createIcons();
+    } catch {
+        document.getElementById('dd-body').innerHTML = '<p style="color:var(--red);text-align:center;padding:30px;">Failed to load inquiry.</p>';
+    }
+}
+
+async function saveDesignStatus() {
+    if (!currentDesignId) return;
+    const status = document.getElementById('dd-status').value;
+    try {
+        const r = await fetch(`${API}/api/admin/designs/${currentDesignId}/status`, {
+            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+        const d = await r.json();
+        if (d.success) { toast('Status updated.'); loadDesigns(); loadSummary(); }
+        else toast(d.error || 'Failed.', 'err');
+    } catch { toast('Network error.', 'err'); }
+}
+
+/* ─── AVAILABILITY ─── */
+let viewDate = new Date();
+let selectedDateStr = null;
+let monthBlocks = {};
+let pendingAction = null;
+
+async function loadAvailability() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cal-label').textContent = `${monthNames[month]} ${year}`;
+
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+
+    // Fetch blocks for month
+    try {
+        const r = await fetch(`${API}/api/admin/unavailable/month?year=${year}&month=${month+1}`);
+        const d = await r.json();
+        monthBlocks = {};
+        (d.blocks || []).forEach(b => {
+            if (!monthBlocks[b.block_date]) monthBlocks[b.block_date] = { dayBlocked: false, slotCount: 0, blocks: [] };
+            monthBlocks[b.block_date].blocks.push(b);
+            if (b.block_type === 'day') monthBlocks[b.block_date].dayBlocked = true;
+            else monthBlocks[b.block_date].slotCount++;
+        });
+    } catch { monthBlocks = {}; }
+
+    const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    dayNames.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-day-hdr'; el.textContent = d;
+        grid.appendChild(el);
+    });
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const firstDay = new Date(year, month, 1).getDay();
+    for (let i = 0; i < firstDay; i++) {
+        const e = document.createElement('div'); e.className = 'cal-day cal-empty'; grid.appendChild(e);
+    }
+
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayDate = new Date(year, month, d);
+        const el = document.createElement('div'); el.className = 'cal-day';
+
+        const numEl = document.createElement('span'); numEl.textContent = d; el.appendChild(numEl);
+
+        if (dayDate < today) {
+            el.classList.add('cal-past');
+        } else {
+            const info = monthBlocks[dateStr];
+            if (info) {
+                const dot = document.createElement('span'); dot.className = 'cal-dot';
+                dot.classList.add(info.dayBlocked ? 'red' : 'amber');
+                el.appendChild(dot);
+            }
+            el.addEventListener('click', () => selectAvailDay(dateStr, el));
+        }
+        if (dateStr === selectedDateStr) el.classList.add('cal-selected');
+        grid.appendChild(el);
+    }
+    lucide.createIcons();
+}
+
+async function selectAvailDay(dateStr, el) {
+    document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('cal-selected'));
+    el.classList.add('cal-selected');
+    selectedDateStr = dateStr;
+
+    const placeholder = document.getElementById('avail-placeholder');
+    const content = document.getElementById('avail-day-content');
+    placeholder.style.display = 'none';
+    content.style.display = 'block';
+    content.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+
+    let slots = [], dayIsAdminBlocked = false;
+    try {
+        const r = await fetch(`${API}/api/bookings/availability?date=${dateStr}`);
+        const d = await r.json();
+        slots = d.slots || [];
+        dayIsAdminBlocked = d.dayBlocked || false;
+    } catch { content.innerHTML = '<p style="color:var(--red);text-align:center;font-size:0.85rem;">Failed to load slots.</p>'; return; }
+
+    const dayInfo = monthBlocks[dateStr] || { dayBlocked: false, blocks: [] };
+    const d = new Date(dateStr + 'T00:00:00');
+    const niceDate = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+    let html = `<div style="font-family:'Playfair Display',serif;font-size:1.15rem;color:white;margin-bottom:4px;">${niceDate}</div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;">${slots.filter(s=>s.available).length} of ${slots.length} slots available</div>`;
+
+    if (dayIsAdminBlocked) {
+        html += `<button class="block-day-btn do-unblock" onclick="unblockDay('${dateStr}')"><i data-lucide="unlock" style="width:13px;height:13px;margin-right:6px;vertical-align:middle;"></i>Unblock Entire Day</button>`;
+    } else {
+        html += `<button class="block-day-btn do-block" onclick="promptBlock('day','${dateStr}')"><i data-lucide="ban" style="width:13px;height:13px;margin-right:6px;vertical-align:middle;"></i>Block Entire Day</button>`;
+    }
+
+    html += '<hr class="divider"><div class="section-sub">Individual Slots</div>';
+
+    if (dayIsAdminBlocked) {
+        html += '<p style="color:var(--muted);font-size:0.83rem;text-align:center;padding:16px 0;">Unblock the day first to manage slots.</p>';
+    } else {
+        html += '<div class="slots-list">';
+        generateAllSlots().forEach(s => {
+            const live = slots.find(ls => ls.time === s.time);
+            const isAdminBlocked = dayInfo.blocks.some(b => b.block_type === 'slot' && b.block_time === s.time);
+            const isBooked = live && !live.available && live.reason === 'BOOKED';
+            const isPast = live && !live.available && live.reason === 'PAST';
+            const blockInfo = dayInfo.blocks.find(b => b.block_type === 'slot' && b.block_time === s.time);
+
+            let statusClass = 'available', statusText = 'Available';
+            if (isPast) { statusClass = 'passed'; statusText = 'Passed'; }
+            else if (isBooked) { statusClass = 'booked'; statusText = 'Booked'; }
+            else if (isAdminBlocked) { statusClass = 'unavailable'; statusText = 'Blocked'; }
+
+            html += `<div class="slot-row ${isAdminBlocked ? 'admin-blocked' : ''}">
+                <span class="slot-label">${s.label}</span>
+                <span class="slot-status-tag ${statusClass}">${statusText}</span>`;
+
+            if (!isPast && !isBooked) {
+                if (isAdminBlocked && blockInfo) {
+                    html += `<button class="slot-toggle do-unblock" onclick="removeBlock(${blockInfo.id})">Unblock</button>`;
+                } else if (!isAdminBlocked) {
+                    html += `<button class="slot-toggle" onclick="promptBlock('slot','${dateStr}','${s.time}')">Block</button>`;
                 }
-            } catch {
-                showToast('Network error. Please try again.', 'error');
-            }
-
-            confirmBtn.textContent = 'Confirm Block';
-            confirmBtn.disabled = false;
-            pendingAction = null;
+            } else { html += `<span style="width:58px;"></span>`; }
+            html += `</div>`;
         });
+        html += '</div>';
+    }
 
-        // Close modal on overlay click
-        document.getElementById('reason-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-                pendingAction = null;
-            }
+    content.innerHTML = html;
+    lucide.createIcons();
+}
+
+function generateAllSlots() {
+    const slots = [];
+    for (let c = 12*60; c <= 18.5*60; c += 30) {
+        const h = Math.floor(c/60), m = c%60;
+        const time = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+        const h12 = h>12?h-12:(h===0?12:h);
+        slots.push({ time, label: `${h12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}` });
+    }
+    return slots;
+}
+
+// ── month nav
+document.getElementById('prev-month').addEventListener('click', async () => { viewDate.setMonth(viewDate.getMonth()-1); await loadAvailability(); });
+document.getElementById('next-month').addEventListener('click', async () => { viewDate.setMonth(viewDate.getMonth()+1); await loadAvailability(); });
+
+// ── modal
+function promptBlock(type, date, time = null) {
+    pendingAction = { type, date, time };
+    const modal = document.getElementById('reason-modal');
+    const d = new Date(date+'T00:00:00');
+    document.getElementById('modal-title').textContent = type === 'day' ? `Block ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : `Block ${fmtTime(time)}`;
+    document.getElementById('modal-desc').textContent = type === 'day' ? 'All slots on this day will be unavailable to clients.' : 'This specific time slot will be marked unavailable.';
+    document.getElementById('reason-input').value = '';
+    modal.classList.add('open');
+}
+document.getElementById('modal-cancel').addEventListener('click', () => { document.getElementById('reason-modal').classList.remove('open'); pendingAction = null; });
+document.getElementById('reason-modal').addEventListener('click', function(e) { if (e.target === this) { this.classList.remove('open'); pendingAction = null; } });
+document.getElementById('modal-confirm').addEventListener('click', async () => {
+    if (!pendingAction) return;
+    const reason = document.getElementById('reason-input').value.trim();
+    document.getElementById('reason-modal').classList.remove('open');
+    try {
+        const r = await fetch(`${API}/api/admin/unavailable`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ block_type: pendingAction.type, block_date: pendingAction.date, block_time: pendingAction.time, reason })
         });
+        const d = await r.json();
+        if (d.success) { toast('Block saved.'); await refreshAvail(); }
+        else toast(d.error || 'Failed.', 'err');
+    } catch { toast('Network error.', 'err'); }
+    pendingAction = null;
+});
 
-        // ── UNBLOCK DAY ──
-        async function unblockDay(dateStr) {
-            const dayInfo = monthBlocks[dateStr];
-            if (!dayInfo) return;
-            const dayBlock = dayInfo.blocks.find(b => b.block_type === 'day');
-            if (!dayBlock) return;
+async function unblockDay(dateStr) {
+    const info = monthBlocks[dateStr];
+    if (!info) return;
+    const blk = info.blocks.find(b => b.block_type === 'day');
+    if (!blk) return;
+    await removeBlock(blk.id);
+}
 
-            try {
-                const res = await deleteBlock(dayBlock.id);
-                if (res.success) {
-                    showToast('Day unblocked.');
-                    await refreshAll();
-                } else {
-                    showToast(res.error || 'Failed to unblock.', 'error');
-                }
-            } catch {
-                showToast('Network error.', 'error');
-            }
+async function removeBlock(id) {
+    try {
+        const r = await fetch(`${API}/api/admin/unavailable/${id}`, { method:'DELETE' });
+        const d = await r.json();
+        if (d.success) { toast('Block removed.'); await refreshAvail(); }
+        else toast(d.error || 'Failed.', 'err');
+    } catch { toast('Network error.', 'err'); }
+}
+
+async function refreshAvail() {
+    await loadAvailability();
+    await loadAllBlocks();
+    if (selectedDateStr) {
+        const sel = document.querySelector('.cal-day.cal-selected');
+        if (sel) await selectAvailDay(selectedDateStr, sel);
+    }
+}
+
+async function loadAllBlocks() {
+    const container = document.getElementById('all-blocks-container');
+    const countEl = document.getElementById('blocks-count');
+    try {
+        const r = await fetch(`${API}/api/admin/unavailable`);
+        const d = await r.json();
+        const blocks = d.blocks || [];
+        countEl.textContent = blocks.length;
+
+        if (!blocks.length) {
+            container.innerHTML = '<div class="empty-state"><i data-lucide="check-circle" style="width:30px;height:30px;"></i><br>No blocks set. All dates are open.</div>';
+            lucide.createIcons(); return;
         }
 
-        // ── REMOVE BLOCK ──
-        async function removeBlock(id) {
-            try {
-                const res = await deleteBlock(id);
-                if (res.success) {
-                    showToast('Block removed.');
-                    await refreshAll();
-                } else {
-                    showToast(res.error || 'Failed to remove block.', 'error');
-                }
-            } catch {
-                showToast('Network error.', 'error');
-            }
-        }
-
-        // ── RENDER ALL BLOCKS LIST ──
-        function renderBlocksList() {
-            const container = document.getElementById('blocks-list-container');
-            const countEl = document.getElementById('blocks-count');
-            countEl.textContent = allBlocks.length;
-
-            if (allBlocks.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i data-lucide="check-circle" style="width:32px;height:32px;opacity:0.3;margin-bottom:10px;"></i><br>No unavailability blocks set. All dates are open.</div>';
-                lucide.createIcons();
-                return;
-            }
-
-            container.innerHTML = '<div class="blocks-list" id="blocks-list"></div>';
-            const list = document.getElementById('blocks-list');
-
-            // Group by date for readability
-            const grouped = {};
-            allBlocks.forEach(b => {
-                if (!grouped[b.block_date]) grouped[b.block_date] = [];
-                grouped[b.block_date].push(b);
-            });
-
-            Object.keys(grouped).sort().forEach(dateStr => {
-                grouped[dateStr].forEach(b => {
-                    const d = new Date(dateStr + 'T00:00:00');
-                    const niceDate = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-
-                    let timeDisplay = '';
-                    if (b.block_type === 'slot' && b.block_time) {
-                        const [h, m] = b.block_time.split(':').map(Number);
-                        const h12 = h>12?h-12:(h===0?12:h);
-                        const ampm = h>=12?'PM':'AM';
-                        timeDisplay = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
-                    } else {
-                        timeDisplay = 'All day';
-                    }
-
-                    const item = document.createElement('div');
-                    item.className = 'block-item';
-                    item.innerHTML = `
-                        <span class="block-type-badge ${b.block_type}">${b.block_type === 'day' ? 'Full Day' : 'Slot'}</span>
-                        <div class="block-info">
-                            <span class="block-date-str">${niceDate}</span>
-                            ${b.reason ? `<span class="block-reason-str">${b.reason}</span>` : ''}
-                        </div>
-                        <span class="block-time-str">${timeDisplay}</span>
-                        <button class="delete-btn" onclick="removeBlock(${b.id})" title="Remove block">
-                            <i data-lucide="x" style="width:14px;height:14px;"></i>
-                        </button>
-                    `;
-                    list.appendChild(item);
-                });
-            });
-
-            lucide.createIcons();
-        }
-
-        // ── REFRESH EVERYTHING ──
-        async function refreshAll() {
-            allBlocks = await fetchAllBlocks();
-            await renderCalendar();
-            renderBlocksList();
-
-            // Re-render selected day detail if one is selected
-            if (selectedDateStr) {
-                const dayEl = document.querySelector(`.cal-day.cal-selected`);
-                if (dayEl) await selectDay(selectedDateStr, dayEl);
-            }
-        }
-
-        // ── MONTH NAV ──
-        document.getElementById('prev-month').addEventListener('click', async () => {
-            viewDate.setMonth(viewDate.getMonth() - 1);
-            await renderCalendar();
+        const list = document.createElement('div'); list.className = 'all-blocks-list';
+        blocks.forEach(b => {
+            const timeDisplay = b.block_type === 'slot' && b.block_time ? fmtTime(b.block_time) : 'All day';
+            const item = document.createElement('div'); item.className = 'blk-item';
+            item.innerHTML = `
+                <span class="blk-badge ${b.block_type}">${b.block_type === 'day' ? 'Full Day' : 'Slot'}</span>
+                <div class="blk-info"><span class="blk-date">${fmtDate(b.block_date)}</span>${b.reason ? `<span class="blk-reason">${b.reason}</span>` : ''}</div>
+                <span class="blk-time">${timeDisplay}</span>
+                <button class="del-btn" onclick="removeBlock(${b.id})"><i data-lucide="x" style="width:13px;height:13px;"></i></button>`;
+            list.appendChild(item);
         });
+        container.innerHTML = '';
+        container.appendChild(list);
+        lucide.createIcons();
+    } catch {
+        container.innerHTML = '<div style="padding:20px;color:var(--red);text-align:center;font-size:0.85rem;">Failed to load blocks.</div>';
+    }
+}
 
-        document.getElementById('next-month').addEventListener('click', async () => {
-            viewDate.setMonth(viewDate.getMonth() + 1);
-            await renderCalendar();
-        });
+// ── Expose globals for inline handlers
+window.openBookingDrawer = openBookingDrawer;
+window.openDesignDrawer = openDesignDrawer;
+window.closeDrawer = closeDrawer;
+window.saveBookingStatus = saveBookingStatus;
+window.saveDesignStatus = saveDesignStatus;
+window.promptBlock = promptBlock;
+window.unblockDay = unblockDay;
+window.removeBlock = removeBlock;
 
-        // ── INIT ──
-        (async () => {
-            allBlocks = await fetchAllBlocks();
-            await renderCalendar();
-            renderBlocksList();
-        })();
-
-        // Expose globally for inline onclick handlers
-        window.promptBlock = promptBlock;
-        window.unblockDay = unblockDay;
-        window.removeBlock = removeBlock;
-    </script>
+// ── INIT
+(async () => {
+    await loadSummary();
+    await loadBookings(5);
+    await loadDesigns(5);
+})();
+</script>
 
 </body>
 </html>
