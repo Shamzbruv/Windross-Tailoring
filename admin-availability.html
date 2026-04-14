@@ -97,16 +97,11 @@
             gap: 16px; margin-bottom: 30px;
         }
 
-        @media (max-width: 900px) {
-            .summary-grid { grid-template-columns: repeat(2,1fr); }
-            .nav-tabs { display: none; }
-        }
-
         /* ── MOBILE BOTTOM TAB BAR ── */
         .mobile-tabbar {
-            display: none;
+            display: none; /* shown via media query below */
             position: fixed; bottom: 0; left: 0; right: 0;
-            z-index: 200;
+            z-index: 300;
             background: rgba(10,10,10,0.97);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -130,13 +125,22 @@
             transition: 0.2s; padding: 6px 0;
             -webkit-tap-highlight-color: transparent;
         }
-        .mob-tab svg { width: 20px; height: 20px; }
+        .mob-tab svg { width: 22px; height: 22px; }
         .mob-tab.active { color: var(--gold); }
         .mob-tab.active svg { filter: drop-shadow(0 0 4px rgba(212,175,55,0.5)); }
 
+        /* ── At 900px: top nav tabs hide → bottom tab bar must appear ── */
+        @media (max-width: 900px) {
+            .summary-grid { grid-template-columns: repeat(2,1fr); }
+            .nav-tabs { display: none; }
+
+            /* Show the bottom tab bar exactly when top tabs disappear */
+            .mobile-tabbar { display: block !important; }
+            .main-wrap { padding: 62px 0 72px; } /* bottom room for tab bar */
+        }
+
+        /* ── At 768px: additional layout refinements ── */
         @media (max-width: 768px) {
-            .mobile-tabbar { display: block; }
-            .main-wrap { padding: 62px 0 72px; } /* extra bottom padding for tab bar */
             .tab-view { padding: 16px; }
 
             /* Nav compact on mobile */
@@ -144,7 +148,7 @@
             .admin-badge { display: none; }
 
             /* Summary cards 2-col on small screens */
-            .summary-grid { grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+            .summary-grid { gap: 10px; margin-bottom: 16px; }
             .stat-card { padding: 16px; }
             .stat-value { font-size: 1.9rem; }
             .stat-label { font-size: 0.67rem; }
@@ -199,9 +203,18 @@
             .modal-box { padding: 24px 20px; }
         }
 
+        /* Extra small phones */
         @media (max-width: 380px) {
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .stat-value { font-size: 1.6rem; }
+        }
+
+        /* Notch / home-bar safe area support */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .mobile-tabbar {
+                padding-bottom: env(safe-area-inset-bottom);
+                height: calc(64px + env(safe-area-inset-bottom));
+            }
         }
 
         .stat-card {
