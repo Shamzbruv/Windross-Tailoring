@@ -2,7 +2,9 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 // Connect to Database
-const dbPath = path.join(__dirname, 'windross.db');
+// Support Persistent Volumes in production (e.g., Railway /data mount)
+const dataDir = process.env.DATA_DIR || __dirname;
+const dbPath = path.join(dataDir, 'windross.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
