@@ -401,22 +401,26 @@ router.get('/bookings/availability', (req, res) => {
 
             const isDayBlocked = adminBlocks.some(b => b.block_type === 'day');
             const dayBlockReason = isDayBlocked ? (adminBlocks.find(b => b.block_type === 'day')?.reason || 'ADMIN') : null;
-            const blockedSlotTimes = adminBlocks
+            // Build a map of slot-level blocks with their reasons
+            const slotBlockMap = {};
+            adminBlocks
                 .filter(b => b.block_type === 'slot')
-                .map(b => b.block_time);
+                .forEach(b => { slotBlockMap[b.block_time] = b.reason || null; });
 
             if (isDayBlocked) {
                 slots.forEach(slot => {
                     slot.available = false;
-                    if (!slot.reason) slot.reason = dayBlockReason || 'UNAVAILABLE';
+                    if (!slot.reason) slot.reason = 'UNAVAILABLE';
+                    if (dayBlockReason && dayBlockReason !== 'ADMIN') slot.adminReason = dayBlockReason;
                 });
                 return res.json({ date, slots, dayBlocked: true, dayBlockReason });
             }
 
             slots.forEach(slot => {
-                if (slot.available && blockedSlotTimes.includes(slot.time)) {
+                if (slot.available && slotBlockMap.hasOwnProperty(slot.time)) {
                     slot.available = false;
                     slot.reason = 'UNAVAILABLE';
+                    if (slotBlockMap[slot.time]) slot.adminReason = slotBlockMap[slot.time];
                 }
             });
 
@@ -884,6 +888,30 @@ router.patch('/admin/bookings/:id/status', (req, res) => {
         if (err) return res.status(500).json({ error: 'Failed to update status.' });
         if (this.changes === 0) return res.status(404).json({ error: 'Booking not found.' });
         res.json({ success: true });
+    });
+});
+
+// POST cancel a booking and send apology email to customer
+router.post('/admin/bookings/:id/cancel', (req, res) => {
+    const { reason } = req.body; // Optional admin reason — included in the email
+    db.get(`SELECT * FROM bookings WHERE id = ?`, [req.params.id], (err, booking) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch booking.' });
+        if (!booking) return res.status(404).json({ error: 'Booking not found.' });
+        if (booking.status === 'cancelled') return res.status(400).json({ error: 'Booking is already cancelled.' });
+
+        db.run(`UPDATE bookings SET status = 'cancelled' WHERE id = ?`, [req.params.id], function(updateErr) {
+            if (updateErr) return res.status(500).json({ error: 'Failed to cancel booking.' });
+
+            // Fire the cancellation email asynchronously (don't block response)
+            try {
+                const { sendBookingCancellationEmail } = require('../services/email');
+                sendBookingCancellationEmail(booking, reason || null);
+            } catch (emailErr) {
+                console.error('Failed to send cancellation email:', emailErr);
+            }
+
+            res.json({ success: true });
+        });
     });
 });
 

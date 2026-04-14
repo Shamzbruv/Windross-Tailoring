@@ -1097,6 +1097,14 @@
 
                 slotsLoader.style.display = 'none';
 
+                // Show a notice if the entire day is admin-blocked with a reason
+                if (data.dayBlocked && data.dayBlockReason && data.dayBlockReason !== 'ADMIN') {
+                    const notice = document.createElement('div');
+                    notice.style.cssText = 'grid-column:1/-1;background:rgba(255,165,2,0.08);border:1px solid rgba(255,165,2,0.25);border-radius:6px;padding:12px 16px;font-size:0.85rem;color:#ffa502;margin-bottom:8px;';
+                    notice.innerHTML = `<strong>Note from our tailor:</strong> ${data.dayBlockReason}`;
+                    slotsGrid.appendChild(notice);
+                }
+
                 if (data.slots && data.slots.length > 0) {
                     data.slots.forEach(slot => {
                         const btn = document.createElement('button');
@@ -1105,7 +1113,23 @@
 
                         if (!slot.available) {
                             btn.disabled = true;
-                            btn.textContent = `${slot.label} (${slot.reason === 'PAST' ? 'Passed' : 'Booked'})`;
+                            if (slot.reason === 'PAST') {
+                                btn.textContent = `${slot.label} (Passed)`;
+                            } else if (slot.reason === 'BOOKED') {
+                                btn.textContent = `${slot.label} (Booked)`;
+                            } else {
+                                // Admin-blocked slot — show reason if available
+                                if (slot.adminReason) {
+                                    btn.textContent = slot.label;
+                                    btn.title = slot.adminReason; // tooltip on hover
+                                    const note = document.createElement('span');
+                                    note.style.cssText = 'display:block;font-size:0.7rem;opacity:0.7;margin-top:2px;';
+                                    note.textContent = slot.adminReason;
+                                    btn.appendChild(note);
+                                } else {
+                                    btn.textContent = `${slot.label} (Unavailable)`;
+                                }
+                            }
                         } else {
                             btn.textContent = slot.label;
                             btn.onclick = () => selectTime(slot.time, btn);

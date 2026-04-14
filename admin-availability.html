@@ -785,7 +785,7 @@
         <button class="close-btn" onclick="closeDrawer('booking')"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
     </div>
     <div class="drawer-body" id="bd-body"></div>
-    <div class="drawer-footer">
+    <div class="drawer-footer" style="display:flex;flex-direction:column;gap:12px;">
         <div class="status-select-wrap">
             <span class="status-label">Status</span>
             <select class="status-dropdown" id="bd-status">
@@ -794,6 +794,9 @@
             </select>
             <button class="save-status-btn" onclick="saveBookingStatus()">Save</button>
         </div>
+        <button id="bd-cancel-btn" onclick="promptCancelBooking()" style="width:100%;padding:11px;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.35);color:var(--red);border-radius:6px;font-family:'Inter',sans-serif;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:8px;" onmouseover="this.style.background='rgba(255,77,77,0.16)'" onmouseout="this.style.background='rgba(255,77,77,0.08)'">
+            <i data-lucide="mail-x" style="width:14px;height:14px;"></i> Cancel Booking & Notify Client
+        </button>
     </div>
 </div>
 
@@ -831,6 +834,19 @@
         <div class="modal-actions">
             <button class="btn-ghost" id="modal-cancel">Cancel</button>
             <button class="btn-gold" id="modal-confirm">Confirm Block</button>
+        </div>
+    </div>
+</div>
+
+<!-- CANCEL BOOKING MODAL -->
+<div class="modal-overlay" id="cancel-booking-modal">
+    <div class="modal-box">
+        <h3 style="color:var(--red);">Cancel Booking</h3>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:18px;">An apology email will be sent to the client automatically. You can add an optional message to explain.</p>
+        <input type="text" class="modal-input" id="cancel-reason-input" placeholder="e.g. Unavoidable schedule change…" maxlength="300">
+        <div class="modal-actions">
+            <button class="btn-ghost" onclick="document.getElementById('cancel-booking-modal').classList.remove('open')">Keep Booking</button>
+            <button style="flex:1;background:rgba(255,77,77,0.15);border:1px solid rgba(255,77,77,0.5);color:var(--red);padding:11px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Inter',sans-serif;transition:0.2s;" onclick="confirmCancelBooking()">Yes, Cancel & Notify</button>
         </div>
     </div>
 </div>
@@ -1019,6 +1035,32 @@ async function saveBookingStatus() {
         const d = await r.json();
         if (d.success) { toast('Status updated.'); loadBookings(); loadSummary(); }
         else toast(d.error || 'Failed.', 'err');
+    } catch { toast('Network error.', 'err'); }
+}
+
+function promptCancelBooking() {
+    document.getElementById('cancel-reason-input').value = '';
+    document.getElementById('cancel-booking-modal').classList.add('open');
+}
+
+async function confirmCancelBooking() {
+    if (!currentBookingId) return;
+    const reason = document.getElementById('cancel-reason-input').value.trim();
+    document.getElementById('cancel-booking-modal').classList.remove('open');
+    try {
+        const r = await fetch(`${API}/api/admin/bookings/${currentBookingId}/cancel`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason: reason || null })
+        });
+        const d = await r.json();
+        if (d.success) {
+            toast('Booking cancelled. Apology email sent to client.');
+            closeDrawer('booking');
+            loadBookings();
+            loadSummary();
+        } else {
+            toast(d.error || 'Failed to cancel.', 'err');
+        }
     } catch { toast('Network error.', 'err'); }
 }
 
@@ -1384,6 +1426,8 @@ window.openDesignDrawer = openDesignDrawer;
 window.closeDrawer = closeDrawer;
 window.saveBookingStatus = saveBookingStatus;
 window.saveDesignStatus = saveDesignStatus;
+window.promptCancelBooking = promptCancelBooking;
+window.confirmCancelBooking = confirmCancelBooking;
 window.promptBlock = promptBlock;
 window.unblockDay = unblockDay;
 window.removeBlock = removeBlock;

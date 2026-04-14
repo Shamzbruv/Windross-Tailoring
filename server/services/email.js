@@ -229,4 +229,101 @@ async function sendDesignInquiryEmail(data) {
     }
 }
 
-module.exports = { sendOrderConfirmation, sendBookingConfirmation, sendDesignInquiryEmail };
+async function sendBookingCancellationEmail(booking, adminReason) {
+    const resendApiKey = process.env.RESEND_API_KEY;
+
+    if (!resendApiKey) {
+        console.warn("No RESEND_API_KEY configured. Cancellation email would have been sent to:", booking.email);
+        return;
+    }
+
+    const resend = new Resend(resendApiKey);
+
+    let displayDate = booking.booking_date;
+    try {
+        const d = new Date(booking.booking_date + 'T00:00:00');
+        displayDate = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    } catch (e) {}
+
+    let displayTime = booking.booking_time;
+    try {
+        const [h, m] = booking.booking_time.split(':');
+        const hour = parseInt(h, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+        displayTime = `${hour12}:${m} ${ampm}`;
+    } catch (e) {}
+
+    const firstName = booking.name ? booking.name.split(' ')[0] : 'Valued Client';
+
+    try {
+        await resend.emails.send({
+            from: 'Windross Tailoring <appointments@windrosstailoringanddesign.com>',
+            to: [booking.email],
+            subject: `Appointment Update — Windross Tailoring`,
+            html: `
+                <div style="font-family: Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e8e8e8;">
+
+                    <!-- Header -->
+                    <div style="background: #050505; padding: 32px 36px; text-align: center;">
+                        <h1 style="color: #D4AF37; font-family: Georgia, serif; letter-spacing: 3px; margin: 0; font-size: 20px; font-weight: normal;">WINDROSS TAILORING</h1>
+                        <p style="color: #86868B; font-size: 11px; letter-spacing: 2px; margin: 6px 0 0; text-transform: uppercase;">& Design Studio</p>
+                    </div>
+
+                    <!-- Body -->
+                    <div style="padding: 40px 36px; background: #fff;">
+                        <p style="font-size: 15px; color: #333; margin-bottom: 6px;">Dear ${firstName},</p>
+
+                        <p style="font-size: 15px; color: #333; line-height: 1.7; margin-top: 0;">
+                            We sincerely apologise for the inconvenience. Your upcoming appointment with Windross Tailoring has had to be 
+                            <strong style="color: #1a1a1a;">cancelled by our team</strong> due to an unforeseen scheduling conflict.
+                        </p>
+
+                        <!-- Appointment Box -->
+                        <div style="background: #f9f9f9; border-left: 3px solid #D4AF37; padding: 18px 22px; margin: 24px 0; border-radius: 2px;">
+                            <p style="margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: #86868B;">Cancelled Appointment</p>
+                            <p style="margin: 4px 0; font-size: 15px; color: #1a1a1a;"><strong>Date:</strong> ${displayDate}</p>
+                            <p style="margin: 4px 0; font-size: 15px; color: #1a1a1a;"><strong>Time:</strong> ${displayTime}</p>
+                        </div>
+
+                        ${adminReason ? `
+                        <div style="background: #fffcf0; border: 1px solid #f0e08a; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px;">
+                            <p style="margin: 0; font-size: 14px; color: #7a6500;"><strong>Note from our team:</strong> ${adminReason}</p>
+                        </div>` : ''}
+
+                        <p style="font-size: 15px; color: #333; line-height: 1.7;">
+                            We would love to reschedule your fitting at your earliest convenience. Please visit our website to select a new date and time that works best for you.
+                        </p>
+
+                        <div style="text-align: center; margin: 32px 0;">
+                            <a href="https://windrosstailoringanddesign.com/book.html" 
+                               style="background: #D4AF37; color: #050505; padding: 13px 30px; text-decoration: none; font-weight: bold; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; border-radius: 3px; display: inline-block;">
+                                Book a New Appointment
+                            </a>
+                        </div>
+
+                        <p style="font-size: 14px; color: #555; line-height: 1.7;">
+                            We truly value your trust and look forward to serving you. If you have any questions, please reply to this email or contact us directly via WhatsApp.
+                        </p>
+
+                        <p style="font-size: 14px; color: #333; margin-top: 28px;">
+                            Warm regards,<br>
+                            <strong style="color: #1a1a1a;">The Windross Tailoring Team</strong>
+                        </p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="background: #050505; padding: 20px 36px; text-align: center;">
+                        <p style="color: #555; font-size: 11px; margin: 0; letter-spacing: 1px;">WINDROSS TAILORING & DESIGN · KINGSTON, JAMAICA</p>
+                        <p style="color: #444; font-size: 11px; margin: 6px 0 0;">windrosstailoringanddesign.com</p>
+                    </div>
+                </div>
+            `
+        });
+        console.log(`Cancellation email sent to ${booking.email}`);
+    } catch (error) {
+        console.error("Error sending cancellation email via Resend:", error);
+    }
+}
+
+module.exports = { sendOrderConfirmation, sendBookingConfirmation, sendDesignInquiryEmail, sendBookingCancellationEmail };
