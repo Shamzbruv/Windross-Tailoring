@@ -849,13 +849,22 @@
             transform: scale(1.1);
             box-shadow: 0 10px 25px rgba(212, 175, 55, 0.6);
         }
+
+        /*
+         * FOUC Prevention: hide page content instantly before JS runs.
+         * The region-manager removes this class once the overlay is shown
+         * or the region is already confirmed, preventing any flash.
+         */
+        body.page-loading > *:not(#region-selector-overlay) {
+            visibility: hidden;
+        }
     </style>
     <script src="js/region-manager.js"></script>
     <script src="js/data/suit-pricing.js"></script>
     <script src="js/currency-manager.js"></script>
 </head>
 
-<body>
+<body class="page-loading">
 
     <nav>
         <a href="index.html" class="logo">WINDROSS</a>

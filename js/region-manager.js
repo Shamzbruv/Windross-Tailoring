@@ -14,6 +14,10 @@ const RegionManager = {
 
     init() {
         console.log("REGION MANAGER INIT STARTED");
+
+        // Apply page-loading immediately to prevent FOUC
+        document.body.classList.add('page-loading');
+
         this.injectStyles();
 
         // 0. Version Checking: Force re-selection if app version changes
@@ -55,12 +59,16 @@ const RegionManager = {
             console.log("REGION MANAGER: Silently loading", savedRegion);
             this.setRegion(savedRegion, false); // Initialize silently
             this.enforceRegionalCapabilities();
+            // Page content can now be shown — no overlay needed
+            document.body.classList.remove('page-loading');
         } else {
             console.log("REGION MANAGER: Showing overlay.");
             // Need to show overlay
             this.autoDetectRegion().then((code) => {
                 this.state.recommendedRegion = code;
                 this.showOverlay();
+                // Reveal page-loading lock — overlay is now on top, page behind is safe to show
+                document.body.classList.remove('page-loading');
             });
         }
 
@@ -504,6 +512,12 @@ const RegionManager = {
                             document.body.style.overscrollBehavior = '';
                             document.documentElement.style.overscrollBehavior = '';
 
+                            // Ensure page content is visible after overlay closes
+                            document.body.classList.remove('page-loading');
+
+                            // Re-run nav enforcement now that the page is fully visible
+                            RegionManager.enforceRegionalCapabilities();
+
                             // Destroy DOM to prevent lingering elements and z-index issues
                             overlay.remove();
                         }, 1200); // Overlay completely gone
@@ -557,13 +571,13 @@ const RegionManager = {
     enforceRegionalCapabilities() {
         const isIntl = !window.Region.isJamaica();
 
-        // 1. Hide Elements linking to book.html
+        // Always ensure the nav itself is visible
+        const nav = document.querySelector('nav');
+        if (nav) nav.style.display = '';
+
+        // Only hide/show the Book link — never the entire nav
         document.querySelectorAll('a[href*="book.html"]').forEach(link => {
-            if (isIntl) {
-                link.style.display = 'none';
-            } else {
-                link.style.display = ''; // restore
-            }
+            link.style.display = isIntl ? 'none' : '';
         });
 
         // 2. Page Guard
