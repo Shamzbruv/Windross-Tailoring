@@ -100,7 +100,108 @@
         @media (max-width: 900px) {
             .summary-grid { grid-template-columns: repeat(2,1fr); }
             .nav-tabs { display: none; }
-            .mobile-nav-select { display: block; }
+        }
+
+        /* ── MOBILE BOTTOM TAB BAR ── */
+        .mobile-tabbar {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            z-index: 200;
+            background: rgba(10,10,10,0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 0; margin: 0;
+            height: 64px;
+        }
+
+        .mobile-tabbar-inner {
+            display: flex; height: 100%;
+            justify-content: space-around; align-items: stretch;
+        }
+
+        .mob-tab {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 4px; border: none; background: transparent;
+            color: var(--muted); font-family: 'Inter', sans-serif;
+            font-size: 0.62rem; text-transform: uppercase;
+            letter-spacing: 0.8px; cursor: pointer;
+            transition: 0.2s; padding: 6px 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mob-tab svg { width: 20px; height: 20px; }
+        .mob-tab.active { color: var(--gold); }
+        .mob-tab.active svg { filter: drop-shadow(0 0 4px rgba(212,175,55,0.5)); }
+
+        @media (max-width: 768px) {
+            .mobile-tabbar { display: block; }
+            .main-wrap { padding: 62px 0 72px; } /* extra bottom padding for tab bar */
+            .tab-view { padding: 16px; }
+
+            /* Nav compact on mobile */
+            nav { padding: 0 16px; }
+            .admin-badge { display: none; }
+
+            /* Summary cards 2-col on small screens */
+            .summary-grid { grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+            .stat-card { padding: 16px; }
+            .stat-value { font-size: 1.9rem; }
+            .stat-label { font-size: 0.67rem; }
+
+            /* Panel head stacks on mobile */
+            .panel-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+            /* Search full width */
+            .filter-bar { width: 100%; flex-direction: column; }
+            .search-wrap { width: 100%; }
+            .search-input { width: 100%; }
+            .filter-select { width: 100%; }
+
+            /* Tables: horizontal scroll */
+            .panel { overflow: visible; }
+            .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .data-table { min-width: 480px; }
+            .data-table th, .data-table td { padding: 12px 14px; }
+
+            /* Drawer: full screen on mobile */
+            .drawer {
+                width: 100%; max-width: 100%;
+                top: 0; right: -100%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+            .drawer.open { right: 0; }
+            .drawer-head { padding: 18px 20px; }
+            .drawer-head h3 { font-size: 1.2rem; }
+            .drawer-body { padding: 20px; }
+            .drawer-footer { padding: 16px 20px; }
+
+            /* Status wrap stacks */
+            .status-select-wrap { flex-wrap: wrap; gap: 8px; }
+            .status-dropdown { min-width: 0; }
+
+            /* Availability tab stacks */
+            .avail-grid { grid-template-columns: 1fr; gap: 16px; }
+
+            /* Calendar cells smaller */
+            .cal-day { min-height: 36px; font-size: 0.78rem; padding: 6px 2px; }
+            .cal-day-hdr { font-size: 0.62rem; }
+
+            /* Dash page header */
+            #view-dashboard > div:first-child h1 { font-size: 1.8rem; }
+
+            /* Block items wrap */
+            .blk-item { grid-template-columns: auto 1fr auto; }
+            .blk-time { display: none; }
+
+            /* Modal full-width on mobile */
+            .modal-box { padding: 24px 20px; }
+        }
+
+        @media (max-width: 380px) {
+            .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-value { font-size: 1.6rem; }
         }
 
         .stat-card {
@@ -487,9 +588,7 @@
         }
 
         @media (max-width: 600px) {
-            .tab-view { padding: 16px; }
-            .panel-head { flex-direction: column; align-items: flex-start; }
-            .data-table th:nth-child(4), .data-table td:nth-child(4) { display: none; }
+            .data-table th:nth-child(3), .data-table td:nth-child(3) { display: none; }
         }
     </style>
 </head>
@@ -515,6 +614,28 @@
     </div>
     <span class="admin-badge">Admin</span>
 </nav>
+
+<!-- MOBILE BOTTOM TAB BAR -->
+<div class="mobile-tabbar">
+    <div class="mobile-tabbar-inner">
+        <button class="mob-tab active" id="mob-tab-dashboard" onclick="switchTab('dashboard')">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Home</span>
+        </button>
+        <button class="mob-tab" id="mob-tab-bookings" onclick="switchTab('bookings')">
+            <i data-lucide="calendar-check"></i>
+            <span>Bookings</span>
+        </button>
+        <button class="mob-tab" id="mob-tab-designs" onclick="switchTab('designs')">
+            <i data-lucide="pen-tool"></i>
+            <span>Designs</span>
+        </button>
+        <button class="mob-tab" id="mob-tab-availability" onclick="switchTab('availability')">
+            <i data-lucide="clock"></i>
+            <span>Schedule</span>
+        </button>
+    </div>
+</div>
 
 <div class="main-wrap">
 
@@ -573,8 +694,10 @@
                     </select>
                 </div>
             </div>
-            <div id="bookings-table-body">
-                <div class="loader"><div class="spinner"></div></div>
+            <div class="table-scroll">
+                <div id="bookings-table-body">
+                    <div class="loader"><div class="spinner"></div></div>
+                </div>
             </div>
         </div>
     </div>
@@ -598,8 +721,10 @@
                     </select>
                 </div>
             </div>
-            <div id="designs-table-body">
-                <div class="loader"><div class="spinner"></div></div>
+            <div class="table-scroll">
+                <div id="designs-table-body">
+                    <div class="loader"><div class="spinner"></div></div>
+                </div>
             </div>
         </div>
     </div>
@@ -738,9 +863,12 @@ let activeTab = 'dashboard';
 function switchTab(tab) {
     document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mob-tab').forEach(b => b.classList.remove('active'));
     document.getElementById('view-' + tab).classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('tab-' + tab)?.classList.add('active');
+    document.getElementById('mob-tab-' + tab)?.classList.add('active');
     activeTab = tab;
+    window.scrollTo(0, 0);
 
     if (tab === 'bookings') loadBookings();
     if (tab === 'designs') loadDesigns();
