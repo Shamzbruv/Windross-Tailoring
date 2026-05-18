@@ -367,6 +367,10 @@ async function sendCustomInvoiceEmail({ toEmail, invoice, pdfPath, publicUrl }) 
                     <p style="margin: 4px 0;"><strong>Required Deposit:</strong> ${depositDisplay}</p>
                     <p style="margin: 4px 0;"><strong>Due Date:</strong> ${dueDate}</p>
                 </div>
+                <div style="background: linear-gradient(135deg, #18140b 0%, #2b2212 100%); border: 1px solid #c9a64a; border-radius: 10px; padding: 16px 18px; margin-bottom: 20px;">
+                    <p style="margin: 0 0 6px; color: #d7b257; font-size: 12px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase;">Exchange Policy</p>
+                    <p style="margin: 0; color: #fff2cf; font-size: 18px; font-weight: bold;">No refund, only exchange.</p>
+                </div>
                 <p style="margin: 0 0 14px; line-height: 1.6;">A PDF copy is attached for your records.</p>
                 <p style="margin: 0 0 18px; line-height: 1.6;"><a href="${publicUrl}" style="color: #b88a28;">View the invoice online</a></p>
                 <p style="margin: 0; line-height: 1.6;">If you have any questions, please reply to this email or contact us on WhatsApp.</p>

@@ -60,6 +60,25 @@ function drawLabelValue(doc, label, value, x, y, width) {
         .text(value || '—', x, y + 14, { width, lineGap: 2 });
 }
 
+function drawExchangePolicy(doc, y) {
+    doc.roundedRect(40, y, 515, 66, 12).fillAndStroke('#111111', '#D8C48D');
+
+    doc.fillColor('#D8C48D')
+        .font('Helvetica-Bold')
+        .fontSize(10)
+        .text('Exchange Policy', 56, y + 14, { width: 200 });
+
+    doc.fillColor('#F6E8BF')
+        .font('Helvetica-Bold')
+        .fontSize(15)
+        .text('No refund, only exchange.', 56, y + 31, { width: 320 });
+
+    doc.fillColor('#D6D0C1')
+        .font('Helvetica')
+        .fontSize(9)
+        .text('Please keep this invoice for reference if an exchange is needed.', 56, y + 50, { width: 360 });
+}
+
 async function generateCustomInvoicePDF(invoice) {
     const tempDir = path.join(__dirname, '../../temp/invoices');
     const fileName = `${invoice.invoiceNumber}.pdf`;
@@ -239,6 +258,9 @@ async function generateCustomInvoicePDF(invoice) {
 
             notesY += 96;
         }
+
+        drawExchangePolicy(doc, notesY);
+        notesY += 82;
 
         drawDivider(doc, notesY + 8);
 
