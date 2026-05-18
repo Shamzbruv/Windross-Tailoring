@@ -1,130 +1,409 @@
-const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 const path = require('path');
+const { SQLITE_SCHEMA, POSTGRES_SCHEMA } = require('./db-schema');
 
-// Connect to Database
-// Support Persistent Volumes in production (e.g., Railway /data mount)
-const dataDir = process.env.DATA_DIR || __dirname;
-const dbPath = path.join(dataDir, 'windross.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to SQLite database.');
-        initTables();
+const SQLITE_DB_PATH = path.join(process.env.DATA_DIR || __dirname, 'windross.db');
+const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_CLIENT = (process.env.DB_CLIENT || (DATABASE_URL ? 'postgres' : 'sqlite')).toLowerCase();
+
+function normalizeArgs(params, callback) {
+    if (typeof params === 'function') {
+        return { params: [], callback: params };
     }
-});
 
-function initTables() {
-    db.serialize(() => {
-        // Orders Table
-        db.run(`CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT UNIQUE,
-            customer_name TEXT,
-            customer_email TEXT,
-            customer_phone TEXT,
-            shipping_address TEXT,
-            city TEXT,
-            country TEXT,
-            status TEXT DEFAULT 'draft', -- draft, pending_payment, paid, fulfilled
-            total_amount REAL,
-            currency TEXT DEFAULT 'GBP',
-            payment_ref TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
+    return {
+        params: Array.isArray(params) ? params : [],
+        callback
+    };
+}
 
-        // Items Table (Measurements & Suit Details)
-        db.run(`CREATE TABLE IF NOT EXISTS order_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            order_id INTEGER,
-            suit_name TEXT,
-            gender TEXT,
-            measurements JSON, -- Storing as JSON string for flexibility
-            price REAL,
-            FOREIGN KEY (order_id) REFERENCES orders (id)
-        )`);
+function callCallback(callback, context, err, value) {
+    if (typeof callback === 'function') {
+        callback.call(context, err, value);
+    } else if (err) {
+        console.error(err);
+    }
+}
 
-        // Bookings Table
-        db.run(`CREATE TABLE IF NOT EXISTS bookings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT NOT NULL,
-            booking_date TEXT NOT NULL,     -- YYYY-MM-DD
-            booking_time TEXT NOT NULL,     -- HH:MM (24h)
-            notes TEXT,
-            region TEXT DEFAULT 'Jamaica',
-            status TEXT DEFAULT 'confirmed', -- confirmed/cancelled
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(booking_date, booking_time)
-        )`);
+function convertPlaceholders(sql) {
+    let index = 0;
+    return sql.replace(/\?/g, () => `$${++index}`);
+}
 
-        // Design Deposit Sessions Table
-        db.run(`CREATE TABLE IF NOT EXISTS deposit_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            deposit_id TEXT UNIQUE,
-            customer_name TEXT,
-            customer_email TEXT,
-            customer_phone TEXT,
-            design_data JSON,       -- Full design form payload as JSON
-            amount REAL DEFAULT 30000,
-            currency TEXT DEFAULT 'JMD',
-            status TEXT DEFAULT 'pending', -- pending, paid, failed
-            payment_ref TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
+function isInsertStatement(sql) {
+    return /^\s*insert\s+into\s+/i.test(sql);
+}
 
-        // Unavailable Slots Table (Admin Controlled)
-        db.run(`CREATE TABLE IF NOT EXISTS unavailable_slots (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            block_type TEXT NOT NULL,        -- 'day' or 'slot'
-            block_date TEXT NOT NULL,        -- YYYY-MM-DD
-            block_time TEXT,                 -- HH:MM (24h), NULL if block_type='day'
-            reason TEXT,                     -- Optional admin note e.g. "Holiday"
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
+function addReturningId(sql) {
+    const trimmed = sql.trim().replace(/;$/, '');
+    if (!isInsertStatement(trimmed) || /\breturning\b/i.test(trimmed)) {
+        return trimmed;
+    }
+    return `${trimmed} RETURNING id`;
+}
 
-        // Design Inquiries Table (submit-style.html submissions)
-        db.run(`CREATE TABLE IF NOT EXISTS design_inquiries (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_name TEXT NOT NULL,
-            customer_email TEXT NOT NULL,
-            customer_phone TEXT,
-            design_name TEXT,
-            gender TEXT,
-            fabric TEXT,
-            target_date TEXT,
-            description TEXT,
-            booking_date TEXT,
-            booking_time TEXT,
-            has_photo INTEGER DEFAULT 0,     -- 1 if inspiration photo was attached
-            status TEXT DEFAULT 'new',       -- new, reviewed, in_progress, completed
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
+function normalizeConstraintError(err) {
+    if (err && err.code === '23505') {
+        err.code = 'SQLITE_CONSTRAINT';
+    }
+    return err;
+}
 
-        // Custom Admin Invoices Table
-        db.run(`CREATE TABLE IF NOT EXISTS custom_invoices (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            invoice_number TEXT UNIQUE NOT NULL,
-            customer_name TEXT NOT NULL,
-            customer_email TEXT,
-            customer_phone TEXT,
-            whatsapp_phone TEXT,
-            customer_address TEXT,
-            issue_date TEXT NOT NULL,
-            due_date TEXT,
-            currency TEXT DEFAULT 'JMD',
-            line_items JSON NOT NULL,
-            subtotal_amount REAL DEFAULT 0,
-            tax_amount REAL DEFAULT 0,
-            total_amount REAL DEFAULT 0,
-            notes TEXT,
-            pdf_path TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        console.log('Database tables initialized.');
+function closeSqliteConnection(connection) {
+    return new Promise((resolve, reject) => {
+        connection.close((err) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve();
+        });
     });
 }
+
+class SqliteAdapter {
+    constructor(filePath) {
+        const sqlite3 = require('sqlite3').verbose();
+        this.engine = 'sqlite';
+        this.filePath = filePath;
+        this.sqlite3 = sqlite3;
+        this.connection = null;
+        this.ready = this.initialize();
+    }
+
+    async initialize() {
+        fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+        this.connection = await this.openConnection();
+        console.log(`Connected to SQLite database at ${this.filePath}.`);
+        await this.runStatement(this.connection, 'PRAGMA foreign_keys = ON');
+        for (const statement of SQLITE_SCHEMA) {
+            await this.runStatement(this.connection, statement);
+        }
+        console.log('Database tables initialized.');
+    }
+
+    openConnection() {
+        return new Promise((resolve, reject) => {
+            let connection;
+            connection = new this.sqlite3.Database(this.filePath, (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(connection);
+            });
+        });
+    }
+
+    runStatement(connection, sql, params = []) {
+        return new Promise((resolve, reject) => {
+            connection.run(sql, params, function(err) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({
+                    lastID: this.lastID ?? null,
+                    changes: this.changes ?? 0
+                });
+            });
+        });
+    }
+
+    getStatement(connection, sql, params = []) {
+        return new Promise((resolve, reject) => {
+            connection.get(sql, params, (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row);
+            });
+        });
+    }
+
+    allStatement(connection, sql, params = []) {
+        return new Promise((resolve, reject) => {
+            connection.all(sql, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows);
+            });
+        });
+    }
+
+    run(sql, params, callback) {
+        const { params: values, callback: cb } = normalizeArgs(params, callback);
+
+        this.ready
+            .then(() => {
+                this.connection.run(sql, values, function(err) {
+                    callCallback(cb, this, err);
+                });
+            })
+            .catch((err) => {
+                callCallback(cb, { lastID: null, changes: 0 }, err);
+            });
+    }
+
+    get(sql, params, callback) {
+        const { params: values, callback: cb } = normalizeArgs(params, callback);
+
+        this.ready
+            .then(() => {
+                this.connection.get(sql, values, (err, row) => {
+                    callCallback(cb, {}, err, row);
+                });
+            })
+            .catch((err) => {
+                callCallback(cb, {}, err);
+            });
+    }
+
+    all(sql, params, callback) {
+        const { params: values, callback: cb } = normalizeArgs(params, callback);
+
+        this.ready
+            .then(() => {
+                this.connection.all(sql, values, (err, rows) => {
+                    callCallback(cb, {}, err, rows);
+                });
+            })
+            .catch((err) => {
+                callCallback(cb, {}, err);
+            });
+    }
+
+    async runAsync(sql, params = []) {
+        await this.ready;
+        return this.runStatement(this.connection, sql, params);
+    }
+
+    async getAsync(sql, params = []) {
+        await this.ready;
+        return this.getStatement(this.connection, sql, params);
+    }
+
+    async allAsync(sql, params = []) {
+        await this.ready;
+        return this.allStatement(this.connection, sql, params);
+    }
+
+    createScopedHelpers(connection) {
+        return {
+            runAsync: (sql, params = []) => this.runStatement(connection, sql, params),
+            getAsync: (sql, params = []) => this.getStatement(connection, sql, params),
+            allAsync: (sql, params = []) => this.allStatement(connection, sql, params)
+        };
+    }
+
+    async withTransaction(work) {
+        await this.ready;
+        const connection = await this.openConnection();
+        const tx = this.createScopedHelpers(connection);
+
+        try {
+            await tx.runAsync('BEGIN TRANSACTION');
+            const result = await work(tx);
+            await tx.runAsync('COMMIT');
+            return result;
+        } catch (err) {
+            try {
+                await tx.runAsync('ROLLBACK');
+            } catch (rollbackErr) {
+                console.error('SQLite rollback failed:', rollbackErr);
+            }
+            throw err;
+        } finally {
+            await closeSqliteConnection(connection);
+        }
+    }
+
+    close(callback) {
+        this.ready
+            .then(() => closeSqliteConnection(this.connection))
+            .then(() => callCallback(callback, {}, null))
+            .catch((err) => callCallback(callback, {}, err));
+    }
+}
+
+class PostgresAdapter {
+    constructor(connectionString) {
+        const pg = require('pg');
+        pg.types.setTypeParser(20, (value) => Number(value));
+
+        this.engine = 'postgres';
+        this.connectionString = connectionString;
+        this.pool = new pg.Pool({
+            connectionString,
+            ssl: buildPostgresSslConfig(connectionString)
+        });
+        this.ready = this.initialize();
+    }
+
+    async initialize() {
+        await this.pool.query('SELECT 1');
+        console.log('Connected to PostgreSQL database.');
+        for (const statement of POSTGRES_SCHEMA) {
+            await this.pool.query(statement);
+        }
+        console.log('Database tables initialized.');
+    }
+
+    async query(client, sql, params = []) {
+        return client.query(convertPlaceholders(sql), params);
+    }
+
+    async runWithClient(client, sql, params = []) {
+        const result = await client.query(addReturningId(convertPlaceholders(sql)), params);
+        return {
+            lastID: result.rows?.[0]?.id ?? null,
+            changes: result.rowCount ?? 0
+        };
+    }
+
+    async getWithClient(client, sql, params = []) {
+        const result = await this.query(client, sql, params);
+        return result.rows[0];
+    }
+
+    async allWithClient(client, sql, params = []) {
+        const result = await this.query(client, sql, params);
+        return result.rows;
+    }
+
+    run(sql, params, callback) {
+        const { params: values, callback: cb } = normalizeArgs(params, callback);
+
+        this.ready
+            .then(() => this.runWithClient(this.pool, sql, values))
+            .then((result) => {
+                callCallback(cb, result, null);
+            })
+            .catch((err) => {
+                callCallback(cb, { lastID: null, changes: 0 }, normalizeConstraintError(err));
+            });
+    }
+
+    get(sql, params, callback) {
+        const { params: values, callback: cb } = normalizeArgs(params, callback);
+
+        this.ready
+            .then(() => this.getWithClient(this.pool, sql, values))
+            .then((row) => {
+                callCallback(cb, {}, null, row);
+            })
+            .catch((err) => {
+                callCallback(cb, {}, normalizeConstraintError(err));
+            });
+    }
+
+    all(sql, params, callback) {
+        const { params: values, callback: cb } = normalizeArgs(params, callback);
+
+        this.ready
+            .then(() => this.allWithClient(this.pool, sql, values))
+            .then((rows) => {
+                callCallback(cb, {}, null, rows);
+            })
+            .catch((err) => {
+                callCallback(cb, {}, normalizeConstraintError(err));
+            });
+    }
+
+    async runAsync(sql, params = []) {
+        await this.ready;
+        return this.runWithClient(this.pool, sql, params);
+    }
+
+    async getAsync(sql, params = []) {
+        await this.ready;
+        return this.getWithClient(this.pool, sql, params);
+    }
+
+    async allAsync(sql, params = []) {
+        await this.ready;
+        return this.allWithClient(this.pool, sql, params);
+    }
+
+    createScopedHelpers(client) {
+        return {
+            runAsync: (sql, params = []) => this.runWithClient(client, sql, params),
+            getAsync: (sql, params = []) => this.getWithClient(client, sql, params),
+            allAsync: (sql, params = []) => this.allWithClient(client, sql, params)
+        };
+    }
+
+    async withTransaction(work) {
+        await this.ready;
+        const client = await this.pool.connect();
+        const tx = this.createScopedHelpers(client);
+
+        try {
+            await client.query('BEGIN');
+            const result = await work(tx);
+            await client.query('COMMIT');
+            return result;
+        } catch (err) {
+            try {
+                await client.query('ROLLBACK');
+            } catch (rollbackErr) {
+                console.error('PostgreSQL rollback failed:', rollbackErr);
+            }
+            throw normalizeConstraintError(err);
+        } finally {
+            client.release();
+        }
+    }
+
+    close(callback) {
+        this.pool.end()
+            .then(() => callCallback(callback, {}, null))
+            .catch((err) => callCallback(callback, {}, err));
+    }
+}
+
+function buildPostgresSslConfig(connectionString) {
+    if (typeof process.env.DATABASE_SSL === 'string') {
+        const explicit = process.env.DATABASE_SSL.trim().toLowerCase();
+        return ['1', 'true', 'yes', 'on', 'require'].includes(explicit)
+            ? { rejectUnauthorized: false }
+            : false;
+    }
+
+    if (typeof process.env.PGSSL === 'string') {
+        const explicit = process.env.PGSSL.trim().toLowerCase();
+        return ['1', 'true', 'yes', 'on', 'require'].includes(explicit)
+            ? { rejectUnauthorized: false }
+            : false;
+    }
+
+    if (process.env.PGSSLMODE === 'disable') {
+        return false;
+    }
+
+    if (/localhost|127\.0\.0\.1/i.test(connectionString)) {
+        return false;
+    }
+
+    return process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : false;
+}
+
+function createDatabaseAdapter() {
+    if (DATABASE_CLIENT === 'postgres') {
+        if (!DATABASE_URL) {
+            throw new Error('DATABASE_URL must be set when DB_CLIENT=postgres.');
+        }
+        return new PostgresAdapter(DATABASE_URL);
+    }
+
+    return new SqliteAdapter(SQLITE_DB_PATH);
+}
+
+const db = createDatabaseAdapter();
 
 module.exports = db;

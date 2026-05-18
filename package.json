@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/app.js",
     "dev": "nodemon server/app.js",
+    "migrate:postgres": "node server/scripts/migrate-sqlite-to-postgres.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "helmet": "^7.1.0",
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.14.0",
+    "pg": "^8.21.0",
     "puppeteer": "^24.39.0",
     "resend": "^6.9.3",
     "sqlite3": "^5.1.6"

@@ -31,8 +31,16 @@ app.get('*', (req, res) => {
     }
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`- Made to Measure Flow: http://localhost:${PORT}/purchase-flow.html`);
-});
+// Start Server after DB is ready
+db.ready
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+            console.log(`- Made to Measure Flow: http://localhost:${PORT}/purchase-flow.html`);
+            console.log(`- Database Engine: ${db.engine}`);
+        });
+    })
+    .catch((err) => {
+        console.error('Failed to initialize database:', err);
+        process.exit(1);
+    });

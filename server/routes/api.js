@@ -396,16 +396,16 @@ function getJmTimeStr(addMinutes = 0, addDays = 0) {
 }
 
 // Business Rules
+const BOOKING_START_TIME_MINUTES = 12 * 60; // 12:00 PM
+const BOOKING_END_TIME_MINUTES = 18 * 60; // 6:00 PM
+const BOOKING_SLOT_INTERVAL_MINUTES = 60; // 1-hour appointments
 const MIN_BOOKING_BUFFER_MINUTES = 60; // Reject slots less than 1 hour away
 const MIN_BOOKING_LEAD_DAYS = 1; // No same-day bookings
-const MAX_BOOKINGS_PER_DAY = 14;
 const MAX_BOOKING_DAYS_AHEAD = 30; // Prevent booking > 1 month out
 
 function buildBookingSlots() {
     const slots = [];
-    const startTime = 12 * 60; // 12:00
-    const endTime = 18.5 * 60; // 18:30
-    for (let current = startTime; current <= endTime; current += 30) {
+    for (let current = BOOKING_START_TIME_MINUTES; current <= BOOKING_END_TIME_MINUTES; current += BOOKING_SLOT_INTERVAL_MINUTES) {
         const hours = Math.floor(current / 60);
         const mins = current % 60;
         const timeStr = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
@@ -418,6 +418,10 @@ function buildBookingSlots() {
 
     return slots;
 }
+
+const BOOKING_SLOT_TIMES = buildBookingSlots().map((slot) => slot.time);
+const BOOKING_SLOT_TIME_SET = new Set(BOOKING_SLOT_TIMES);
+const MAX_BOOKINGS_PER_DAY = BOOKING_SLOT_TIMES.length;
 
 function getBookingAvailability(date, options, callback) {
     const { allowSameDay = false } = options || {};
@@ -561,7 +565,7 @@ router.get('/admin/bookings/availability', (req, res) => {
 });
 
 
-router.post('/bookings/create', (req, res) => {
+router.post('/bookings/create', async (req, res) => {
     const { name, email, phone, date, time, notes, region } = req.body;
 
     if (region !== 'Jamaica') {
@@ -586,11 +590,8 @@ router.post('/bookings/create', (req, res) => {
     // Sanitize notes input
     const sanitizedNotes = notes ? notes.substring(0, 500).replace(/[<>&"']/g, '') : '';
 
-    // Validate 12:00 - 18:30 bounds strictly
-    const [h, m] = time.split(':').map(Number);
-    const timeMins = h * 60 + m;
-    if (timeMins < 12 * 60 || timeMins > 18.5 * 60) {
-        return res.status(400).json({ error: 'Time must be between 12:00 and 18:30.' });
+    if (!BOOKING_SLOT_TIME_SET.has(time)) {
+        return res.status(400).json({ error: 'Appointments are available on the hour only between 12:00 PM and 6:00 PM.' });
     }
 
     // Validate MAX_BOOKING_DAYS_AHEAD
@@ -618,65 +619,56 @@ router.post('/bookings/create', (req, res) => {
         return res.status(400).json({ error: 'This time has already passed or is too close to the current time.' });
     }
 
-    // Wrap in DB transaction logic to prevent race conditions on capacity
-    db.serialize(() => {
-        db.run('BEGIN TRANSACTION');
-
-        db.get(`SELECT COUNT(*) as count FROM bookings WHERE booking_date = ? AND status = 'confirmed'`, [date], (err, row) => {
-            if (err) {
-                db.run('ROLLBACK');
-                console.error(err);
-                return res.status(500).json({ error: 'Server error during booking validation.' });
-            }
-
-            if (row.count >= MAX_BOOKINGS_PER_DAY) {
-                db.run('ROLLBACK');
-                return res.status(409).json({ error: 'This day is fully booked. Please choose another day.' });
-            }
-
-            db.run(
-                `INSERT INTO bookings (name, email, phone, booking_date, booking_time, notes, region) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [name, email, phone, date, time, sanitizedNotes, region],
-                function (err) {
-                    if (err) {
-                        db.run('ROLLBACK');
-                        if (err.code === 'SQLITE_CONSTRAINT') {
-                            return res.status(409).json({ error: 'This time has already been booked. Please choose another time.' });
-                        }
-                        console.error(err);
-                        return res.status(500).json({ error: 'Failed to create booking. Please try again.' });
-                    }
-
-                    const newId = this.lastID;
-                    db.run('COMMIT', (commitErr) => {
-                        if (commitErr) {
-                            db.run('ROLLBACK');
-                            return res.status(500).json({ error: 'Failed to commit booking.' });
-                        }
-                        
-                        // Async: Dispatch confirmation email
-                        sendBookingConfirmation({
-                            name, email, phone, date, time, region, id: newId
-                        });
-
-                        broadcastBookingCreated({
-                            id: newId,
-                            name,
-                            email,
-                            phone,
-                            booking_date: date,
-                            booking_time: time,
-                            region,
-                            status: 'confirmed',
-                            created_at: new Date().toISOString()
-                        });
-
-                        res.json({ success: true, bookingId: newId, date, time });
-                    });
-                }
+    try {
+        const newId = await db.withTransaction(async (tx) => {
+            const row = await tx.getAsync(
+                `SELECT COUNT(*) as count FROM bookings WHERE booking_date = ? AND status = 'confirmed'`,
+                [date]
             );
+
+            if (Number(row?.count || 0) >= MAX_BOOKINGS_PER_DAY) {
+                const capacityError = new Error('This day is fully booked. Please choose another day.');
+                capacityError.statusCode = 409;
+                throw capacityError;
+            }
+
+            const insertResult = await tx.runAsync(
+                `INSERT INTO bookings (name, email, phone, booking_date, booking_time, notes, region) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [name, email, phone, date, time, sanitizedNotes, region]
+            );
+
+            return insertResult.lastID;
         });
-    });
+
+        sendBookingConfirmation({
+            name, email, phone, date, time, region, id: newId
+        });
+
+        broadcastBookingCreated({
+            id: newId,
+            name,
+            email,
+            phone,
+            booking_date: date,
+            booking_time: time,
+            region,
+            status: 'confirmed',
+            created_at: new Date().toISOString()
+        });
+
+        res.json({ success: true, bookingId: newId, date, time });
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
+
+        if (err.code === 'SQLITE_CONSTRAINT') {
+            return res.status(409).json({ error: 'This time has already been booked. Please choose another time.' });
+        }
+
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to create booking. Please try again.' });
+    }
 });
 
 // Admin Endpoint
@@ -935,6 +927,9 @@ router.post('/admin/unavailable', (req, res) => {
     }
     if (block_type === 'slot' && !block_time) {
         return res.status(400).json({ error: 'block_time is required for slot blocks.' });
+    }
+    if (block_type === 'slot' && !BOOKING_SLOT_TIME_SET.has(block_time)) {
+        return res.status(400).json({ error: 'Slot blocks must use a valid one-hour appointment time.' });
     }
 
     const sanitizedReason = reason ? reason.substring(0, 200).replace(/[<>&"']/g, '') : null;

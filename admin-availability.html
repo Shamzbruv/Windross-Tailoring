@@ -2209,7 +2209,7 @@ async function selectAvailDay(dateStr, el) {
 
 function generateAllSlots() {
     const slots = [];
-    for (let c = 12*60; c <= 18.5*60; c += 30) {
+    for (let c = 12*60; c <= 18*60; c += 60) {
         const h = Math.floor(c/60), m = c%60;
         const time = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
         const h12 = h>12?h-12:(h===0?12:h);
