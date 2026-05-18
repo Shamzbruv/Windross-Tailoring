@@ -17,6 +17,16 @@ function fetchImageBuffer(url) {
     });
 }
 
+function getResendClient() {
+    const resendApiKey = process.env.RESEND_API_KEY;
+
+    if (!resendApiKey) {
+        return null;
+    }
+
+    return new Resend(resendApiKey);
+}
+
 async function sendOrderConfirmation(order, items, pdfPath) {
     // 1. Setup Resend
     // In production, use real credentials from process.env
@@ -230,14 +240,12 @@ async function sendDesignInquiryEmail(data) {
 }
 
 async function sendBookingCancellationEmail(booking, adminReason) {
-    const resendApiKey = process.env.RESEND_API_KEY;
+    const resend = getResendClient();
 
-    if (!resendApiKey) {
+    if (!resend) {
         console.warn("No RESEND_API_KEY configured. Cancellation email would have been sent to:", booking.email);
         return;
     }
-
-    const resend = new Resend(resendApiKey);
 
     let displayDate = booking.booking_date;
     try {
@@ -326,4 +334,49 @@ async function sendBookingCancellationEmail(booking, adminReason) {
     }
 }
 
-module.exports = { sendOrderConfirmation, sendBookingConfirmation, sendDesignInquiryEmail, sendBookingCancellationEmail };
+async function sendCustomInvoiceEmail({ toEmail, invoice, pdfPath, publicUrl }) {
+    const resend = getResendClient();
+
+    if (!resend) {
+        throw new Error('Email delivery is not configured on this server.');
+    }
+
+    const attachmentBuffer = fs.readFileSync(pdfPath);
+    const ccEmail = process.env.ADMIN_EMAIL || '876david@gmail.com';
+    const dueDate = invoice.dueDate || 'upon receipt';
+
+    await resend.emails.send({
+        from: 'Windross Tailoring <orders@windrosstailoringanddesign.com>',
+        to: [toEmail],
+        cc: ccEmail ? [ccEmail] : undefined,
+        subject: `Invoice ${invoice.invoiceNumber} from Windross Tailoring`,
+        html: `
+            <div style="font-family: Arial, sans-serif; color: #1a1a1a; max-width: 620px; margin: 0 auto; padding: 32px; border: 1px solid #e7e1d1;">
+                <h1 style="margin: 0 0 12px; font-family: Georgia, serif; color: #b88a28; font-weight: normal;">Windross Tailoring</h1>
+                <p style="margin: 0 0 18px; line-height: 1.6;">Hello ${invoice.customerName || 'Valued Client'}, your invoice is ready.</p>
+                <div style="background: #faf7ef; border: 1px solid #eadfbe; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
+                    <p style="margin: 4px 0;"><strong>Invoice Number:</strong> ${invoice.invoiceNumber}</p>
+                    <p style="margin: 4px 0;"><strong>Total Due:</strong> ${invoice.totalDisplay}</p>
+                    <p style="margin: 4px 0;"><strong>Due Date:</strong> ${dueDate}</p>
+                </div>
+                <p style="margin: 0 0 14px; line-height: 1.6;">A PDF copy is attached for your records.</p>
+                <p style="margin: 0 0 18px; line-height: 1.6;"><a href="${publicUrl}" style="color: #b88a28;">View the invoice online</a></p>
+                <p style="margin: 0; line-height: 1.6;">If you have any questions, please reply to this email or contact us on WhatsApp.</p>
+            </div>
+        `,
+        attachments: [
+            {
+                filename: `${invoice.invoiceNumber}.pdf`,
+                content: attachmentBuffer.toString('base64')
+            }
+        ]
+    });
+}
+
+module.exports = {
+    sendOrderConfirmation,
+    sendBookingConfirmation,
+    sendDesignInquiryEmail,
+    sendBookingCancellationEmail,
+    sendCustomInvoiceEmail
+};

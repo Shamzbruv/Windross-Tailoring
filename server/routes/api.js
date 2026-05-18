@@ -2,9 +2,57 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { generateOrderPDF } = require('../services/pdf-generator');
-const { sendOrderConfirmation, sendBookingConfirmation } = require('../services/email');
+const { generateCustomInvoicePDF, formatCurrency } = require('../services/invoice-generator');
+const {
+    sendOrderConfirmation,
+    sendBookingConfirmation,
+    sendBookingCancellationEmail,
+    sendCustomInvoiceEmail
+} = require('../services/email');
 const fs = require('fs');
 const path = require('path');
+
+const bookingStreamClients = new Set();
+
+function sanitizeText(value, maxLength = 250) {
+    if (value === null || value === undefined) return '';
+    return String(value).substring(0, maxLength).replace(/[<>]/g, '').trim();
+}
+
+function sanitizeEmail(value) {
+    const cleaned = sanitizeText(value, 160).toLowerCase();
+    return cleaned || '';
+}
+
+function sanitizePhone(value) {
+    return sanitizeText(value, 40);
+}
+
+function getPublicBaseUrl(req) {
+    return req.headers.origin || `${req.protocol}://${req.get('host')}`;
+}
+
+function createInvoiceNumber() {
+    const now = new Date();
+    const shortDate = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+    const shortTime = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+    const randomSuffix = Math.floor(Math.random() * 900 + 100);
+    return `WT-INV-${shortDate}-${shortTime}-${randomSuffix}`;
+}
+
+function broadcastBookingCreated(booking) {
+    const payload = JSON.stringify({ booking });
+
+    for (const client of Array.from(bookingStreamClients)) {
+        try {
+            client.res.write(`event: booking-created\n`);
+            client.res.write(`data: ${payload}\n\n`);
+        } catch (err) {
+            clearInterval(client.keepAlive);
+            bookingStreamClients.delete(client);
+        }
+    }
+}
 
 // 0. Expose Pricing Configuration
 router.get('/config/pricing', (req, res) => {
@@ -349,22 +397,11 @@ function getJmTimeStr(addMinutes = 0, addDays = 0) {
 
 // Business Rules
 const MIN_BOOKING_BUFFER_MINUTES = 60; // Reject slots less than 1 hour away
+const MIN_BOOKING_LEAD_DAYS = 1; // No same-day bookings
 const MAX_BOOKINGS_PER_DAY = 14;
 const MAX_BOOKING_DAYS_AHEAD = 30; // Prevent booking > 1 month out
 
-router.get('/bookings/availability', (req, res) => {
-    const { date } = req.query;
-    if (!date) return res.status(400).json({ error: 'Date is required' });
-
-    const maxDateStr = getJmTimeStr(0, MAX_BOOKING_DAYS_AHEAD).split('T')[0];
-    const currentDateStr = getJmTimeStr().split('T')[0];
-
-    // Force limit how far out they can query (or past)
-    if (date > maxDateStr || date < currentDateStr) {
-        return res.json({ date, slots: [] }); // return empty if invalid bound
-    }
-
-    // Generate 30-min slots from 12:00 to 18:30
+function buildBookingSlots() {
     const slots = [];
     const startTime = 12 * 60; // 12:00
     const endTime = 18.5 * 60; // 18:30
@@ -372,8 +409,6 @@ router.get('/bookings/availability', (req, res) => {
         const hours = Math.floor(current / 60);
         const mins = current % 60;
         const timeStr = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-
-        // Format label for UI
         const hour12 = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
         const ampm = hours >= 12 ? 'PM' : 'AM';
         const label = `${hour12}:${mins.toString().padStart(2, '0')} ${ampm}`;
@@ -381,7 +416,35 @@ router.get('/bookings/availability', (req, res) => {
         slots.push({ time: timeStr, label, available: true });
     }
 
-    // Explicit buffer check
+    return slots;
+}
+
+function getBookingAvailability(date, options, callback) {
+    const { allowSameDay = false } = options || {};
+    const maxDateStr = getJmTimeStr(0, MAX_BOOKING_DAYS_AHEAD).split('T')[0];
+    const currentDateStr = getJmTimeStr().split('T')[0];
+    const earliestPublicDateStr = getJmTimeStr(0, MIN_BOOKING_LEAD_DAYS).split('T')[0];
+
+    if (date > maxDateStr || date < currentDateStr) {
+        return callback(null, {
+            date,
+            slots: [],
+            minDate: earliestPublicDateStr,
+            maxDate: maxDateStr
+        });
+    }
+
+    if (!allowSameDay && date < earliestPublicDateStr) {
+        return callback(null, {
+            date,
+            slots: [],
+            minDate: earliestPublicDateStr,
+            maxDate: maxDateStr,
+            sameDayBlocked: date === currentDateStr
+        });
+    }
+
+    const slots = buildBookingSlots();
     const bufferedCurrentJmTimeStr = getJmTimeStr(MIN_BOOKING_BUFFER_MINUTES);
 
     slots.forEach(slot => {
@@ -413,7 +476,14 @@ router.get('/bookings/availability', (req, res) => {
                     if (!slot.reason) slot.reason = 'UNAVAILABLE';
                     if (dayBlockReason && dayBlockReason !== 'ADMIN') slot.adminReason = dayBlockReason;
                 });
-                return res.json({ date, slots, dayBlocked: true, dayBlockReason });
+                return callback(null, {
+                    date,
+                    slots,
+                    dayBlocked: true,
+                    dayBlockReason,
+                    minDate: earliestPublicDateStr,
+                    maxDate: maxDateStr
+                });
             }
 
             slots.forEach(slot => {
@@ -428,7 +498,7 @@ router.get('/bookings/availability', (req, res) => {
             db.all(`SELECT booking_time FROM bookings WHERE booking_date = ? AND status = 'confirmed'`, [date], (err, rows) => {
                 if (err) {
                     console.error(err);
-                    return res.status(500).json({ error: 'Failed to fetch availability' });
+                    return callback(err);
                 }
 
                 if (rows.length >= MAX_BOOKINGS_PER_DAY) {
@@ -437,7 +507,12 @@ router.get('/bookings/availability', (req, res) => {
                         slot.available = false;
                         if (!slot.reason) slot.reason = 'FULLY_BOOKED';
                     });
-                    return res.json({ date, slots });
+                    return callback(null, {
+                        date,
+                        slots,
+                        minDate: earliestPublicDateStr,
+                        maxDate: maxDateStr
+                    });
                 }
 
                 const bookedTimes = rows.map(r => r.booking_time);
@@ -448,10 +523,41 @@ router.get('/bookings/availability', (req, res) => {
                     }
                 });
 
-                res.json({ date, slots });
+                callback(null, {
+                    date,
+                    slots,
+                    minDate: earliestPublicDateStr,
+                    maxDate: maxDateStr
+                });
             });
         }
     );
+}
+
+router.get('/bookings/availability', (req, res) => {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: 'Date is required' });
+
+    getBookingAvailability(date, { allowSameDay: false }, (err, payload) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch availability' });
+        }
+
+        res.json(payload);
+    });
+});
+
+router.get('/admin/bookings/availability', (req, res) => {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: 'Date is required' });
+
+    getBookingAvailability(date, { allowSameDay: true }, (err, payload) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch availability' });
+        }
+
+        res.json(payload);
+    });
 });
 
 
@@ -489,6 +595,17 @@ router.post('/bookings/create', (req, res) => {
 
     // Validate MAX_BOOKING_DAYS_AHEAD
     const maxDateStr = getJmTimeStr(0, MAX_BOOKING_DAYS_AHEAD).split('T')[0];
+    const currentDateStr = getJmTimeStr().split('T')[0];
+    const earliestBookingDateStr = getJmTimeStr(0, MIN_BOOKING_LEAD_DAYS).split('T')[0];
+
+    if (date === currentDateStr) {
+        return res.status(400).json({ error: `Same-day appointments are not available. Please choose ${earliestBookingDateStr} or later.` });
+    }
+
+    if (date < currentDateStr) {
+        return res.status(400).json({ error: `Please choose ${earliestBookingDateStr} or later.` });
+    }
+
     if (date > maxDateStr) {
         return res.status(400).json({ error: 'Cannot book that far in advance.' });
     }
@@ -540,6 +657,18 @@ router.post('/bookings/create', (req, res) => {
                         // Async: Dispatch confirmation email
                         sendBookingConfirmation({
                             name, email, phone, date, time, region, id: newId
+                        });
+
+                        broadcastBookingCreated({
+                            id: newId,
+                            name,
+                            email,
+                            phone,
+                            booking_date: date,
+                            booking_time: time,
+                            region,
+                            status: 'confirmed',
+                            created_at: new Date().toISOString()
                         });
 
                         res.json({ success: true, bookingId: newId, date, time });
@@ -836,9 +965,213 @@ router.delete('/admin/unavailable/:id', (req, res) => {
     });
 });
 
+// SSE stream for live booking alerts in admin
+router.get('/admin/bookings/stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') {
+        res.flushHeaders();
+    }
+
+    res.write('retry: 5000\n\n');
+
+    const client = {
+        res,
+        keepAlive: setInterval(() => {
+            try {
+                res.write(': keep-alive\n\n');
+            } catch (err) {
+                clearInterval(client.keepAlive);
+                bookingStreamClients.delete(client);
+            }
+        }, 25000)
+    };
+
+    bookingStreamClients.add(client);
+
+    req.on('close', () => {
+        clearInterval(client.keepAlive);
+        bookingStreamClients.delete(client);
+    });
+});
+
 // =============================================
 // ADMIN: Dashboard — Bookings & Design Inquiries
 // =============================================
+
+router.post('/admin/invoices', async (req, res) => {
+    const customerName = sanitizeText(req.body.customerName, 120);
+    const customerEmail = sanitizeEmail(req.body.customerEmail);
+    const customerPhone = sanitizePhone(req.body.customerPhone);
+    const whatsappPhone = sanitizePhone(req.body.whatsappPhone || req.body.customerPhone);
+    const customerAddress = sanitizeText(req.body.customerAddress, 250);
+    const issueDate = sanitizeText(req.body.issueDate, 20);
+    const dueDate = sanitizeText(req.body.dueDate, 20);
+    const notes = sanitizeText(req.body.notes, 1200);
+    const currency = ['JMD', 'USD', 'GBP'].includes(req.body.currency) ? req.body.currency : 'JMD';
+    const taxAmount = Number(req.body.taxAmount || 0);
+    const rawItems = Array.isArray(req.body.lineItems) ? req.body.lineItems : [];
+
+    if (!customerName) {
+        return res.status(400).json({ error: 'Client name is required.' });
+    }
+
+    if (!issueDate) {
+        return res.status(400).json({ error: 'Issue date is required.' });
+    }
+
+    const lineItems = rawItems
+        .map((item) => {
+            const description = sanitizeText(item.description, 180);
+            const quantity = Number(item.quantity || 0);
+            const unitPrice = Number(item.unitPrice || 0);
+            return {
+                description,
+                quantity,
+                unitPrice,
+                amount: Number((quantity * unitPrice).toFixed(2))
+            };
+        })
+        .filter((item) => item.description && item.quantity > 0 && item.unitPrice >= 0);
+
+    if (!lineItems.length) {
+        return res.status(400).json({ error: 'Add at least one valid invoice item.' });
+    }
+
+    if (Number.isNaN(taxAmount) || taxAmount < 0) {
+        return res.status(400).json({ error: 'Tax or additional fee must be zero or greater.' });
+    }
+
+    const subtotalAmount = Number(lineItems.reduce((sum, item) => sum + item.amount, 0).toFixed(2));
+    const totalAmount = Number((subtotalAmount + taxAmount).toFixed(2));
+    const invoiceNumber = createInvoiceNumber();
+
+    try {
+        const invoiceRecord = {
+            invoiceNumber,
+            customerName,
+            customerEmail,
+            customerPhone,
+            whatsappPhone,
+            customerAddress,
+            issueDate,
+            dueDate,
+            notes,
+            currency,
+            lineItems,
+            subtotalAmount,
+            taxAmount,
+            totalAmount
+        };
+
+        const { filePath, publicUrl } = await generateCustomInvoicePDF(invoiceRecord);
+
+        db.run(
+            `INSERT INTO custom_invoices (
+                invoice_number, customer_name, customer_email, customer_phone, whatsapp_phone,
+                customer_address, issue_date, due_date, currency, line_items,
+                subtotal_amount, tax_amount, total_amount, notes, pdf_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                invoiceNumber,
+                customerName,
+                customerEmail || null,
+                customerPhone || null,
+                whatsappPhone || null,
+                customerAddress || null,
+                issueDate,
+                dueDate || null,
+                currency,
+                JSON.stringify(lineItems),
+                subtotalAmount,
+                taxAmount,
+                totalAmount,
+                notes || null,
+                filePath
+            ],
+            function(err) {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ error: 'Failed to save invoice.' });
+                }
+
+                const baseUrl = getPublicBaseUrl(req);
+                const fullPdfUrl = `${baseUrl}${publicUrl}`;
+                const friendlyDueDate = dueDate || 'upon receipt';
+                const targetPhone = whatsappPhone.replace(/\D/g, '');
+                const waMessage = `Hello ${customerName}, your Windross Tailoring invoice ${invoiceNumber} is ready. Total due: ${formatCurrency(totalAmount, currency)}. View it here: ${fullPdfUrl} . Due date: ${friendlyDueDate}.`;
+
+                res.json({
+                    success: true,
+                    invoice: {
+                        id: this.lastID,
+                        invoiceNumber,
+                        customerName,
+                        customerEmail,
+                        customerPhone,
+                        whatsappPhone,
+                        issueDate,
+                        dueDate,
+                        currency,
+                        subtotalAmount,
+                        taxAmount,
+                        totalAmount,
+                        totalDisplay: formatCurrency(totalAmount, currency),
+                        pdfUrl: fullPdfUrl,
+                        whatsappUrl: targetPhone ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}` : null
+                    }
+                });
+            }
+        );
+    } catch (err) {
+        console.error('Invoice generation failed:', err);
+        res.status(500).json({ error: 'Failed to generate invoice PDF.' });
+    }
+});
+
+router.post('/admin/invoices/:id/send-email', async (req, res) => {
+    const invoiceId = Number(req.params.id);
+    const targetEmail = sanitizeEmail(req.body.email);
+
+    if (!invoiceId) {
+        return res.status(400).json({ error: 'Valid invoice id is required.' });
+    }
+
+    if (!targetEmail) {
+        return res.status(400).json({ error: 'Recipient email is required.' });
+    }
+
+    db.get(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId], async (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to load invoice.' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Invoice not found.' });
+        }
+
+        try {
+            const baseUrl = getPublicBaseUrl(req);
+            await sendCustomInvoiceEmail({
+                toEmail: targetEmail,
+                pdfPath: row.pdf_path,
+                publicUrl: `${baseUrl}/temp/invoices/${path.basename(row.pdf_path)}`,
+                invoice: {
+                    invoiceNumber: row.invoice_number,
+                    customerName: row.customer_name,
+                    dueDate: row.due_date,
+                    totalDisplay: formatCurrency(row.total_amount, row.currency)
+                }
+            });
+
+            res.json({ success: true });
+        } catch (sendErr) {
+            console.error('Invoice email failed:', sendErr);
+            res.status(500).json({ error: sendErr.message || 'Failed to send invoice email.' });
+        }
+    });
+});
 
 // GET all bookings (with optional search/filter)
 router.get('/admin/bookings', (req, res) => {
@@ -904,7 +1237,6 @@ router.post('/admin/bookings/:id/cancel', (req, res) => {
 
             // Fire the cancellation email asynchronously (don't block response)
             try {
-                const { sendBookingCancellationEmail } = require('../services/email');
                 sendBookingCancellationEmail(booking, reason || null);
             } catch (emailErr) {
                 console.error('Failed to send cancellation email:', emailErr);

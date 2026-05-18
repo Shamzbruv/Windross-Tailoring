@@ -619,6 +619,287 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.ok { border-color: rgba(46,213,115,0.3); }
         .toast.err { border-color: rgba(255,77,77,0.3); }
+        .toast.info { border-color: rgba(112,161,255,0.3); }
+
+        .alert-settings-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 16px;
+            padding: 22px 24px 8px;
+        }
+
+        .alert-meta-title {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .alert-meta-copy {
+            color: var(--muted);
+            font-size: 0.86rem;
+            line-height: 1.6;
+        }
+
+        .alert-status-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .alert-status-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .alert-status-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-status-line strong {
+            color: white;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .alert-toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .alert-toggle-copy {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+        }
+
+        .toggle-switch {
+            width: 54px;
+            height: 30px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.08);
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            transition: 0.2s var(--ease);
+        }
+
+        .toggle-switch.active {
+            background: rgba(212,175,55,0.2);
+            border-color: rgba(212,175,55,0.45);
+        }
+
+        .toggle-switch.active::after {
+            left: 27px;
+            background: var(--gold);
+        }
+
+        .live-alert-feed {
+            padding: 0 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .live-alert-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .live-alert-main {
+            font-size: 0.86rem;
+            color: white;
+        }
+
+        .live-alert-sub {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .live-alert-time {
+            font-size: 0.75rem;
+            color: var(--gold);
+            white-space: nowrap;
+        }
+
+        .admin-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .admin-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .admin-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .admin-input,
+        .admin-textarea,
+        .admin-select {
+            width: 100%;
+            background: var(--input);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .admin-input:focus,
+        .admin-textarea:focus,
+        .admin-select:focus {
+            border-color: var(--gold);
+        }
+
+        .admin-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .admin-select option {
+            background: #111;
+        }
+
+        .invoice-shell {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+        }
+
+        .invoice-line-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .invoice-item-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) 90px 120px auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .invoice-remove-btn {
+            background: rgba(255,77,77,0.08);
+            border: 1px solid rgba(255,77,77,0.24);
+            color: var(--red);
+            border-radius: 8px;
+            padding: 12px 10px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .invoice-add-btn {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .invoice-side-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .invoice-summary-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .invoice-summary-line strong {
+            color: white;
+        }
+
+        .invoice-summary-total {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem;
+            color: var(--gold);
+        }
+
+        .invoice-action-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .invoice-result {
+            margin-top: 18px;
+            border: 1px solid rgba(46,213,115,0.25);
+            background: rgba(46,213,115,0.06);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+
+        .invoice-result a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .invoice-helper {
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 980px) {
+            .alert-settings-grid,
+            .invoice-shell {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-item-row {
+                grid-template-columns: 1fr;
+            }
+        }
 
         /* spinner */
         .loader { display: flex; justify-content: center; padding: 40px; }
@@ -657,6 +938,9 @@
         <button class="nav-tab" onclick="switchTab('designs')" id="tab-designs">
             <i data-lucide="pen-tool" style="width:14px;height:14px;"></i> Designs
         </button>
+        <button class="nav-tab" onclick="switchTab('invoices')" id="tab-invoices">
+            <i data-lucide="receipt-text" style="width:14px;height:14px;"></i> Invoices
+        </button>
         <button class="nav-tab" onclick="switchTab('availability')" id="tab-availability">
             <i data-lucide="clock" style="width:14px;height:14px;"></i> Availability
         </button>
@@ -677,6 +961,9 @@
     <button class="mob-dropdown-btn" onclick="switchTab('designs'); toggleAdminMenu()">
         <i data-lucide="pen-tool"></i> Designs
     </button>
+    <button class="mob-dropdown-btn" onclick="switchTab('invoices'); toggleAdminMenu()">
+        <i data-lucide="receipt-text"></i> Invoices
+    </button>
     <button class="mob-dropdown-btn" onclick="switchTab('availability'); toggleAdminMenu()">
         <i data-lucide="clock"></i> Availability
     </button>
@@ -696,6 +983,10 @@
         <button class="mob-tab" id="mob-tab-designs" onclick="switchTab('designs')">
             <i data-lucide="pen-tool"></i>
             <span>Designs</span>
+        </button>
+        <button class="mob-tab" id="mob-tab-invoices" onclick="switchTab('invoices')">
+            <i data-lucide="receipt-text"></i>
+            <span>Invoices</span>
         </button>
         <button class="mob-tab" id="mob-tab-availability" onclick="switchTab('availability')">
             <i data-lucide="clock"></i>
@@ -719,6 +1010,29 @@
             <div class="stat-card blue"><div class="stat-label"><i data-lucide="pen-tool" style="width:13px;height:13px;"></i> New Design Inquiries</div><div class="stat-value" id="s-designs">—</div></div>
             <div class="stat-card green"><div class="stat-label"><i data-lucide="layers" style="width:13px;height:13px;"></i> Total Designs</div><div class="stat-value" id="s-total-designs">—</div></div>
             <div class="stat-card red"><div class="stat-label"><i data-lucide="ban" style="width:13px;height:13px;"></i> Active Blocks</div><div class="stat-value" id="s-blocks">—</div></div>
+        </div>
+
+        <div class="panel" style="margin-bottom:24px;animation:fadeUp 0.7s ease 0.05s backwards;">
+            <div class="panel-head">
+                <span class="panel-title"><i data-lucide="bell-ring" style="width:14px;height:14px;"></i> Booking Alerts</span>
+                <div class="alert-toggle-wrap">
+                    <span class="alert-toggle-copy" id="booking-alert-state">Alerts Off</span>
+                    <button type="button" class="toggle-switch" id="booking-alert-toggle" aria-pressed="false" onclick="toggleBookingAlerts()"></button>
+                </div>
+            </div>
+            <div class="alert-settings-grid">
+                <div>
+                    <div class="alert-meta-title">Real-time dashboard popups, sound, and browser notifications</div>
+                    <div class="alert-meta-copy">Turn this on to hear a chime and get a live popup the moment a new booking is made. If your phone browser supports notifications, enabling this also asks permission to use the phone’s notification system.</div>
+                </div>
+                <div class="alert-status-card">
+                    <div class="alert-status-line"><span>Browser notifications</span><strong id="notification-permission-state">Checking…</strong></div>
+                    <div class="alert-status-line"><span>Latest alert</span><strong id="latest-alert-time">None yet</strong></div>
+                </div>
+            </div>
+            <div class="live-alert-feed" id="live-alert-feed">
+                <div class="empty-state" style="padding:24px 12px;">No live booking alerts yet.</div>
+            </div>
         </div>
 
         <!-- Recent Bookings -->
@@ -791,6 +1105,91 @@
             <div class="table-scroll">
                 <div id="designs-table-body">
                     <div class="loader"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ INVOICES TAB ══════════════════ -->
+    <div class="tab-view" id="view-invoices">
+        <div class="panel" style="padding:24px;">
+            <div class="panel-head" style="padding:0 0 18px;border-bottom:1px solid var(--border);margin-bottom:22px;">
+                <span class="panel-title"><i data-lucide="receipt-text" style="width:14px;height:14px;"></i> Invoice Generator</span>
+                <span class="photo-pill" id="invoice-total-pill">Total Due: J$ 0.00</span>
+            </div>
+
+            <div class="invoice-shell">
+                <div>
+                    <div class="admin-form-grid" id="invoice-form-grid">
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-customer-name">Client Name</label>
+                            <input class="admin-input" id="invoice-customer-name" type="text" placeholder="e.g. John Brown">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-customer-email">Client Email</label>
+                            <input class="admin-input" id="invoice-customer-email" type="email" placeholder="client@example.com">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-customer-phone">Client Phone</label>
+                            <input class="admin-input" id="invoice-customer-phone" type="text" placeholder="876 555 1234">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-whatsapp-phone">WhatsApp Number</label>
+                            <input class="admin-input" id="invoice-whatsapp-phone" type="text" placeholder="Use same or enter a different number">
+                        </div>
+                        <div class="admin-field full">
+                            <label class="admin-label" for="invoice-customer-address">Address</label>
+                            <textarea class="admin-textarea" id="invoice-customer-address" placeholder="Billing address or delivery address"></textarea>
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-issue-date">Issue Date</label>
+                            <input class="admin-input" id="invoice-issue-date" type="date">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-due-date">Due Date</label>
+                            <input class="admin-input" id="invoice-due-date" type="date">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-currency">Currency</label>
+                            <select class="admin-select" id="invoice-currency">
+                                <option value="JMD">JMD</option>
+                                <option value="USD">USD</option>
+                                <option value="GBP">GBP</option>
+                            </select>
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-tax-amount">Tax / Additional Fee</label>
+                            <input class="admin-input" id="invoice-tax-amount" type="number" min="0" step="0.01" value="0">
+                        </div>
+                        <div class="admin-field full">
+                            <label class="admin-label" for="invoice-notes">Notes</label>
+                            <textarea class="admin-textarea" id="invoice-notes" placeholder="Optional payment terms, fitting notes, or delivery remarks"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="margin-top:24px;padding:20px;">
+                        <div class="panel-title" style="margin-bottom:16px;"><i data-lucide="list-plus" style="width:14px;height:14px;"></i> Line Items</div>
+                        <div class="invoice-line-items" id="invoice-line-items"></div>
+                        <button class="btn-ghost invoice-add-btn" type="button" onclick="addInvoiceLineItem()">Add Another Item</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="invoice-side-card">
+                        <div class="invoice-summary-line"><span>Subtotal</span><strong id="invoice-subtotal-display">J$ 0.00</strong></div>
+                        <div class="invoice-summary-line"><span>Extra Fee / Tax</span><strong id="invoice-tax-display">J$ 0.00</strong></div>
+                        <div class="invoice-summary-total" id="invoice-total-display">J$ 0.00</div>
+                        <div class="invoice-helper" style="margin-top:12px;">Generate the PDF first, then send it straight to WhatsApp or email from here.</div>
+
+                        <div class="invoice-action-stack">
+                            <button class="btn-gold" type="button" onclick="generateInvoice()">Generate Invoice PDF</button>
+                            <input class="admin-input" id="invoice-send-email" type="email" placeholder="Email address to send invoice to">
+                            <button class="btn-ghost" type="button" onclick="sendInvoiceEmail()">Send Invoice by Email</button>
+                            <button class="btn-ghost" type="button" style="border-color:rgba(37,211,102,0.35);color:#25D366;" onclick="sendInvoiceWhatsapp()">Send Invoice via WhatsApp</button>
+                        </div>
+                    </div>
+
+                    <div class="invoice-result" id="invoice-result" style="display:none;"></div>
                 </div>
             </div>
         </div>
@@ -936,7 +1335,9 @@ const API = (() => {
 function toast(msg, type = 'ok') {
     const el = document.getElementById('toast');
     el.className = `toast ${type} show`;
-    el.innerHTML = `<i data-lucide="${type==='ok'?'check-circle':'alert-circle'}" style="width:15px;height:15px;color:${type==='ok'?'var(--green)':'var(--red)'}"></i>${msg}`;
+    const iconMap = { ok: 'check-circle', err: 'alert-circle', info: 'bell-ring' };
+    const colorMap = { ok: 'var(--green)', err: 'var(--red)', info: 'var(--blue)' };
+    el.innerHTML = `<i data-lucide="${iconMap[type] || iconMap.ok}" style="width:15px;height:15px;color:${colorMap[type] || colorMap.ok}"></i>${msg}`;
     lucide.createIcons();
     setTimeout(() => el.classList.remove('show'), 3000);
 }
@@ -955,10 +1356,33 @@ function switchTab(tab) {
 
     if (tab === 'bookings') loadBookings();
     if (tab === 'designs') loadDesigns();
+    if (tab === 'invoices') refreshInvoiceSummary();
     if (tab === 'availability') { loadAvailability(); loadAllBlocks(); }
 }
 
 /* ─── HELPERS ─── */
+function formatCurrency(amount, currency = 'JMD') {
+    const n = Number(amount || 0);
+    const symbol = currency === 'GBP' ? '£' : currency === 'USD' ? 'US$ ' : 'J$ ';
+    return `${symbol}${n.toFixed(2)}`;
+}
+
+function getJamaicaDateString(addDays = 0) {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Jamaica',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    const parts = formatter.formatToParts(new Date());
+    const year = Number(parts.find(part => part.type === 'year')?.value);
+    const month = Number(parts.find(part => part.type === 'month')?.value);
+    const day = Number(parts.find(part => part.type === 'day')?.value);
+    const jmDate = new Date(Date.UTC(year, month - 1, day));
+    jmDate.setUTCDate(jmDate.getUTCDate() + addDays);
+    return jmDate.toISOString().split('T')[0];
+}
+
 function fmtDate(dateStr) {
     if (!dateStr) return '—';
     const d = new Date(dateStr + 'T00:00:00');
@@ -995,6 +1419,404 @@ async function loadSummary() {
         document.getElementById('s-blocks').textContent = d.activeBlocks ?? 0;
         lucide.createIcons();
     } catch {}
+}
+
+/* ─── LIVE BOOKING ALERTS ─── */
+let bookingEventSource = null;
+let bookingAlertsEnabled = localStorage.getItem('windross_booking_alerts') === '1';
+let recentLiveAlerts = [];
+let latestGeneratedInvoice = null;
+let invoiceDirty = true;
+let invoiceLineItemCount = 0;
+
+function updateNotificationPermissionState() {
+    const el = document.getElementById('notification-permission-state');
+    if (!el) return;
+
+    if (!('Notification' in window)) {
+        el.textContent = 'Not supported';
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        el.textContent = 'Enabled';
+    } else if (Notification.permission === 'denied') {
+        el.textContent = 'Blocked';
+    } else {
+        el.textContent = 'Not yet allowed';
+    }
+}
+
+function updateAlertToggleUI() {
+    const toggle = document.getElementById('booking-alert-toggle');
+    const state = document.getElementById('booking-alert-state');
+    if (!toggle || !state) return;
+
+    toggle.classList.toggle('active', bookingAlertsEnabled);
+    toggle.setAttribute('aria-pressed', bookingAlertsEnabled ? 'true' : 'false');
+    state.textContent = bookingAlertsEnabled ? 'Alerts On' : 'Alerts Off';
+}
+
+async function ensureNotificationRegistration() {
+    if (!('serviceWorker' in navigator)) return null;
+
+    try {
+        return await navigator.serviceWorker.register('./admin-notifications-sw.js');
+    } catch (err) {
+        console.warn('Notification service worker registration failed:', err);
+        return null;
+    }
+}
+
+async function requestSystemNotificationsIfNeeded() {
+    if (!('Notification' in window)) {
+        updateNotificationPermissionState();
+        return;
+    }
+
+    await ensureNotificationRegistration();
+
+    if (Notification.permission === 'default') {
+        try {
+            await Notification.requestPermission();
+        } catch (err) {
+            console.warn('Notification permission request failed:', err);
+        }
+    }
+
+    updateNotificationPermissionState();
+}
+
+async function toggleBookingAlerts() {
+    bookingAlertsEnabled = !bookingAlertsEnabled;
+    localStorage.setItem('windross_booking_alerts', bookingAlertsEnabled ? '1' : '0');
+    updateAlertToggleUI();
+
+    if (bookingAlertsEnabled) {
+        await requestSystemNotificationsIfNeeded();
+        toast('Live booking alerts are enabled.', 'ok');
+    } else {
+        toast('Live booking alerts are muted.', 'info');
+    }
+}
+
+function renderLiveAlerts() {
+    const container = document.getElementById('live-alert-feed');
+    if (!container) return;
+
+    if (!recentLiveAlerts.length) {
+        container.innerHTML = '<div class="empty-state" style="padding:24px 12px;">No live booking alerts yet.</div>';
+        return;
+    }
+
+    container.innerHTML = recentLiveAlerts.map((booking) => `
+        <div class="live-alert-item">
+            <div>
+                <div class="live-alert-main">${booking.name} booked ${fmtDate(booking.booking_date)} at ${fmtTime(booking.booking_time)}</div>
+                <div class="live-alert-sub">${booking.email} ${booking.phone ? `· ${booking.phone}` : ''}</div>
+            </div>
+            <div class="live-alert-time">${ago(booking.created_at)}</div>
+        </div>
+    `).join('');
+}
+
+function playAlertTone() {
+    if (!bookingAlertsEnabled) return;
+
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtor) return;
+
+    try {
+        const audio = new AudioCtor();
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audio.currentTime);
+        oscillator.frequency.setValueAtTime(1174, audio.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.0001, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.16, audio.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.33);
+
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+        oscillator.start();
+        oscillator.stop(audio.currentTime + 0.35);
+        oscillator.onended = () => audio.close().catch(() => {});
+    } catch (err) {
+        console.warn('Alert sound could not play:', err);
+    }
+}
+
+async function showSystemNotification(booking) {
+    if (!bookingAlertsEnabled) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const title = `New booking from ${booking.name}`;
+    const options = {
+        body: `${fmtDate(booking.booking_date)} at ${fmtTime(booking.booking_time)}`,
+        icon: './images/favicon.png',
+        badge: './images/favicon.png',
+        tag: `booking-${booking.id}`
+    };
+
+    try {
+        const registration = await navigator.serviceWorker?.ready;
+        if (registration?.showNotification) {
+            await registration.showNotification(title, options);
+            return;
+        }
+        new Notification(title, options);
+    } catch (err) {
+        console.warn('System notification failed:', err);
+    }
+}
+
+function handleIncomingBookingAlert(booking) {
+    recentLiveAlerts = [booking, ...recentLiveAlerts.filter(item => item.id !== booking.id)].slice(0, 5);
+    const latestAlertTime = document.getElementById('latest-alert-time');
+    if (latestAlertTime) latestAlertTime.textContent = ago(booking.created_at);
+    renderLiveAlerts();
+
+    loadSummary();
+    loadBookings(5);
+    if (activeTab === 'bookings') loadBookings();
+
+    if (bookingAlertsEnabled) {
+        toast(`New booking: ${booking.name} for ${fmtTime(booking.booking_time)} on ${fmtDate(booking.booking_date)}.`, 'info');
+        playAlertTone();
+        showSystemNotification(booking);
+    }
+}
+
+function connectBookingStream() {
+    if (bookingEventSource) return;
+    if (!('EventSource' in window)) return;
+
+    bookingEventSource = new EventSource(`${API}/api/admin/bookings/stream`);
+    bookingEventSource.addEventListener('booking-created', (event) => {
+        try {
+            const payload = JSON.parse(event.data);
+            if (payload?.booking) {
+                handleIncomingBookingAlert(payload.booking);
+            }
+        } catch (err) {
+            console.warn('Failed to parse booking alert payload:', err);
+        }
+    });
+    bookingEventSource.onerror = () => {
+        console.warn('Booking alert stream disconnected. The browser will retry automatically.');
+    };
+}
+
+/* ─── INVOICE GENERATOR ─── */
+function markInvoiceDirty() {
+    invoiceDirty = true;
+}
+
+function getInvoiceLineItems() {
+    return Array.from(document.querySelectorAll('.invoice-item-row')).map((row) => ({
+        description: row.querySelector('[data-field="description"]')?.value?.trim() || '',
+        quantity: Number(row.querySelector('[data-field="quantity"]')?.value || 0),
+        unitPrice: Number(row.querySelector('[data-field="unitPrice"]')?.value || 0)
+    }));
+}
+
+function refreshInvoiceSummary() {
+    const currency = document.getElementById('invoice-currency')?.value || 'JMD';
+    const subtotal = getInvoiceLineItems().reduce((sum, item) => sum + ((item.quantity > 0 ? item.quantity : 0) * (item.unitPrice >= 0 ? item.unitPrice : 0)), 0);
+    const taxAmount = Number(document.getElementById('invoice-tax-amount')?.value || 0);
+    const total = subtotal + (Number.isFinite(taxAmount) ? taxAmount : 0);
+
+    document.getElementById('invoice-subtotal-display').textContent = formatCurrency(subtotal, currency);
+    document.getElementById('invoice-tax-display').textContent = formatCurrency(taxAmount, currency);
+    document.getElementById('invoice-total-display').textContent = formatCurrency(total, currency);
+    document.getElementById('invoice-total-pill').textContent = `Total Due: ${formatCurrency(total, currency)}`;
+}
+
+function addInvoiceLineItem(item = { description: '', quantity: 1, unitPrice: 0 }) {
+    const container = document.getElementById('invoice-line-items');
+    if (!container) return;
+
+    invoiceLineItemCount += 1;
+    const row = document.createElement('div');
+    row.className = 'invoice-item-row';
+    row.dataset.rowId = String(invoiceLineItemCount);
+    row.innerHTML = `
+        <div>
+            <label class="admin-label">Description</label>
+            <input class="admin-input" data-field="description" type="text" placeholder="e.g. Bespoke three-piece suit" value="${item.description || ''}">
+        </div>
+        <div>
+            <label class="admin-label">Qty</label>
+            <input class="admin-input" data-field="quantity" type="number" min="1" step="1" value="${item.quantity ?? 1}">
+        </div>
+        <div>
+            <label class="admin-label">Unit Price</label>
+            <input class="admin-input" data-field="unitPrice" type="number" min="0" step="0.01" value="${item.unitPrice ?? 0}">
+        </div>
+        <button class="invoice-remove-btn" type="button" onclick="removeInvoiceLineItem(${invoiceLineItemCount})">Remove</button>
+    `;
+    container.appendChild(row);
+    markInvoiceDirty();
+    refreshInvoiceSummary();
+}
+
+function removeInvoiceLineItem(rowId) {
+    const rows = Array.from(document.querySelectorAll('.invoice-item-row'));
+    if (rows.length <= 1) {
+        toast('Leave at least one line item on the invoice.', 'err');
+        return;
+    }
+
+    document.querySelector(`.invoice-item-row[data-row-id="${rowId}"]`)?.remove();
+    markInvoiceDirty();
+    refreshInvoiceSummary();
+}
+
+function getInvoicePayload() {
+    return {
+        customerName: document.getElementById('invoice-customer-name').value.trim(),
+        customerEmail: document.getElementById('invoice-customer-email').value.trim(),
+        customerPhone: document.getElementById('invoice-customer-phone').value.trim(),
+        whatsappPhone: document.getElementById('invoice-whatsapp-phone').value.trim(),
+        customerAddress: document.getElementById('invoice-customer-address').value.trim(),
+        issueDate: document.getElementById('invoice-issue-date').value,
+        dueDate: document.getElementById('invoice-due-date').value,
+        currency: document.getElementById('invoice-currency').value,
+        taxAmount: Number(document.getElementById('invoice-tax-amount').value || 0),
+        notes: document.getElementById('invoice-notes').value.trim(),
+        lineItems: getInvoiceLineItems()
+    };
+}
+
+function renderInvoiceResult() {
+    const el = document.getElementById('invoice-result');
+    if (!el || !latestGeneratedInvoice) return;
+
+    el.style.display = 'block';
+    el.innerHTML = `
+        <div style="font-size:0.76rem;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:8px;">Invoice Ready</div>
+        <div style="font-size:1rem;color:white;margin-bottom:6px;">${latestGeneratedInvoice.invoiceNumber}</div>
+        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:10px;">${latestGeneratedInvoice.totalDisplay}</div>
+        <div style="font-size:0.84rem;line-height:1.6;">
+            <a href="${latestGeneratedInvoice.pdfUrl}" target="_blank">Open PDF</a>
+            ${latestGeneratedInvoice.whatsappUrl ? ` · <a href="${latestGeneratedInvoice.whatsappUrl}" target="_blank">Open WhatsApp Draft</a>` : ''}
+        </div>
+    `;
+}
+
+async function generateInvoice(showSuccessToast = true) {
+    const payload = getInvoicePayload();
+
+    try {
+        const response = await fetch(`${API}/api/admin/invoices`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to generate invoice.');
+        }
+
+        latestGeneratedInvoice = data.invoice;
+        invoiceDirty = false;
+        renderInvoiceResult();
+
+        if (!document.getElementById('invoice-send-email').value && latestGeneratedInvoice.customerEmail) {
+            document.getElementById('invoice-send-email').value = latestGeneratedInvoice.customerEmail;
+        }
+
+        if (showSuccessToast) {
+            toast(`Invoice ${latestGeneratedInvoice.invoiceNumber} generated.`, 'ok');
+        }
+
+        return latestGeneratedInvoice;
+    } catch (err) {
+        toast(err.message || 'Failed to generate invoice.', 'err');
+        throw err;
+    }
+}
+
+async function ensureInvoiceReady() {
+    if (!latestGeneratedInvoice || invoiceDirty) {
+        return generateInvoice(false);
+    }
+    return latestGeneratedInvoice;
+}
+
+async function sendInvoiceEmail() {
+    const email = document.getElementById('invoice-send-email').value.trim() || document.getElementById('invoice-customer-email').value.trim();
+    if (!email) {
+        toast('Enter the email address that should receive the invoice.', 'err');
+        return;
+    }
+
+    try {
+        const invoice = await ensureInvoiceReady();
+        const response = await fetch(`${API}/api/admin/invoices/${invoice.id}/send-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to send invoice email.');
+        }
+
+        toast(`Invoice sent to ${email}.`, 'ok');
+    } catch (err) {
+        toast(err.message || 'Failed to send invoice email.', 'err');
+    }
+}
+
+async function sendInvoiceWhatsapp() {
+    try {
+        const invoice = await ensureInvoiceReady();
+        if (!invoice.whatsappUrl) {
+            toast('Enter a WhatsApp number before sending.', 'err');
+            return;
+        }
+        window.open(invoice.whatsappUrl, '_blank');
+        toast('WhatsApp message prepared.', 'ok');
+    } catch (err) {
+        toast(err.message || 'Failed to prepare WhatsApp invoice.', 'err');
+    }
+}
+
+function initializeInvoiceGenerator() {
+    document.getElementById('invoice-issue-date').value = getJamaicaDateString(0);
+    document.getElementById('invoice-due-date').value = getJamaicaDateString(7);
+
+    addInvoiceLineItem({ description: 'Bespoke tailoring service', quantity: 1, unitPrice: 0 });
+
+    document.getElementById('invoice-form-grid').addEventListener('input', () => {
+        markInvoiceDirty();
+        refreshInvoiceSummary();
+    });
+    document.getElementById('invoice-currency').addEventListener('change', () => {
+        markInvoiceDirty();
+        refreshInvoiceSummary();
+    });
+    document.getElementById('invoice-tax-amount').addEventListener('input', () => {
+        markInvoiceDirty();
+        refreshInvoiceSummary();
+    });
+    document.getElementById('invoice-line-items').addEventListener('input', () => {
+        markInvoiceDirty();
+        refreshInvoiceSummary();
+    });
+    document.getElementById('invoice-customer-email').addEventListener('blur', (event) => {
+        const sendInput = document.getElementById('invoice-send-email');
+        if (!sendInput.value.trim()) sendInput.value = event.target.value.trim();
+    });
+    document.getElementById('invoice-customer-phone').addEventListener('blur', (event) => {
+        const waInput = document.getElementById('invoice-whatsapp-phone');
+        if (!waInput.value.trim()) waInput.value = event.target.value.trim();
+    });
 }
 
 /* ─── BOOKINGS ─── */
@@ -1328,7 +2150,7 @@ async function selectAvailDay(dateStr, el) {
 
     let slots = [], dayIsAdminBlocked = false;
     try {
-        const r = await fetch(`${API}/api/bookings/availability?date=${dateStr}`);
+        const r = await fetch(`${API}/api/admin/bookings/availability?date=${dateStr}`);
         const d = await r.json();
         slots = d.slots || [];
         dayIsAdminBlocked = d.dayBlocked || false;
@@ -1503,9 +2325,24 @@ window.confirmCancelBooking = confirmCancelBooking;
 window.promptBlock = promptBlock;
 window.unblockDay = unblockDay;
 window.removeBlock = removeBlock;
+window.toggleBookingAlerts = toggleBookingAlerts;
+window.addInvoiceLineItem = addInvoiceLineItem;
+window.removeInvoiceLineItem = removeInvoiceLineItem;
+window.generateInvoice = generateInvoice;
+window.sendInvoiceEmail = sendInvoiceEmail;
+window.sendInvoiceWhatsapp = sendInvoiceWhatsapp;
 
 // ── INIT
 (async () => {
+    updateAlertToggleUI();
+    updateNotificationPermissionState();
+    connectBookingStream();
+    initializeInvoiceGenerator();
+    renderLiveAlerts();
+    refreshInvoiceSummary();
+    if (bookingAlertsEnabled) {
+        await requestSystemNotificationsIfNeeded();
+    }
     await loadSummary();
     await loadBookings(5);
     await loadDesigns(5);

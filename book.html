@@ -877,7 +877,7 @@
             <div style="text-align: center; margin-bottom: 40px;">
                 <span class="eyebrow">Mobile Tailoring</span>
                 <h2>Request Appointment</h2>
-                <p style="color: var(--text-muted);">Select a date and time to secure your slot.</p>
+                <p style="color: var(--text-muted);">Select a date and time to secure your slot. Same-day bookings are not available, so please choose tomorrow or later.</p>
             </div>
 
             <form class="booking-form" onsubmit="window.handleInStoreBooking(event)">
@@ -982,6 +982,22 @@
         let selectedTimeStr = null;
         let adminBlockedDays = new Set(); // Full-day blocks from admin panel
 
+        function getJamaicaDateString(addDays = 0) {
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Jamaica',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const parts = formatter.formatToParts(new Date());
+            const year = Number(parts.find(part => part.type === 'year')?.value);
+            const month = Number(parts.find(part => part.type === 'month')?.value);
+            const day = Number(parts.find(part => part.type === 'day')?.value);
+            const jmDate = new Date(Date.UTC(year, month - 1, day));
+            jmDate.setUTCDate(jmDate.getUTCDate() + addDays);
+            return jmDate.toISOString().split('T')[0];
+        }
+
         async function loadAdminBlockedDays(year, month) {
             const h = window.location.hostname;
             const isLocal = h === 'localhost' || h === '127.0.0.1' || h === '';
@@ -1030,19 +1046,16 @@
                 grid.appendChild(empty);
             }
 
-            // Current day starts at midnight local time
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const earliestDateStr = getJamaicaDateString(1);
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayEl = document.createElement('div');
                 dayEl.className = 'calendar-day';
                 dayEl.textContent = i;
 
-                const dayDate = new Date(year, month, i);
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
 
-                if (dayDate < today || adminBlockedDays.has(dateStr)) {
+                if (dateStr < earliestDateStr || adminBlockedDays.has(dateStr)) {
                     dayEl.classList.add('disabled');
                 } else {
                     if (selectedDateStr === dateStr) {
@@ -1096,6 +1109,11 @@
                 const data = await response.json();
 
                 slotsLoader.style.display = 'none';
+
+                if (data.sameDayBlocked) {
+                    slotsGrid.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted);">Same-day bookings are disabled. Please choose tomorrow or later.</div>';
+                    return;
+                }
 
                 // Show a notice if the entire day is admin-blocked with a reason
                 if (data.dayBlocked && data.dayBlockReason && data.dayBlockReason !== 'ADMIN') {

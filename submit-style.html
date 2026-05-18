@@ -658,7 +658,7 @@
                 <hr style="border-color: var(--bg-border); margin: 40px 0;">
                 <div class="form-section">
                     <h3><i data-lucide="calendar"></i> Fitting Appointment (Required)</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Please pick a date and time for us to take your precise measurements or review your design in person.</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Please pick a date and time for us to take your precise measurements or review your design in person. Same-day bookings are not available, so choose tomorrow or later.</p>
                     <div class="calendar-header">
                         <button type="button" id="prev-month">&lt;</button>
                         <strong id="calendar-month-year" style="font-family: 'Inter', sans-serif;">Month Year</strong>
@@ -808,6 +808,22 @@
         let selectedDateStr = null;
         let selectedTimeStr = null;
 
+        function getJamaicaDateString(addDays = 0) {
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Jamaica',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const parts = formatter.formatToParts(new Date());
+            const year = Number(parts.find(part => part.type === 'year')?.value);
+            const month = Number(parts.find(part => part.type === 'month')?.value);
+            const day = Number(parts.find(part => part.type === 'day')?.value);
+            const jmDate = new Date(Date.UTC(year, month - 1, day));
+            jmDate.setUTCDate(jmDate.getUTCDate() + addDays);
+            return jmDate.toISOString().split('T')[0];
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             const monthYear = document.getElementById('calendar-month-year');
@@ -836,18 +852,16 @@
                 grid.appendChild(empty);
             }
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const earliestDateStr = getJamaicaDateString(1);
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayEl = document.createElement('div');
                 dayEl.className = 'calendar-day';
                 dayEl.textContent = i;
 
-                const dayDate = new Date(year, month, i);
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
 
-                if (dayDate < today) {
+                if (dateStr < earliestDateStr) {
                     dayEl.classList.add('disabled');
                 } else {
                     if (selectedDateStr === dateStr) {
@@ -900,6 +914,11 @@
                 const data = await response.json();
 
                 slotsLoader.style.display = 'none';
+
+                if (data.sameDayBlocked) {
+                    slotsGrid.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted);">Same-day bookings are disabled. Please choose tomorrow or later.</div>';
+                    return;
+                }
 
                 if (data.slots && data.slots.length > 0) {
                     data.slots.forEach(slot => {

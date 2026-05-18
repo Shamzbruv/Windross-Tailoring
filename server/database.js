@@ -102,6 +102,27 @@ function initTables() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
+        // Custom Admin Invoices Table
+        db.run(`CREATE TABLE IF NOT EXISTS custom_invoices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_number TEXT UNIQUE NOT NULL,
+            customer_name TEXT NOT NULL,
+            customer_email TEXT,
+            customer_phone TEXT,
+            whatsapp_phone TEXT,
+            customer_address TEXT,
+            issue_date TEXT NOT NULL,
+            due_date TEXT,
+            currency TEXT DEFAULT 'JMD',
+            line_items JSON NOT NULL,
+            subtotal_amount REAL DEFAULT 0,
+            tax_amount REAL DEFAULT 0,
+            total_amount REAL DEFAULT 0,
+            notes TEXT,
+            pdf_path TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         console.log('Database tables initialized.');
     });
 }
