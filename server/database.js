@@ -5,6 +5,17 @@ const { SQLITE_SCHEMA, POSTGRES_SCHEMA } = require('./db-schema');
 const SQLITE_DB_PATH = path.join(process.env.DATA_DIR || __dirname, 'windross.db');
 const DATABASE_URL = process.env.DATABASE_URL;
 const DATABASE_CLIENT = (process.env.DB_CLIENT || (DATABASE_URL ? 'postgres' : 'sqlite')).toLowerCase();
+const CUSTOM_INVOICE_MIGRATION_COLUMNS = [
+    { name: 'deposit_percentage', sqlite: `REAL DEFAULT 0`, postgres: `DOUBLE PRECISION DEFAULT 0` },
+    { name: 'deposit_amount', sqlite: `REAL DEFAULT 0`, postgres: `DOUBLE PRECISION DEFAULT 0` },
+    { name: 'amount_paid', sqlite: `REAL DEFAULT 0`, postgres: `DOUBLE PRECISION DEFAULT 0` },
+    { name: 'amount_paid_percentage', sqlite: `REAL DEFAULT 0`, postgres: `DOUBLE PRECISION DEFAULT 0` },
+    { name: 'balance_due', sqlite: `REAL DEFAULT 0`, postgres: `DOUBLE PRECISION DEFAULT 0` },
+    { name: 'payment_status', sqlite: `TEXT DEFAULT 'unpaid'`, postgres: `TEXT DEFAULT 'unpaid'` },
+    { name: 'last_sent_at', sqlite: `DATETIME`, postgres: `TIMESTAMP` },
+    { name: 'last_sent_to', sqlite: `TEXT`, postgres: `TEXT` },
+    { name: 'updated_at', sqlite: `DATETIME`, postgres: `TIMESTAMP DEFAULT CURRENT_TIMESTAMP` }
+];
 
 function normalizeArgs(params, callback) {
     if (typeof params === 'function') {
@@ -61,6 +72,80 @@ function closeSqliteConnection(connection) {
     });
 }
 
+async function getSqliteTableColumns(connection, tableName) {
+    return new Promise((resolve, reject) => {
+        connection.all(`PRAGMA table_info(${tableName})`, [], (err, rows) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(rows);
+        });
+    });
+}
+
+async function ensureSqliteInvoiceColumns(connection, runStatement) {
+    const columns = await getSqliteTableColumns(connection, 'custom_invoices');
+    const existingColumns = new Set(columns.map((column) => column.name));
+
+    for (const column of CUSTOM_INVOICE_MIGRATION_COLUMNS) {
+        if (!existingColumns.has(column.name)) {
+            await runStatement(connection, `ALTER TABLE custom_invoices ADD COLUMN ${column.name} ${column.sqlite}`);
+        }
+    }
+
+    await runStatement(connection, `UPDATE custom_invoices
+        SET customer_name = COALESCE(NULLIF(customer_name, ''), 'Valued Client'),
+            deposit_percentage = COALESCE(deposit_percentage, 0),
+            deposit_amount = ROUND(COALESCE(deposit_amount, (COALESCE(total_amount, 0) * COALESCE(deposit_percentage, 0)) / 100.0), 2),
+            amount_paid = ROUND(COALESCE(amount_paid, 0), 2),
+            amount_paid_percentage = CASE
+                WHEN COALESCE(total_amount, 0) > 0 THEN ROUND((COALESCE(amount_paid, 0) / COALESCE(total_amount, 0)) * 100.0, 2)
+                ELSE 0
+            END,
+            balance_due = ROUND(CASE
+                WHEN COALESCE(total_amount, 0) - COALESCE(amount_paid, 0) > 0 THEN COALESCE(total_amount, 0) - COALESCE(amount_paid, 0)
+                ELSE 0
+            END, 2),
+            payment_status = CASE
+                WHEN COALESCE(amount_paid, 0) >= COALESCE(total_amount, 0) AND COALESCE(total_amount, 0) > 0 THEN 'paid'
+                WHEN COALESCE(amount_paid, 0) > 0 THEN 'partial'
+                ELSE COALESCE(NULLIF(payment_status, ''), 'unpaid')
+            END,
+            updated_at = COALESCE(updated_at, created_at, CURRENT_TIMESTAMP)
+    `);
+
+    await runStatement(connection, `CREATE INDEX IF NOT EXISTS idx_custom_invoices_updated_at ON custom_invoices (updated_at)`);
+    await runStatement(connection, `CREATE INDEX IF NOT EXISTS idx_custom_invoices_payment_status ON custom_invoices (payment_status)`);
+}
+
+async function ensurePostgresInvoiceColumns(pool) {
+    for (const column of CUSTOM_INVOICE_MIGRATION_COLUMNS) {
+        await pool.query(`ALTER TABLE custom_invoices ADD COLUMN IF NOT EXISTS ${column.name} ${column.postgres}`);
+    }
+
+    await pool.query(`UPDATE custom_invoices
+        SET customer_name = COALESCE(NULLIF(customer_name, ''), 'Valued Client'),
+            deposit_percentage = COALESCE(deposit_percentage, 0),
+            deposit_amount = ROUND(COALESCE(deposit_amount, (COALESCE(total_amount, 0) * COALESCE(deposit_percentage, 0)) / 100.0)::numeric, 2),
+            amount_paid = ROUND(COALESCE(amount_paid, 0)::numeric, 2),
+            amount_paid_percentage = CASE
+                WHEN COALESCE(total_amount, 0) > 0 THEN ROUND(((COALESCE(amount_paid, 0) / COALESCE(total_amount, 0)) * 100.0)::numeric, 2)
+                ELSE 0
+            END,
+            balance_due = ROUND((GREATEST(COALESCE(total_amount, 0) - COALESCE(amount_paid, 0), 0))::numeric, 2),
+            payment_status = CASE
+                WHEN COALESCE(amount_paid, 0) >= COALESCE(total_amount, 0) AND COALESCE(total_amount, 0) > 0 THEN 'paid'
+                WHEN COALESCE(amount_paid, 0) > 0 THEN 'partial'
+                ELSE COALESCE(NULLIF(payment_status, ''), 'unpaid')
+            END,
+            updated_at = COALESCE(updated_at, created_at, CURRENT_TIMESTAMP)
+    `);
+
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_custom_invoices_updated_at ON custom_invoices (updated_at)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_custom_invoices_payment_status ON custom_invoices (payment_status)`);
+}
+
 class SqliteAdapter {
     constructor(filePath) {
         const sqlite3 = require('sqlite3').verbose();
@@ -79,6 +164,7 @@ class SqliteAdapter {
         for (const statement of SQLITE_SCHEMA) {
             await this.runStatement(this.connection, statement);
         }
+        await ensureSqliteInvoiceColumns(this.connection, this.runStatement.bind(this));
         console.log('Database tables initialized.');
     }
 
@@ -249,6 +335,7 @@ class PostgresAdapter {
         for (const statement of POSTGRES_SCHEMA) {
             await this.pool.query(statement);
         }
+        await ensurePostgresInvoiceColumns(this.pool);
         console.log('Database tables initialized.');
     }
 

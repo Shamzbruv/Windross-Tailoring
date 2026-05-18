@@ -40,6 +40,255 @@ function createInvoiceNumber() {
     return `WT-INV-${shortDate}-${shortTime}-${randomSuffix}`;
 }
 
+function sanitizeDate(value) {
+    const cleaned = sanitizeText(value, 20);
+    return /^\d{4}-\d{2}-\d{2}$/.test(cleaned) ? cleaned : '';
+}
+
+function clampNumber(value, min, max) {
+    const numeric = Number.isFinite(value) ? value : min;
+    return Math.min(Math.max(numeric, min), max);
+}
+
+function roundMoney(value) {
+    return Number((Number(value || 0)).toFixed(2));
+}
+
+function roundPercent(value) {
+    return Number((Number(value || 0)).toFixed(2));
+}
+
+function parseInvoiceLineItems(lineItemsValue) {
+    if (Array.isArray(lineItemsValue)) {
+        return lineItemsValue;
+    }
+
+    if (typeof lineItemsValue !== 'string' || !lineItemsValue.trim()) {
+        return [];
+    }
+
+    try {
+        const parsed = JSON.parse(lineItemsValue);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+        return [];
+    }
+}
+
+function normalizeInvoiceLineItems(rawItems) {
+    const baseItems = Array.isArray(rawItems) ? rawItems : [];
+    const normalizedItems = baseItems
+        .map((item, index) => {
+            const description = sanitizeText(item?.description, 180) || `Tailoring service${baseItems.length > 1 ? ` ${index + 1}` : ''}`;
+            const quantity = Math.max(1, Math.round(Number(item?.quantity || 1)));
+            const unitPrice = Number(item?.unitPrice || 0);
+
+            if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+                return null;
+            }
+
+            return {
+                description,
+                quantity,
+                unitPrice: roundMoney(unitPrice),
+                amount: roundMoney(quantity * unitPrice)
+            };
+        })
+        .filter(Boolean);
+
+    return normalizedItems.length
+        ? normalizedItems
+        : [{
+            description: 'Tailoring service',
+            quantity: 1,
+            unitPrice: 0,
+            amount: 0
+        }];
+}
+
+function buildInvoicePayload(body = {}, existingInvoiceNumber = '') {
+    const today = getJmTimeStr().split('T')[0];
+    const lineItems = normalizeInvoiceLineItems(body.lineItems);
+    const subtotalAmount = roundMoney(lineItems.reduce((sum, item) => sum + item.amount, 0));
+    const rawTaxAmount = Number(body.taxAmount || 0);
+    const taxAmount = roundMoney(Number.isFinite(rawTaxAmount) && rawTaxAmount > 0 ? rawTaxAmount : 0);
+    const totalAmount = roundMoney(subtotalAmount + taxAmount);
+    const rawDepositPercentage = Number(body.depositPercentage || 0);
+    const depositPercentage = roundPercent(clampNumber(Number.isFinite(rawDepositPercentage) ? rawDepositPercentage : 0, 0, 100));
+    const rawAmountPaid = Number(body.amountPaid || 0);
+    const rawAmountPaidPercentage = Number(body.amountPaidPercentage);
+
+    let amountPaid = Number.isFinite(rawAmountPaid) && rawAmountPaid > 0 ? rawAmountPaid : 0;
+    if (amountPaid <= 0 && Number.isFinite(rawAmountPaidPercentage) && rawAmountPaidPercentage > 0 && totalAmount > 0) {
+        amountPaid = totalAmount * clampNumber(rawAmountPaidPercentage, 0, 100) / 100;
+    }
+
+    amountPaid = roundMoney(clampNumber(amountPaid, 0, totalAmount));
+    const amountPaidPercentage = totalAmount > 0 ? roundPercent((amountPaid / totalAmount) * 100) : 0;
+    const depositAmount = roundMoney(totalAmount * (depositPercentage / 100));
+    const balanceDue = roundMoney(Math.max(totalAmount - amountPaid, 0));
+    const paymentStatus = balanceDue <= 0 && totalAmount > 0
+        ? 'paid'
+        : amountPaid > 0
+            ? 'partial'
+            : 'unpaid';
+
+    return {
+        invoiceNumber: existingInvoiceNumber || createInvoiceNumber(),
+        customerName: sanitizeText(body.customerName, 120) || 'Valued Client',
+        customerEmail: sanitizeEmail(body.customerEmail),
+        customerPhone: sanitizePhone(body.customerPhone),
+        whatsappPhone: sanitizePhone(body.whatsappPhone || body.customerPhone),
+        customerAddress: sanitizeText(body.customerAddress, 250),
+        issueDate: sanitizeDate(body.issueDate) || today,
+        dueDate: sanitizeDate(body.dueDate),
+        currency: ['JMD', 'USD', 'GBP'].includes(body.currency) ? body.currency : 'JMD',
+        notes: sanitizeText(body.notes, 1200),
+        lineItems,
+        subtotalAmount,
+        taxAmount,
+        totalAmount,
+        depositPercentage,
+        depositAmount,
+        amountPaid,
+        amountPaidPercentage,
+        balanceDue,
+        paymentStatus
+    };
+}
+
+function buildInvoiceWhatsappUrl(invoice, baseUrl) {
+    const targetPhone = sanitizePhone(invoice.whatsappPhone || invoice.customerPhone).replace(/\D/g, '');
+    if (!targetPhone) return null;
+
+    const invoiceUrl = `${baseUrl}/temp/invoices/${path.basename(invoice.pdfPath)}`;
+    const balanceLine = invoice.balanceDue > 0
+        ? `Balance outstanding: ${formatCurrency(invoice.balanceDue, invoice.currency)}.`
+        : 'This invoice is now fully paid.';
+    const depositLine = invoice.depositPercentage > 0
+        ? `Required deposit: ${invoice.depositPercentage}% (${formatCurrency(invoice.depositAmount, invoice.currency)}).`
+        : '';
+    const paidLine = `Paid so far: ${formatCurrency(invoice.amountPaid, invoice.currency)} (${invoice.amountPaidPercentage}%).`;
+    const dueLine = invoice.dueDate ? `Due date: ${invoice.dueDate}.` : '';
+    const message = `Hello ${invoice.customerName || 'Valued Client'}, your Windross Tailoring invoice ${invoice.invoiceNumber} is ready. Project total: ${formatCurrency(invoice.totalAmount, invoice.currency)}. ${depositLine} ${paidLine} ${balanceLine} ${dueLine} View it here: ${invoiceUrl}`.replace(/\s+/g, ' ').trim();
+
+    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
+}
+
+function mapInvoiceRow(row, baseUrl) {
+    if (!row) return null;
+
+    const invoice = buildInvoicePayload({
+        customerName: row.customer_name,
+        customerEmail: row.customer_email,
+        customerPhone: row.customer_phone,
+        whatsappPhone: row.whatsapp_phone,
+        customerAddress: row.customer_address,
+        issueDate: row.issue_date,
+        dueDate: row.due_date,
+        currency: row.currency,
+        notes: row.notes,
+        lineItems: parseInvoiceLineItems(row.line_items),
+        taxAmount: row.tax_amount,
+        depositPercentage: row.deposit_percentage,
+        amountPaid: row.amount_paid
+    }, row.invoice_number);
+
+    invoice.id = row.id;
+    invoice.pdfPath = row.pdf_path;
+    invoice.createdAt = row.created_at;
+    invoice.updatedAt = row.updated_at || row.created_at;
+    invoice.lastSentAt = row.last_sent_at || null;
+    invoice.lastSentTo = row.last_sent_to || '';
+    invoice.depositOutstanding = roundMoney(Math.max(invoice.depositAmount - invoice.amountPaid, 0));
+    invoice.totalDisplay = formatCurrency(invoice.totalAmount, invoice.currency);
+    invoice.amountPaidDisplay = formatCurrency(invoice.amountPaid, invoice.currency);
+    invoice.balanceDueDisplay = formatCurrency(invoice.balanceDue, invoice.currency);
+    invoice.depositAmountDisplay = formatCurrency(invoice.depositAmount, invoice.currency);
+    invoice.depositOutstandingDisplay = formatCurrency(invoice.depositOutstanding, invoice.currency);
+    invoice.statusLabel = invoice.paymentStatus === 'paid' ? 'Paid in full' : invoice.paymentStatus === 'partial' ? 'Partially paid' : 'Awaiting payment';
+    invoice.pdfUrl = row.pdf_path ? `${baseUrl}/temp/invoices/${path.basename(row.pdf_path)}` : null;
+    invoice.whatsappUrl = row.pdf_path ? buildInvoiceWhatsappUrl(invoice, baseUrl) : null;
+
+    return invoice;
+}
+
+async function saveInvoiceRecord(req, invoiceData, existingRow = null) {
+    const { filePath } = await generateCustomInvoicePDF(invoiceData);
+
+    if (existingRow) {
+        await db.runAsync(
+            `UPDATE custom_invoices
+             SET customer_name = ?, customer_email = ?, customer_phone = ?, whatsapp_phone = ?,
+                 customer_address = ?, issue_date = ?, due_date = ?, currency = ?, line_items = ?,
+                 subtotal_amount = ?, tax_amount = ?, total_amount = ?, deposit_percentage = ?,
+                 deposit_amount = ?, amount_paid = ?, amount_paid_percentage = ?, balance_due = ?,
+                 payment_status = ?, notes = ?, pdf_path = ?, updated_at = CURRENT_TIMESTAMP
+             WHERE id = ?`,
+            [
+                invoiceData.customerName,
+                invoiceData.customerEmail || null,
+                invoiceData.customerPhone || null,
+                invoiceData.whatsappPhone || null,
+                invoiceData.customerAddress || null,
+                invoiceData.issueDate,
+                invoiceData.dueDate || null,
+                invoiceData.currency,
+                JSON.stringify(invoiceData.lineItems),
+                invoiceData.subtotalAmount,
+                invoiceData.taxAmount,
+                invoiceData.totalAmount,
+                invoiceData.depositPercentage,
+                invoiceData.depositAmount,
+                invoiceData.amountPaid,
+                invoiceData.amountPaidPercentage,
+                invoiceData.balanceDue,
+                invoiceData.paymentStatus,
+                invoiceData.notes || null,
+                filePath,
+                existingRow.id
+            ]
+        );
+
+        return existingRow.id;
+    }
+
+    const insertResult = await db.runAsync(
+        `INSERT INTO custom_invoices (
+            invoice_number, customer_name, customer_email, customer_phone, whatsapp_phone,
+            customer_address, issue_date, due_date, currency, line_items,
+            subtotal_amount, tax_amount, total_amount, deposit_percentage, deposit_amount,
+            amount_paid, amount_paid_percentage, balance_due, payment_status,
+            notes, pdf_path, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+        [
+            invoiceData.invoiceNumber,
+            invoiceData.customerName,
+            invoiceData.customerEmail || null,
+            invoiceData.customerPhone || null,
+            invoiceData.whatsappPhone || null,
+            invoiceData.customerAddress || null,
+            invoiceData.issueDate,
+            invoiceData.dueDate || null,
+            invoiceData.currency,
+            JSON.stringify(invoiceData.lineItems),
+            invoiceData.subtotalAmount,
+            invoiceData.taxAmount,
+            invoiceData.totalAmount,
+            invoiceData.depositPercentage,
+            invoiceData.depositAmount,
+            invoiceData.amountPaid,
+            invoiceData.amountPaidPercentage,
+            invoiceData.balanceDue,
+            invoiceData.paymentStatus,
+            invoiceData.notes || null,
+            filePath
+        ]
+    );
+
+    return insertResult.lastID;
+}
+
 function broadcastBookingCreated(booking) {
     const payload = JSON.stringify({ booking });
 
@@ -997,132 +1246,92 @@ router.get('/admin/bookings/stream', (req, res) => {
 // =============================================
 
 router.post('/admin/invoices', async (req, res) => {
-    const customerName = sanitizeText(req.body.customerName, 120);
-    const customerEmail = sanitizeEmail(req.body.customerEmail);
-    const customerPhone = sanitizePhone(req.body.customerPhone);
-    const whatsappPhone = sanitizePhone(req.body.whatsappPhone || req.body.customerPhone);
-    const customerAddress = sanitizeText(req.body.customerAddress, 250);
-    const issueDate = sanitizeText(req.body.issueDate, 20);
-    const dueDate = sanitizeText(req.body.dueDate, 20);
-    const notes = sanitizeText(req.body.notes, 1200);
-    const currency = ['JMD', 'USD', 'GBP'].includes(req.body.currency) ? req.body.currency : 'JMD';
-    const taxAmount = Number(req.body.taxAmount || 0);
-    const rawItems = Array.isArray(req.body.lineItems) ? req.body.lineItems : [];
-
-    if (!customerName) {
-        return res.status(400).json({ error: 'Client name is required.' });
-    }
-
-    if (!issueDate) {
-        return res.status(400).json({ error: 'Issue date is required.' });
-    }
-
-    const lineItems = rawItems
-        .map((item) => {
-            const description = sanitizeText(item.description, 180);
-            const quantity = Number(item.quantity || 0);
-            const unitPrice = Number(item.unitPrice || 0);
-            return {
-                description,
-                quantity,
-                unitPrice,
-                amount: Number((quantity * unitPrice).toFixed(2))
-            };
-        })
-        .filter((item) => item.description && item.quantity > 0 && item.unitPrice >= 0);
-
-    if (!lineItems.length) {
-        return res.status(400).json({ error: 'Add at least one valid invoice item.' });
-    }
-
-    if (Number.isNaN(taxAmount) || taxAmount < 0) {
-        return res.status(400).json({ error: 'Tax or additional fee must be zero or greater.' });
-    }
-
-    const subtotalAmount = Number(lineItems.reduce((sum, item) => sum + item.amount, 0).toFixed(2));
-    const totalAmount = Number((subtotalAmount + taxAmount).toFixed(2));
-    const invoiceNumber = createInvoiceNumber();
-
     try {
-        const invoiceRecord = {
-            invoiceNumber,
-            customerName,
-            customerEmail,
-            customerPhone,
-            whatsappPhone,
-            customerAddress,
-            issueDate,
-            dueDate,
-            notes,
-            currency,
-            lineItems,
-            subtotalAmount,
-            taxAmount,
-            totalAmount
-        };
+        const invoiceData = buildInvoicePayload(req.body);
+        const invoiceId = await saveInvoiceRecord(req, invoiceData);
+        const savedRow = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
 
-        const { filePath, publicUrl } = await generateCustomInvoicePDF(invoiceRecord);
-
-        db.run(
-            `INSERT INTO custom_invoices (
-                invoice_number, customer_name, customer_email, customer_phone, whatsapp_phone,
-                customer_address, issue_date, due_date, currency, line_items,
-                subtotal_amount, tax_amount, total_amount, notes, pdf_path
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                invoiceNumber,
-                customerName,
-                customerEmail || null,
-                customerPhone || null,
-                whatsappPhone || null,
-                customerAddress || null,
-                issueDate,
-                dueDate || null,
-                currency,
-                JSON.stringify(lineItems),
-                subtotalAmount,
-                taxAmount,
-                totalAmount,
-                notes || null,
-                filePath
-            ],
-            function(err) {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).json({ error: 'Failed to save invoice.' });
-                }
-
-                const baseUrl = getPublicBaseUrl(req);
-                const fullPdfUrl = `${baseUrl}${publicUrl}`;
-                const friendlyDueDate = dueDate || 'upon receipt';
-                const targetPhone = whatsappPhone.replace(/\D/g, '');
-                const waMessage = `Hello ${customerName}, your Windross Tailoring invoice ${invoiceNumber} is ready. Total due: ${formatCurrency(totalAmount, currency)}. View it here: ${fullPdfUrl} . Due date: ${friendlyDueDate}.`;
-
-                res.json({
-                    success: true,
-                    invoice: {
-                        id: this.lastID,
-                        invoiceNumber,
-                        customerName,
-                        customerEmail,
-                        customerPhone,
-                        whatsappPhone,
-                        issueDate,
-                        dueDate,
-                        currency,
-                        subtotalAmount,
-                        taxAmount,
-                        totalAmount,
-                        totalDisplay: formatCurrency(totalAmount, currency),
-                        pdfUrl: fullPdfUrl,
-                        whatsappUrl: targetPhone ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(waMessage)}` : null
-                    }
-                });
-            }
-        );
+        res.json({
+            success: true,
+            invoice: mapInvoiceRow(savedRow, getPublicBaseUrl(req))
+        });
     } catch (err) {
         console.error('Invoice generation failed:', err);
-        res.status(500).json({ error: 'Failed to generate invoice PDF.' });
+        res.status(500).json({ error: err.message || 'Failed to generate invoice PDF.' });
+    }
+});
+
+router.get('/admin/invoices', async (req, res) => {
+    const search = sanitizeText(req.query.search, 120);
+
+    try {
+        let query = `SELECT * FROM custom_invoices`;
+        const params = [];
+
+        if (search) {
+            query += ` WHERE invoice_number LIKE ? OR customer_name LIKE ? OR customer_email LIKE ?`;
+            const term = `%${search}%`;
+            params.push(term, term, term);
+        }
+
+        query += ` ORDER BY COALESCE(updated_at, created_at) DESC, created_at DESC`;
+        const rows = await db.allAsync(query, params);
+
+        res.json({
+            success: true,
+            invoices: rows.map((row) => mapInvoiceRow(row, getPublicBaseUrl(req)))
+        });
+    } catch (err) {
+        console.error('Invoice history load failed:', err);
+        res.status(500).json({ error: 'Failed to load invoice history.' });
+    }
+});
+
+router.get('/admin/invoices/:id', async (req, res) => {
+    const invoiceId = Number(req.params.id);
+    if (!invoiceId) {
+        return res.status(400).json({ error: 'Valid invoice id is required.' });
+    }
+
+    try {
+        const row = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
+        if (!row) {
+            return res.status(404).json({ error: 'Invoice not found.' });
+        }
+
+        res.json({
+            success: true,
+            invoice: mapInvoiceRow(row, getPublicBaseUrl(req))
+        });
+    } catch (err) {
+        console.error('Invoice load failed:', err);
+        res.status(500).json({ error: 'Failed to load invoice.' });
+    }
+});
+
+router.patch('/admin/invoices/:id', async (req, res) => {
+    const invoiceId = Number(req.params.id);
+    if (!invoiceId) {
+        return res.status(400).json({ error: 'Valid invoice id is required.' });
+    }
+
+    try {
+        const existingRow = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
+        if (!existingRow) {
+            return res.status(404).json({ error: 'Invoice not found.' });
+        }
+
+        const invoiceData = buildInvoicePayload(req.body, existingRow.invoice_number);
+        await saveInvoiceRecord(req, invoiceData, existingRow);
+        const updatedRow = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
+
+        res.json({
+            success: true,
+            invoice: mapInvoiceRow(updatedRow, getPublicBaseUrl(req))
+        });
+    } catch (err) {
+        console.error('Invoice update failed:', err);
+        res.status(500).json({ error: err.message || 'Failed to update invoice.' });
     }
 });
 
@@ -1138,34 +1347,31 @@ router.post('/admin/invoices/:id/send-email', async (req, res) => {
         return res.status(400).json({ error: 'Recipient email is required.' });
     }
 
-    db.get(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId], async (err, row) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to load invoice.' });
-        }
+    try {
+        const row = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
         if (!row) {
             return res.status(404).json({ error: 'Invoice not found.' });
         }
 
-        try {
-            const baseUrl = getPublicBaseUrl(req);
-            await sendCustomInvoiceEmail({
-                toEmail: targetEmail,
-                pdfPath: row.pdf_path,
-                publicUrl: `${baseUrl}/temp/invoices/${path.basename(row.pdf_path)}`,
-                invoice: {
-                    invoiceNumber: row.invoice_number,
-                    customerName: row.customer_name,
-                    dueDate: row.due_date,
-                    totalDisplay: formatCurrency(row.total_amount, row.currency)
-                }
-            });
+        const baseUrl = getPublicBaseUrl(req);
+        const invoice = mapInvoiceRow(row, baseUrl);
+        await sendCustomInvoiceEmail({
+            toEmail: targetEmail,
+            pdfPath: row.pdf_path,
+            publicUrl: `${baseUrl}/temp/invoices/${path.basename(row.pdf_path)}`,
+            invoice
+        });
 
-            res.json({ success: true });
-        } catch (sendErr) {
-            console.error('Invoice email failed:', sendErr);
-            res.status(500).json({ error: sendErr.message || 'Failed to send invoice email.' });
-        }
-    });
+        await db.runAsync(
+            `UPDATE custom_invoices SET last_sent_at = CURRENT_TIMESTAMP, last_sent_to = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+            [targetEmail, invoiceId]
+        );
+
+        res.json({ success: true });
+    } catch (sendErr) {
+        console.error('Invoice email failed:', sendErr);
+        res.status(500).json({ error: sendErr.message || 'Failed to send invoice email.' });
+    }
 });
 
 // GET all bookings (with optional search/filter)

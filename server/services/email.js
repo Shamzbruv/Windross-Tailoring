@@ -344,6 +344,11 @@ async function sendCustomInvoiceEmail({ toEmail, invoice, pdfPath, publicUrl }) 
     const attachmentBuffer = fs.readFileSync(pdfPath);
     const ccEmail = process.env.ADMIN_EMAIL || '876david@gmail.com';
     const dueDate = invoice.dueDate || 'upon receipt';
+    const paidDisplay = invoice.amountPaidDisplay || invoice.totalDisplay;
+    const balanceDisplay = invoice.balanceDueDisplay || invoice.totalDisplay;
+    const depositDisplay = invoice.depositPercentage > 0
+        ? `${Number(invoice.depositPercentage || 0).toFixed(2)}% (${invoice.depositAmountDisplay || ''})`
+        : 'Not set';
 
     await resend.emails.send({
         from: 'Windross Tailoring <orders@windrosstailoringanddesign.com>',
@@ -356,7 +361,10 @@ async function sendCustomInvoiceEmail({ toEmail, invoice, pdfPath, publicUrl }) 
                 <p style="margin: 0 0 18px; line-height: 1.6;">Hello ${invoice.customerName || 'Valued Client'}, your invoice is ready.</p>
                 <div style="background: #faf7ef; border: 1px solid #eadfbe; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
                     <p style="margin: 4px 0;"><strong>Invoice Number:</strong> ${invoice.invoiceNumber}</p>
-                    <p style="margin: 4px 0;"><strong>Total Due:</strong> ${invoice.totalDisplay}</p>
+                    <p style="margin: 4px 0;"><strong>Project Total:</strong> ${invoice.totalDisplay}</p>
+                    <p style="margin: 4px 0;"><strong>Paid So Far:</strong> ${paidDisplay}</p>
+                    <p style="margin: 4px 0;"><strong>Outstanding Balance:</strong> ${balanceDisplay}</p>
+                    <p style="margin: 4px 0;"><strong>Required Deposit:</strong> ${depositDisplay}</p>
                     <p style="margin: 4px 0;"><strong>Due Date:</strong> ${dueDate}</p>
                 </div>
                 <p style="margin: 0 0 14px; line-height: 1.6;">A PDF copy is attached for your records.</p>

@@ -102,9 +102,21 @@ const tableSpecs = [
     },
     {
         name: 'custom_invoices',
-        columns: ['id', 'invoice_number', 'customer_name', 'customer_email', 'customer_phone', 'whatsapp_phone', 'customer_address', 'issue_date', 'due_date', 'currency', 'line_items', 'subtotal_amount', 'tax_amount', 'total_amount', 'notes', 'pdf_path', 'created_at']
+        columns: ['id', 'invoice_number', 'customer_name', 'customer_email', 'customer_phone', 'whatsapp_phone', 'customer_address', 'issue_date', 'due_date', 'currency', 'line_items', 'subtotal_amount', 'tax_amount', 'total_amount', 'deposit_percentage', 'deposit_amount', 'amount_paid', 'amount_paid_percentage', 'balance_due', 'payment_status', 'notes', 'pdf_path', 'last_sent_at', 'last_sent_to', 'updated_at', 'created_at']
     }
 ];
+
+const tableColumnDefaults = {
+    custom_invoices: {
+        customer_name: 'Valued Client',
+        deposit_percentage: 0,
+        deposit_amount: 0,
+        amount_paid: 0,
+        amount_paid_percentage: 0,
+        balance_due: 0,
+        payment_status: 'unpaid'
+    }
+};
 
 async function resetSequence(client, tableName) {
     await client.query(`
@@ -134,7 +146,8 @@ async function upsertRows(client, tableName, columns, rows) {
     `;
 
     for (const row of rows) {
-        const values = columns.map((column) => row[column]);
+        const defaults = tableColumnDefaults[tableName] || {};
+        const values = columns.map((column) => row[column] ?? defaults[column] ?? null);
         await client.query(query, values);
     }
 

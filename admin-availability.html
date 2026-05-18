@@ -836,6 +836,11 @@
             padding: 18px;
         }
 
+        .invoice-readonly-input {
+            background: rgba(255,255,255,0.02);
+            color: white;
+        }
+
         .invoice-summary-line {
             display: flex;
             justify-content: space-between;
@@ -884,6 +889,116 @@
             line-height: 1.6;
         }
 
+        .invoice-history-panel {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .invoice-history-toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .invoice-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .invoice-history-item {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .invoice-history-item.active {
+            border-color: rgba(212,175,55,0.42);
+            box-shadow: 0 0 0 1px rgba(212,175,55,0.15) inset;
+        }
+
+        .invoice-history-title {
+            font-size: 0.96rem;
+            color: white;
+            margin-bottom: 6px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .invoice-status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .invoice-status-chip.paid {
+            color: var(--green);
+            border-color: rgba(46,213,115,0.3);
+            background: rgba(46,213,115,0.08);
+        }
+
+        .invoice-status-chip.partial {
+            color: var(--gold);
+            border-color: rgba(212,175,55,0.3);
+            background: rgba(212,175,55,0.08);
+        }
+
+        .invoice-status-chip.unpaid {
+            color: var(--blue);
+            border-color: rgba(114,137,218,0.3);
+            background: rgba(114,137,218,0.08);
+        }
+
+        .invoice-history-meta {
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .invoice-history-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: flex-start;
+        }
+
+        .invoice-history-btn {
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+        }
+
+        .invoice-history-btn:hover {
+            border-color: rgba(212,175,55,0.35);
+            color: var(--gold);
+        }
+
+        .invoice-empty-state {
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+        }
+
         @media (max-width: 980px) {
             .alert-settings-grid,
             .invoice-shell {
@@ -898,6 +1013,14 @@
 
             .invoice-item-row {
                 grid-template-columns: 1fr;
+            }
+
+            .invoice-history-item {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-history-actions {
+                justify-content: flex-start;
             }
         }
 
@@ -1115,7 +1238,7 @@
         <div class="panel" style="padding:24px;">
             <div class="panel-head" style="padding:0 0 18px;border-bottom:1px solid var(--border);margin-bottom:22px;">
                 <span class="panel-title"><i data-lucide="receipt-text" style="width:14px;height:14px;"></i> Invoice Generator</span>
-                <span class="photo-pill" id="invoice-total-pill">Total Due: J$ 0.00</span>
+                <span class="photo-pill" id="invoice-total-pill">Balance Due: J$ 0.00</span>
             </div>
 
             <div class="invoice-shell">
@@ -1123,23 +1246,23 @@
                     <div class="admin-form-grid" id="invoice-form-grid">
                         <div class="admin-field">
                             <label class="admin-label" for="invoice-customer-name">Client Name</label>
-                            <input class="admin-input" id="invoice-customer-name" type="text" placeholder="e.g. John Brown">
+                            <input class="admin-input" id="invoice-customer-name" type="text" placeholder="Optional. Defaults to Valued Client">
                         </div>
                         <div class="admin-field">
                             <label class="admin-label" for="invoice-customer-email">Client Email</label>
-                            <input class="admin-input" id="invoice-customer-email" type="email" placeholder="client@example.com">
+                            <input class="admin-input" id="invoice-customer-email" type="email" placeholder="Optional. Use send field if sending elsewhere">
                         </div>
                         <div class="admin-field">
                             <label class="admin-label" for="invoice-customer-phone">Client Phone</label>
-                            <input class="admin-input" id="invoice-customer-phone" type="text" placeholder="876 555 1234">
+                            <input class="admin-input" id="invoice-customer-phone" type="text" placeholder="Optional contact number">
                         </div>
                         <div class="admin-field">
                             <label class="admin-label" for="invoice-whatsapp-phone">WhatsApp Number</label>
-                            <input class="admin-input" id="invoice-whatsapp-phone" type="text" placeholder="Use same or enter a different number">
+                            <input class="admin-input" id="invoice-whatsapp-phone" type="text" placeholder="Optional. Use same or enter a different number">
                         </div>
                         <div class="admin-field full">
                             <label class="admin-label" for="invoice-customer-address">Address</label>
-                            <textarea class="admin-textarea" id="invoice-customer-address" placeholder="Billing address or delivery address"></textarea>
+                            <textarea class="admin-textarea" id="invoice-customer-address" placeholder="Optional billing address, delivery address, or fitting location"></textarea>
                         </div>
                         <div class="admin-field">
                             <label class="admin-label" for="invoice-issue-date">Issue Date</label>
@@ -1161,9 +1284,25 @@
                             <label class="admin-label" for="invoice-tax-amount">Tax / Additional Fee</label>
                             <input class="admin-input" id="invoice-tax-amount" type="number" min="0" step="0.01" value="0">
                         </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-deposit-percentage">Deposit Required %</label>
+                            <input class="admin-input" id="invoice-deposit-percentage" type="number" min="0" max="100" step="0.01" value="0" placeholder="e.g. 50">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-amount-paid">Amount Paid So Far</label>
+                            <input class="admin-input" id="invoice-amount-paid" type="number" min="0" step="0.01" value="0" placeholder="Optional">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-amount-paid-percentage">Paid Percentage %</label>
+                            <input class="admin-input" id="invoice-amount-paid-percentage" type="number" min="0" max="100" step="0.01" value="0" placeholder="Auto-calculated or editable">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-label" for="invoice-payment-status">Payment Status</label>
+                            <input class="admin-input invoice-readonly-input" id="invoice-payment-status" type="text" value="Awaiting payment" readonly>
+                        </div>
                         <div class="admin-field full">
                             <label class="admin-label" for="invoice-notes">Notes</label>
-                            <textarea class="admin-textarea" id="invoice-notes" placeholder="Optional payment terms, fitting notes, or delivery remarks"></textarea>
+                            <textarea class="admin-textarea" id="invoice-notes" placeholder="Optional payment terms, fitting notes, progress notes, or delivery remarks"></textarea>
                         </div>
                     </div>
 
@@ -1176,13 +1315,19 @@
 
                 <div>
                     <div class="invoice-side-card">
+                        <div class="invoice-summary-line"><span>Project Total</span><strong id="invoice-total-display">J$ 0.00</strong></div>
                         <div class="invoice-summary-line"><span>Subtotal</span><strong id="invoice-subtotal-display">J$ 0.00</strong></div>
                         <div class="invoice-summary-line"><span>Extra Fee / Tax</span><strong id="invoice-tax-display">J$ 0.00</strong></div>
-                        <div class="invoice-summary-total" id="invoice-total-display">J$ 0.00</div>
-                        <div class="invoice-helper" style="margin-top:12px;">Generate the PDF first, then send it straight to WhatsApp or email from here.</div>
+                        <div class="invoice-summary-line"><span>Deposit Required</span><strong id="invoice-deposit-display">J$ 0.00</strong></div>
+                        <div class="invoice-summary-line"><span>Paid So Far</span><strong id="invoice-paid-display">J$ 0.00</strong></div>
+                        <div class="invoice-summary-line"><span>Outstanding Balance</span><strong id="invoice-balance-display">J$ 0.00</strong></div>
+                        <div class="invoice-summary-line"><span>Deposit Still Outstanding</span><strong id="invoice-deposit-outstanding-display">J$ 0.00</strong></div>
+                        <div class="invoice-summary-total" id="invoice-status-display">Awaiting payment</div>
+                        <div class="invoice-helper" style="margin-top:12px;">Save the invoice once, then update the payment progress whenever the client pays more. You can resend the same invoice by email or WhatsApp at any time.</div>
 
                         <div class="invoice-action-stack">
-                            <button class="btn-gold" type="button" onclick="generateInvoice()">Generate Invoice PDF</button>
+                            <button class="btn-gold" type="button" id="invoice-save-btn" onclick="generateInvoice()">Generate Invoice PDF</button>
+                            <button class="btn-ghost" type="button" onclick="resetInvoiceForm()">Start New Invoice</button>
                             <input class="admin-input" id="invoice-send-email" type="email" placeholder="Email address to send invoice to">
                             <button class="btn-ghost" type="button" onclick="sendInvoiceEmail()">Send Invoice by Email</button>
                             <button class="btn-ghost" type="button" style="border-color:rgba(37,211,102,0.35);color:#25D366;" onclick="sendInvoiceWhatsapp()">Send Invoice via WhatsApp</button>
@@ -1191,6 +1336,17 @@
 
                     <div class="invoice-result" id="invoice-result" style="display:none;"></div>
                 </div>
+            </div>
+
+            <div class="panel invoice-history-panel" style="margin-top:24px;padding:20px;">
+                <div class="panel-head" style="padding:0 0 16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
+                    <span class="panel-title"><i data-lucide="history" style="width:14px;height:14px;"></i> Invoice History</span>
+                    <span class="photo-pill" id="invoice-history-count">0 invoices</span>
+                </div>
+                <div class="invoice-history-toolbar">
+                    <input class="admin-input" id="invoice-history-search" type="text" placeholder="Search by invoice number, client, or email">
+                </div>
+                <div class="invoice-history-list" id="invoice-history-list"></div>
             </div>
         </div>
     </div>
@@ -1356,7 +1512,7 @@ function switchTab(tab) {
 
     if (tab === 'bookings') loadBookings();
     if (tab === 'designs') loadDesigns();
-    if (tab === 'invoices') refreshInvoiceSummary();
+    if (tab === 'invoices') { refreshInvoiceSummary('amount'); loadInvoiceHistory(); }
     if (tab === 'availability') { loadAvailability(); loadAllBlocks(); }
 }
 
@@ -1408,6 +1564,20 @@ function ago(dt) {
     return `${Math.floor(sec/86400)}d ago`;
 }
 
+function formatPercent(value) {
+    const numeric = Number(value || 0);
+    return `${numeric.toFixed(2)}%`;
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 /* ─── SUMMARY ─── */
 async function loadSummary() {
     try {
@@ -1426,6 +1596,8 @@ let bookingEventSource = null;
 let bookingAlertsEnabled = localStorage.getItem('windross_booking_alerts') === '1';
 let recentLiveAlerts = [];
 let latestGeneratedInvoice = null;
+let currentInvoiceId = null;
+let invoiceHistory = [];
 let invoiceDirty = true;
 let invoiceLineItemCount = 0;
 
@@ -1612,6 +1784,7 @@ function connectBookingStream() {
 /* ─── INVOICE GENERATOR ─── */
 function markInvoiceDirty() {
     invoiceDirty = true;
+    updateInvoiceSaveButton();
 }
 
 function getInvoiceLineItems() {
@@ -1622,16 +1795,90 @@ function getInvoiceLineItems() {
     }));
 }
 
-function refreshInvoiceSummary() {
+function getInvoiceStatusLabel(status) {
+    if (status === 'paid') return 'Paid in full';
+    if (status === 'partial') return 'Partially paid';
+    return 'Awaiting payment';
+}
+
+function getInvoiceStatusClass(status) {
+    return status === 'paid' ? 'paid' : status === 'partial' ? 'partial' : 'unpaid';
+}
+
+function updateInvoiceSaveButton() {
+    const btn = document.getElementById('invoice-save-btn');
+    if (!btn) return;
+    if (currentInvoiceId) {
+        btn.textContent = invoiceDirty ? 'Save Invoice Updates' : 'Invoice Saved';
+    } else {
+        btn.textContent = invoiceDirty ? 'Generate Invoice PDF' : 'Invoice Ready';
+    }
+}
+
+function computeInvoiceState(syncSource = 'amount') {
     const currency = document.getElementById('invoice-currency')?.value || 'JMD';
     const subtotal = getInvoiceLineItems().reduce((sum, item) => sum + ((item.quantity > 0 ? item.quantity : 0) * (item.unitPrice >= 0 ? item.unitPrice : 0)), 0);
     const taxAmount = Number(document.getElementById('invoice-tax-amount')?.value || 0);
-    const total = subtotal + (Number.isFinite(taxAmount) ? taxAmount : 0);
+    const total = subtotal + (Number.isFinite(taxAmount) && taxAmount > 0 ? taxAmount : 0);
+    const depositPercentageInput = Number(document.getElementById('invoice-deposit-percentage')?.value || 0);
+    const depositPercentage = Math.min(Math.max(Number.isFinite(depositPercentageInput) ? depositPercentageInput : 0, 0), 100);
+    let amountPaidInput = Number(document.getElementById('invoice-amount-paid')?.value || 0);
+    let amountPaidPercentageInput = Number(document.getElementById('invoice-amount-paid-percentage')?.value || 0);
 
-    document.getElementById('invoice-subtotal-display').textContent = formatCurrency(subtotal, currency);
-    document.getElementById('invoice-tax-display').textContent = formatCurrency(taxAmount, currency);
-    document.getElementById('invoice-total-display').textContent = formatCurrency(total, currency);
-    document.getElementById('invoice-total-pill').textContent = `Total Due: ${formatCurrency(total, currency)}`;
+    if (syncSource === 'percentage' && total > 0) {
+        amountPaidPercentageInput = Math.min(Math.max(Number.isFinite(amountPaidPercentageInput) ? amountPaidPercentageInput : 0, 0), 100);
+        amountPaidInput = total * (amountPaidPercentageInput / 100);
+        document.getElementById('invoice-amount-paid').value = amountPaidInput.toFixed(2);
+    } else {
+        amountPaidInput = Math.min(Math.max(Number.isFinite(amountPaidInput) ? amountPaidInput : 0, 0), total);
+        amountPaidPercentageInput = total > 0 ? (amountPaidInput / total) * 100 : 0;
+        document.getElementById('invoice-amount-paid-percentage').value = amountPaidPercentageInput.toFixed(2);
+        if (syncSource === 'hydrate') {
+            document.getElementById('invoice-amount-paid').value = amountPaidInput.toFixed(2);
+        }
+    }
+
+    if (syncSource === 'hydrate') {
+        document.getElementById('invoice-deposit-percentage').value = depositPercentage.toFixed(2);
+    }
+
+    const depositAmount = total * (depositPercentage / 100);
+    const balanceDue = Math.max(total - amountPaidInput, 0);
+    const depositOutstanding = Math.max(depositAmount - amountPaidInput, 0);
+    const paymentStatus = balanceDue <= 0 && total > 0 ? 'paid' : amountPaidInput > 0 ? 'partial' : 'unpaid';
+    const statusLabel = getInvoiceStatusLabel(paymentStatus);
+
+    return {
+        currency,
+        subtotal,
+        taxAmount: Number.isFinite(taxAmount) && taxAmount > 0 ? taxAmount : 0,
+        total,
+        depositPercentage,
+        depositAmount,
+        amountPaid: amountPaidInput,
+        amountPaidPercentage: amountPaidPercentageInput,
+        balanceDue,
+        depositOutstanding,
+        paymentStatus,
+        statusLabel
+    };
+}
+
+function refreshInvoiceSummary(syncSource = 'amount') {
+    const state = computeInvoiceState(syncSource);
+
+    document.getElementById('invoice-subtotal-display').textContent = formatCurrency(state.subtotal, state.currency);
+    document.getElementById('invoice-tax-display').textContent = formatCurrency(state.taxAmount, state.currency);
+    document.getElementById('invoice-total-display').textContent = formatCurrency(state.total, state.currency);
+    document.getElementById('invoice-deposit-display').textContent = `${formatCurrency(state.depositAmount, state.currency)} (${formatPercent(state.depositPercentage)})`;
+    document.getElementById('invoice-paid-display').textContent = `${formatCurrency(state.amountPaid, state.currency)} (${formatPercent(state.amountPaidPercentage)})`;
+    document.getElementById('invoice-balance-display').textContent = formatCurrency(state.balanceDue, state.currency);
+    document.getElementById('invoice-deposit-outstanding-display').textContent = formatCurrency(state.depositOutstanding, state.currency);
+    document.getElementById('invoice-total-pill').textContent = `Balance Due: ${formatCurrency(state.balanceDue, state.currency)}`;
+    document.getElementById('invoice-status-display').textContent = state.statusLabel;
+    document.getElementById('invoice-payment-status').value = state.statusLabel;
+
+    return state;
 }
 
 function addInvoiceLineItem(item = { description: '', quantity: 1, unitPrice: 0 }) {
@@ -1645,7 +1892,7 @@ function addInvoiceLineItem(item = { description: '', quantity: 1, unitPrice: 0 
     row.innerHTML = `
         <div>
             <label class="admin-label">Description</label>
-            <input class="admin-input" data-field="description" type="text" placeholder="e.g. Bespoke three-piece suit" value="${item.description || ''}">
+            <input class="admin-input" data-field="description" type="text" placeholder="e.g. Bespoke three-piece suit" value="${escapeHtml(item.description || '')}">
         </div>
         <div>
             <label class="admin-label">Qty</label>
@@ -1659,7 +1906,7 @@ function addInvoiceLineItem(item = { description: '', quantity: 1, unitPrice: 0 
     `;
     container.appendChild(row);
     markInvoiceDirty();
-    refreshInvoiceSummary();
+    refreshInvoiceSummary('amount');
 }
 
 function removeInvoiceLineItem(rowId) {
@@ -1671,10 +1918,11 @@ function removeInvoiceLineItem(rowId) {
 
     document.querySelector(`.invoice-item-row[data-row-id="${rowId}"]`)?.remove();
     markInvoiceDirty();
-    refreshInvoiceSummary();
+    refreshInvoiceSummary('amount');
 }
 
 function getInvoicePayload() {
+    const state = computeInvoiceState('amount');
     return {
         customerName: document.getElementById('invoice-customer-name').value.trim(),
         customerEmail: document.getElementById('invoice-customer-email').value.trim(),
@@ -1684,34 +1932,219 @@ function getInvoicePayload() {
         issueDate: document.getElementById('invoice-issue-date').value,
         dueDate: document.getElementById('invoice-due-date').value,
         currency: document.getElementById('invoice-currency').value,
-        taxAmount: Number(document.getElementById('invoice-tax-amount').value || 0),
+        taxAmount: state.taxAmount,
+        depositPercentage: state.depositPercentage,
+        amountPaid: state.amountPaid,
+        amountPaidPercentage: state.amountPaidPercentage,
         notes: document.getElementById('invoice-notes').value.trim(),
         lineItems: getInvoiceLineItems()
     };
 }
 
+function clearInvoiceLineItems() {
+    const container = document.getElementById('invoice-line-items');
+    if (container) container.innerHTML = '';
+    invoiceLineItemCount = 0;
+}
+
+function fillInvoiceForm(invoice) {
+    document.getElementById('invoice-customer-name').value = invoice.customerName || '';
+    document.getElementById('invoice-customer-email').value = invoice.customerEmail || '';
+    document.getElementById('invoice-customer-phone').value = invoice.customerPhone || '';
+    document.getElementById('invoice-whatsapp-phone').value = invoice.whatsappPhone || '';
+    document.getElementById('invoice-customer-address').value = invoice.customerAddress || '';
+    document.getElementById('invoice-issue-date').value = invoice.issueDate || getJamaicaDateString(0);
+    document.getElementById('invoice-due-date').value = invoice.dueDate || '';
+    document.getElementById('invoice-currency').value = invoice.currency || 'JMD';
+    document.getElementById('invoice-tax-amount').value = Number(invoice.taxAmount || 0).toFixed(2);
+    document.getElementById('invoice-deposit-percentage').value = Number(invoice.depositPercentage || 0).toFixed(2);
+    document.getElementById('invoice-amount-paid').value = Number(invoice.amountPaid || 0).toFixed(2);
+    document.getElementById('invoice-amount-paid-percentage').value = Number(invoice.amountPaidPercentage || 0).toFixed(2);
+    document.getElementById('invoice-notes').value = invoice.notes || '';
+
+    clearInvoiceLineItems();
+    (Array.isArray(invoice.lineItems) && invoice.lineItems.length ? invoice.lineItems : [{ description: 'Tailoring service', quantity: 1, unitPrice: 0 }])
+        .forEach((item) => addInvoiceLineItem(item));
+
+    currentInvoiceId = invoice.id || null;
+    latestGeneratedInvoice = invoice.id ? invoice : null;
+    invoiceDirty = false;
+
+    document.getElementById('invoice-send-email').value = invoice.customerEmail || '';
+
+    refreshInvoiceSummary('hydrate');
+    renderInvoiceResult();
+    updateInvoiceSaveButton();
+    renderInvoiceHistory();
+}
+
+function resetInvoiceForm() {
+    currentInvoiceId = null;
+    latestGeneratedInvoice = null;
+    invoiceDirty = true;
+
+    document.getElementById('invoice-customer-name').value = '';
+    document.getElementById('invoice-customer-email').value = '';
+    document.getElementById('invoice-customer-phone').value = '';
+    document.getElementById('invoice-whatsapp-phone').value = '';
+    document.getElementById('invoice-customer-address').value = '';
+    document.getElementById('invoice-issue-date').value = getJamaicaDateString(0);
+    document.getElementById('invoice-due-date').value = getJamaicaDateString(7);
+    document.getElementById('invoice-currency').value = 'JMD';
+    document.getElementById('invoice-tax-amount').value = '0.00';
+    document.getElementById('invoice-deposit-percentage').value = '0.00';
+    document.getElementById('invoice-amount-paid').value = '0.00';
+    document.getElementById('invoice-amount-paid-percentage').value = '0.00';
+    document.getElementById('invoice-payment-status').value = 'Awaiting payment';
+    document.getElementById('invoice-notes').value = '';
+    document.getElementById('invoice-send-email').value = '';
+
+    clearInvoiceLineItems();
+    addInvoiceLineItem({ description: 'Bespoke tailoring service', quantity: 1, unitPrice: 0 });
+
+    const result = document.getElementById('invoice-result');
+    if (result) {
+        result.style.display = 'none';
+        result.innerHTML = '';
+    }
+
+    refreshInvoiceSummary('hydrate');
+    updateInvoiceSaveButton();
+    renderInvoiceHistory();
+}
+
 function renderInvoiceResult() {
     const el = document.getElementById('invoice-result');
-    if (!el || !latestGeneratedInvoice) return;
+    if (!el) return;
+
+    if (!latestGeneratedInvoice) {
+        el.style.display = 'none';
+        el.innerHTML = '';
+        return;
+    }
 
     el.style.display = 'block';
     el.innerHTML = `
-        <div style="font-size:0.76rem;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:8px;">Invoice Ready</div>
-        <div style="font-size:1rem;color:white;margin-bottom:6px;">${latestGeneratedInvoice.invoiceNumber}</div>
-        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:10px;">${latestGeneratedInvoice.totalDisplay}</div>
+        <div style="font-size:0.76rem;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:8px;">${currentInvoiceId ? 'Invoice Saved' : 'Invoice Ready'}</div>
+        <div style="font-size:1rem;color:white;margin-bottom:6px;">${escapeHtml(latestGeneratedInvoice.invoiceNumber)}</div>
+        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:6px;">${escapeHtml(latestGeneratedInvoice.statusLabel || 'Awaiting payment')}</div>
+        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:10px;">Paid ${escapeHtml(latestGeneratedInvoice.amountPaidDisplay || 'J$ 0.00')} · Outstanding ${escapeHtml(latestGeneratedInvoice.balanceDueDisplay || latestGeneratedInvoice.totalDisplay || 'J$ 0.00')}</div>
         <div style="font-size:0.84rem;line-height:1.6;">
-            <a href="${latestGeneratedInvoice.pdfUrl}" target="_blank">Open PDF</a>
+            ${latestGeneratedInvoice.pdfUrl ? `<a href="${latestGeneratedInvoice.pdfUrl}" target="_blank">Open PDF</a>` : ''}
             ${latestGeneratedInvoice.whatsappUrl ? ` · <a href="${latestGeneratedInvoice.whatsappUrl}" target="_blank">Open WhatsApp Draft</a>` : ''}
         </div>
+        ${latestGeneratedInvoice.lastSentAt ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:10px;">Last emailed ${escapeHtml(ago(latestGeneratedInvoice.lastSentAt))}${latestGeneratedInvoice.lastSentTo ? ` to ${escapeHtml(latestGeneratedInvoice.lastSentTo)}` : ''}.</div>` : ''}
     `;
+}
+
+function renderInvoiceHistory() {
+    const list = document.getElementById('invoice-history-list');
+    const count = document.getElementById('invoice-history-count');
+    const search = document.getElementById('invoice-history-search')?.value?.trim().toLowerCase() || '';
+    if (!list || !count) return;
+
+    const filtered = invoiceHistory.filter((invoice) => {
+        if (!search) return true;
+        return [
+            invoice.invoiceNumber,
+            invoice.customerName,
+            invoice.customerEmail
+        ].some((value) => String(value || '').toLowerCase().includes(search));
+    });
+
+    count.textContent = `${filtered.length} invoice${filtered.length === 1 ? '' : 's'}`;
+
+    if (!filtered.length) {
+        list.innerHTML = '<div class="invoice-empty-state">No saved invoices match that search yet.</div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map((invoice) => `
+        <div class="invoice-history-item ${currentInvoiceId === invoice.id ? 'active' : ''}">
+            <div>
+                <div class="invoice-history-title">
+                    <span>${escapeHtml(invoice.invoiceNumber)}</span>
+                    <span class="invoice-status-chip ${getInvoiceStatusClass(invoice.paymentStatus)}">${escapeHtml(invoice.statusLabel || 'Awaiting payment')}</span>
+                </div>
+                <div class="invoice-history-meta">
+                    ${escapeHtml(invoice.customerName || 'Valued Client')} · ${escapeHtml(invoice.customerEmail || 'No email saved')}<br>
+                    Project Total: ${escapeHtml(invoice.totalDisplay || formatCurrency(invoice.totalAmount, invoice.currency))} · Paid: ${escapeHtml(invoice.amountPaidDisplay || formatCurrency(invoice.amountPaid, invoice.currency))} · Balance: ${escapeHtml(invoice.balanceDueDisplay || formatCurrency(invoice.balanceDue, invoice.currency))}<br>
+                    Updated ${escapeHtml(fmtDateTime(invoice.updatedAt || invoice.createdAt))}
+                </div>
+            </div>
+            <div class="invoice-history-actions">
+                <button class="invoice-history-btn" type="button" onclick="loadInvoiceIntoForm(${invoice.id})">Edit</button>
+                ${invoice.pdfUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoicePdf('${invoice.pdfUrl}')">Open PDF</button>` : ''}
+                ${invoice.whatsappUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoiceWhatsappLink('${invoice.whatsappUrl}')">WhatsApp</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadInvoiceHistory() {
+    try {
+        const response = await fetch(`${API}/api/admin/invoices`);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to load invoice history.');
+        }
+
+        invoiceHistory = Array.isArray(data.invoices) ? data.invoices : [];
+        renderInvoiceHistory();
+
+        if (currentInvoiceId) {
+            const refreshedCurrent = invoiceHistory.find((invoice) => invoice.id === currentInvoiceId);
+            if (refreshedCurrent && !invoiceDirty) {
+                latestGeneratedInvoice = refreshedCurrent;
+                renderInvoiceResult();
+            }
+        }
+    } catch (err) {
+        const list = document.getElementById('invoice-history-list');
+        if (list) {
+            list.innerHTML = '<div class="invoice-empty-state" style="color:var(--red);">Failed to load invoice history.</div>';
+        }
+    }
+}
+
+async function loadInvoiceIntoForm(invoiceId) {
+    try {
+        const response = await fetch(`${API}/api/admin/invoices/${invoiceId}`);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to load invoice.');
+        }
+
+        fillInvoiceForm(data.invoice);
+        toast(`Loaded ${data.invoice.invoiceNumber} for editing.`, 'info');
+    } catch (err) {
+        toast(err.message || 'Failed to load invoice.', 'err');
+    }
+}
+
+function openInvoicePdf(url) {
+    if (!url) {
+        toast('No PDF is available for this invoice yet.', 'err');
+        return;
+    }
+    window.open(url, '_blank');
+}
+
+function openInvoiceWhatsappLink(url) {
+    if (!url) {
+        toast('No WhatsApp number is saved for this invoice yet.', 'err');
+        return;
+    }
+    window.open(url, '_blank');
 }
 
 async function generateInvoice(showSuccessToast = true) {
     const payload = getInvoicePayload();
+    const wasEditing = Boolean(currentInvoiceId);
 
     try {
-        const response = await fetch(`${API}/api/admin/invoices`, {
-            method: 'POST',
+        const response = await fetch(currentInvoiceId ? `${API}/api/admin/invoices/${currentInvoiceId}` : `${API}/api/admin/invoices`, {
+            method: currentInvoiceId ? 'PATCH' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -1722,15 +2155,18 @@ async function generateInvoice(showSuccessToast = true) {
         }
 
         latestGeneratedInvoice = data.invoice;
+        currentInvoiceId = data.invoice.id;
         invoiceDirty = false;
+        updateInvoiceSaveButton();
         renderInvoiceResult();
+        await loadInvoiceHistory();
 
         if (!document.getElementById('invoice-send-email').value && latestGeneratedInvoice.customerEmail) {
             document.getElementById('invoice-send-email').value = latestGeneratedInvoice.customerEmail;
         }
 
         if (showSuccessToast) {
-            toast(`Invoice ${latestGeneratedInvoice.invoiceNumber} generated.`, 'ok');
+            toast(wasEditing ? `Invoice ${latestGeneratedInvoice.invoiceNumber} saved.` : `Invoice ${latestGeneratedInvoice.invoiceNumber} generated.`, 'ok');
         }
 
         return latestGeneratedInvoice;
@@ -1767,6 +2203,7 @@ async function sendInvoiceEmail() {
             throw new Error(data.error || 'Failed to send invoice email.');
         }
 
+        await loadInvoiceHistory();
         toast(`Invoice sent to ${email}.`, 'ok');
     } catch (err) {
         toast(err.message || 'Failed to send invoice email.', 'err');
@@ -1788,26 +2225,19 @@ async function sendInvoiceWhatsapp() {
 }
 
 function initializeInvoiceGenerator() {
-    document.getElementById('invoice-issue-date').value = getJamaicaDateString(0);
-    document.getElementById('invoice-due-date').value = getJamaicaDateString(7);
-
-    addInvoiceLineItem({ description: 'Bespoke tailoring service', quantity: 1, unitPrice: 0 });
-
     document.getElementById('invoice-form-grid').addEventListener('input', () => {
         markInvoiceDirty();
-        refreshInvoiceSummary();
+        const activeField = document.activeElement?.id;
+        refreshInvoiceSummary(activeField === 'invoice-amount-paid-percentage' ? 'percentage' : 'amount');
     });
-    document.getElementById('invoice-currency').addEventListener('change', () => {
+    document.getElementById('invoice-form-grid').addEventListener('change', () => {
         markInvoiceDirty();
-        refreshInvoiceSummary();
-    });
-    document.getElementById('invoice-tax-amount').addEventListener('input', () => {
-        markInvoiceDirty();
-        refreshInvoiceSummary();
+        const activeField = document.activeElement?.id;
+        refreshInvoiceSummary(activeField === 'invoice-amount-paid-percentage' ? 'percentage' : 'amount');
     });
     document.getElementById('invoice-line-items').addEventListener('input', () => {
         markInvoiceDirty();
-        refreshInvoiceSummary();
+        refreshInvoiceSummary('amount');
     });
     document.getElementById('invoice-customer-email').addEventListener('blur', (event) => {
         const sendInput = document.getElementById('invoice-send-email');
@@ -1817,6 +2247,10 @@ function initializeInvoiceGenerator() {
         const waInput = document.getElementById('invoice-whatsapp-phone');
         if (!waInput.value.trim()) waInput.value = event.target.value.trim();
     });
+    document.getElementById('invoice-history-search').addEventListener('input', renderInvoiceHistory);
+
+    resetInvoiceForm();
+    loadInvoiceHistory();
 }
 
 /* ─── BOOKINGS ─── */
@@ -2329,6 +2763,10 @@ window.toggleBookingAlerts = toggleBookingAlerts;
 window.addInvoiceLineItem = addInvoiceLineItem;
 window.removeInvoiceLineItem = removeInvoiceLineItem;
 window.generateInvoice = generateInvoice;
+window.resetInvoiceForm = resetInvoiceForm;
+window.loadInvoiceIntoForm = loadInvoiceIntoForm;
+window.openInvoicePdf = openInvoicePdf;
+window.openInvoiceWhatsappLink = openInvoiceWhatsappLink;
 window.sendInvoiceEmail = sendInvoiceEmail;
 window.sendInvoiceWhatsapp = sendInvoiceWhatsapp;
 
@@ -2339,7 +2777,7 @@ window.sendInvoiceWhatsapp = sendInvoiceWhatsapp;
     connectBookingStream();
     initializeInvoiceGenerator();
     renderLiveAlerts();
-    refreshInvoiceSummary();
+    refreshInvoiceSummary('amount');
     if (bookingAlertsEnabled) {
         await requestSystemNotificationsIfNeeded();
     }

@@ -26,6 +26,17 @@ function formatCurrency(amount, currency = 'JMD') {
     return `${symbolMap[currency] || `${currency} `}${numeric.toFixed(2)}`;
 }
 
+function formatPercent(value) {
+    const numeric = Number(value || 0);
+    return `${numeric.toFixed(2)}%`;
+}
+
+function formatPaymentStatus(status) {
+    if (status === 'paid') return 'Paid in Full';
+    if (status === 'partial') return 'Partially Paid';
+    return 'Awaiting Payment';
+}
+
 function drawDivider(doc, y) {
     doc
         .strokeColor('#D8C48D')
@@ -94,7 +105,7 @@ async function generateCustomInvoicePDF(invoice) {
         doc.roundedRect(307, 156, 248, 108, 10).fillAndStroke('#F8F4EA', '#DED7C6');
 
         drawLabelValue(doc, 'FROM', 'Windross Tailoring & Design\n68 Hagley Park Road (Mancare Plaza)\nKingston 10, Jamaica\nPhone / WhatsApp: (876) 598-6434\nEmail: 876david@gmail.com', 56, 172, 216);
-        drawLabelValue(doc, 'BILL TO', `${invoice.customerName}\n${invoice.customerEmail || '—'}\n${invoice.customerPhone || '—'}\n${invoice.customerAddress || '—'}`, 323, 172, 216);
+        drawLabelValue(doc, 'BILL TO', `${invoice.customerName || 'Valued Client'}\n${invoice.customerEmail || '—'}\n${invoice.customerPhone || '—'}\n${invoice.customerAddress || '—'}`, 323, 172, 216);
 
         const tableTop = 290;
         const colX = {
@@ -137,7 +148,13 @@ async function generateCustomInvoicePDF(invoice) {
         });
 
         const totalsBoxY = currentY + 16;
-        doc.roundedRect(342, totalsBoxY, 213, invoice.taxAmount > 0 ? 102 : 72, 10).fillAndStroke('#F8F4EA', '#DED7C6');
+        const hasDepositPlan = Number(invoice.depositPercentage || 0) > 0;
+        const depositOutstanding = Math.max(Number(invoice.depositAmount || 0) - Number(invoice.amountPaid || 0), 0);
+        const paymentBoxHeight = hasDepositPlan ? 146 : 110;
+        const totalsBoxHeight = invoice.taxAmount > 0 ? 96 : 76;
+
+        doc.roundedRect(40, totalsBoxY, 285, paymentBoxHeight, 10).fillAndStroke('#F8F4EA', '#DED7C6');
+        doc.roundedRect(342, totalsBoxY, 213, totalsBoxHeight, 10).fillAndStroke('#F8F4EA', '#DED7C6');
 
         let totalsY = totalsBoxY + 18;
         doc.fillColor('#5F5F5F')
@@ -163,12 +180,51 @@ async function generateCustomInvoicePDF(invoice) {
         totalsY += 10;
         doc.fillColor('#111111')
             .font('Times-Bold')
-            .fontSize(16)
-            .text('Total Due', 360, totalsY, { width: 90 })
+            .fontSize(15)
+            .text('Project Total', 360, totalsY, { width: 100 })
             .fillColor('#B88A28')
             .text(formatCurrency(invoice.totalAmount, invoice.currency), 420, totalsY - 2, { width: 115, align: 'right' });
 
-        let notesY = totalsBoxY + (invoice.taxAmount > 0 ? 122 : 92);
+        let paymentY = totalsBoxY + 14;
+        doc.fillColor('#B88A28')
+            .font('Helvetica-Bold')
+            .fontSize(10)
+            .text('Payment Snapshot', 56, paymentY);
+
+        paymentY += 18;
+        doc.fillColor('#5F5F5F')
+            .font('Helvetica-Bold')
+            .fontSize(10)
+            .text('Status', 56, paymentY, { width: 120 })
+            .fillColor(invoice.paymentStatus === 'paid' ? '#1F9D55' : invoice.paymentStatus === 'partial' ? '#B88A28' : '#8A8A8A')
+            .text(formatPaymentStatus(invoice.paymentStatus), 185, paymentY, { width: 120, align: 'right' });
+
+        paymentY += 20;
+        doc.fillColor('#5F5F5F')
+            .text('Paid So Far', 56, paymentY, { width: 120 })
+            .text(formatCurrency(invoice.amountPaid, invoice.currency), 185, paymentY, { width: 120, align: 'right' });
+
+        paymentY += 20;
+        doc.text('Paid Percentage', 56, paymentY, { width: 120 })
+            .text(formatPercent(invoice.amountPaidPercentage), 185, paymentY, { width: 120, align: 'right' });
+
+        paymentY += 20;
+        doc.text('Balance Due', 56, paymentY, { width: 120 })
+            .fillColor('#B88A28')
+            .text(formatCurrency(invoice.balanceDue, invoice.currency), 185, paymentY, { width: 120, align: 'right' });
+
+        if (hasDepositPlan) {
+            paymentY += 22;
+            doc.fillColor('#5F5F5F')
+                .text(`Deposit Required (${formatPercent(invoice.depositPercentage)})`, 56, paymentY, { width: 160 })
+                .text(formatCurrency(invoice.depositAmount, invoice.currency), 185, paymentY, { width: 120, align: 'right' });
+
+            paymentY += 20;
+            doc.text('Deposit Still Outstanding', 56, paymentY, { width: 160 })
+                .text(formatCurrency(depositOutstanding, invoice.currency), 185, paymentY, { width: 120, align: 'right' });
+        }
+
+        let notesY = totalsBoxY + Math.max(paymentBoxHeight, totalsBoxHeight) + 18;
         if (invoice.notes) {
             doc.roundedRect(40, notesY, 515, 76, 10).fillAndStroke('#FFFFFF', '#DED7C6');
             doc.fillColor('#B88A28')
