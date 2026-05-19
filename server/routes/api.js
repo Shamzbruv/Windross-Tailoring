@@ -1394,6 +1394,38 @@ router.patch('/admin/invoices/:id', async (req, res) => {
     }
 });
 
+router.delete('/admin/invoices/:id', async (req, res) => {
+    const invoiceId = Number(req.params.id);
+    if (!invoiceId) {
+        return res.status(400).json({ error: 'Valid invoice id is required.' });
+    }
+
+    try {
+        const existingRow = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
+        if (!existingRow) {
+            return res.status(404).json({ error: 'Invoice not found.' });
+        }
+
+        await db.runAsync(`DELETE FROM custom_invoices WHERE id = ?`, [invoiceId]);
+
+        if (existingRow.pdf_path) {
+            try {
+                await fs.promises.unlink(existingRow.pdf_path);
+            } catch (fileErr) {
+                if (fileErr.code !== 'ENOENT') {
+                    console.error(`Failed to delete invoice PDF for ${existingRow.invoice_number}:`, fileErr);
+                }
+            }
+        }
+
+        queueDataBackup('invoice_deleted');
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Invoice delete failed:', err);
+        res.status(500).json({ error: 'Failed to delete invoice.' });
+    }
+});
+
 router.post('/admin/invoices/:id/send-email', async (req, res) => {
     const invoiceId = Number(req.params.id);
     const targetEmail = sanitizeEmail(req.body.email);

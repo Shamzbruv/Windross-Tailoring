@@ -1028,6 +1028,17 @@
             color: var(--gold);
         }
 
+        .invoice-history-btn.danger {
+            border-color: rgba(255, 71, 87, 0.28);
+            color: #ff8a93;
+            background: rgba(255, 71, 87, 0.08);
+        }
+
+        .invoice-history-btn.danger:hover {
+            border-color: rgba(255, 71, 87, 0.5);
+            color: #ffc0c5;
+        }
+
         .invoice-empty-state {
             padding: 24px;
             text-align: center;
@@ -2121,6 +2132,7 @@ function renderInvoiceHistory() {
                 <button class="invoice-history-btn" type="button" onclick="loadInvoiceIntoForm(${invoice.id})">Edit</button>
                 ${invoice.pdfUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoicePdf('${invoice.pdfUrl}')">Open PDF</button>` : ''}
                 ${invoice.whatsappUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoiceWhatsappFromHistory(${invoice.id})">WhatsApp</button>` : ''}
+                <button class="invoice-history-btn danger" type="button" onclick="deleteInvoice(${invoice.id})">Delete</button>
             </div>
         </div>
     `).join('');
@@ -2164,6 +2176,37 @@ async function loadInvoiceIntoForm(invoiceId) {
         toast(`Loaded ${data.invoice.invoiceNumber} for editing.`, 'info');
     } catch (err) {
         toast(err.message || 'Failed to load invoice.', 'err');
+    }
+}
+
+async function deleteInvoice(invoiceId) {
+    const invoice = invoiceHistory.find((entry) => entry.id === invoiceId);
+    if (!invoice) {
+        toast('Invoice not found in history.', 'err');
+        return;
+    }
+
+    const confirmed = window.confirm(`Delete ${invoice.invoiceNumber}? This will remove the invoice history entry and its generated PDF.`);
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch(`${API}/api/admin/invoices/${invoiceId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to delete invoice.');
+        }
+
+        if (currentInvoiceId === invoiceId) {
+            resetInvoiceForm();
+        }
+
+        await loadInvoiceHistory();
+        toast(`Deleted ${invoice.invoiceNumber}.`, 'ok');
+    } catch (err) {
+        toast(err.message || 'Failed to delete invoice.', 'err');
     }
 }
 
@@ -2847,6 +2890,7 @@ window.removeInvoiceLineItem = removeInvoiceLineItem;
 window.generateInvoice = generateInvoice;
 window.resetInvoiceForm = resetInvoiceForm;
 window.loadInvoiceIntoForm = loadInvoiceIntoForm;
+window.deleteInvoice = deleteInvoice;
 window.openInvoicePdf = openInvoicePdf;
 window.openInvoiceWhatsappLink = openInvoiceWhatsappLink;
 window.openInvoiceWhatsappFromLatest = openInvoiceWhatsappFromLatest;
