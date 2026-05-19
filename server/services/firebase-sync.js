@@ -45,6 +45,21 @@ const TABLE_CONFIG = [
 
 const DELETE_ORDER = [...TABLE_CONFIG].reverse().map((table) => table.name);
 
+function normalizeRemoteRows(rows) {
+    if (Array.isArray(rows)) {
+        return rows.filter((row) => row && typeof row === 'object');
+    }
+
+    if (!rows || typeof rows !== 'object') {
+        return [];
+    }
+
+    return Object.keys(rows)
+        .sort((a, b) => Number(a) - Number(b))
+        .map((key) => rows[key])
+        .filter((row) => row && typeof row === 'object');
+}
+
 function parseServiceAccount() {
     if (FIREBASE_SERVICE_ACCOUNT_JSON) {
         try {
@@ -168,9 +183,13 @@ class FirebaseSyncService {
         const localTotal = Object.values(localCounts).reduce((sum, count) => sum + count, 0);
         const remotePayload = remoteSnapshot.val();
         const remoteTables = remotePayload?.tables || null;
-        const remoteTotal = remoteTables
-            ? Object.values(remoteTables).reduce((sum, rows) => sum + (Array.isArray(rows) ? rows.length : 0), 0)
-            : 0;
+        const remoteCounts = {};
+
+        for (const table of TABLE_CONFIG) {
+            remoteCounts[table.name] = normalizeRemoteRows(remoteTables?.[table.name]).length;
+        }
+
+        const remoteTotal = Object.values(remoteCounts).reduce((sum, count) => sum + count, 0);
 
         if (localTotal === 0 && remoteTotal > 0) {
             await this.restoreAll(db, remoteTables);
@@ -184,20 +203,38 @@ class FirebaseSyncService {
             return { restored: false, synced: true, reason: 'seeded_remote_backup' };
         }
 
+        const tablesToRestore = TABLE_CONFIG
+            .filter((table) => localCounts[table.name] === 0 && remoteCounts[table.name] > 0)
+            .map((table) => table.name);
+
+        if (tablesToRestore.length) {
+            await this.restoreTables(db, remoteTables, tablesToRestore);
+            const restoredRowCount = tablesToRestore.reduce((sum, tableName) => sum + remoteCounts[tableName], 0);
+            console.log(`Firebase restore filled missing tables: ${tablesToRestore.join(', ')} (${restoredRowCount} rows).`);
+            return { restored: true, synced: false, reason: 'restored_missing_tables' };
+        }
+
         return { restored: false, synced: false, reason: 'no_bootstrap_changes' };
     }
 
-    async restoreAll(db, tables) {
-        if (!tables || typeof tables !== 'object') {
+    async restoreTables(db, tables, tableNames = [], clearBeforeInsert = true) {
+        if (!tables || typeof tables !== 'object' || !Array.isArray(tableNames) || !tableNames.length) {
             return;
         }
 
-        for (const tableName of DELETE_ORDER) {
-            await db.runAsync(`DELETE FROM ${tableName}`);
+        const tableConfigMap = new Map(TABLE_CONFIG.map((table) => [table.name, table]));
+
+        if (clearBeforeInsert) {
+            for (const tableName of [...tableNames].reverse()) {
+                await db.runAsync(`DELETE FROM ${tableName}`);
+            }
         }
 
-        for (const table of TABLE_CONFIG) {
-            const rows = Array.isArray(tables[table.name]) ? tables[table.name] : [];
+        for (const tableName of tableNames) {
+            const table = tableConfigMap.get(tableName);
+            if (!table) continue;
+
+            const rows = normalizeRemoteRows(tables[table.name]);
             if (!rows.length) continue;
 
             const placeholders = table.columns.map(() => '?').join(', ');
@@ -214,6 +251,18 @@ class FirebaseSyncService {
                 );
             }
         }
+    }
+
+    async restoreAll(db, tables) {
+        if (!tables || typeof tables !== 'object') {
+            return;
+        }
+
+        for (const tableName of DELETE_ORDER) {
+            await db.runAsync(`DELETE FROM ${tableName}`);
+        }
+
+        await this.restoreTables(db, tables, TABLE_CONFIG.map((table) => table.name), false);
     }
 }
 
