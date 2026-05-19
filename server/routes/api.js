@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const firebaseSync = require('../services/firebase-sync');
 const { generateOrderPDF } = require('../services/pdf-generator');
 const { generateCustomInvoicePDF, formatCurrency } = require('../services/invoice-generator');
 const {
@@ -28,6 +29,33 @@ function sanitizePhone(value) {
     return sanitizeText(value, 40);
 }
 
+function normalizeWhatsappPhone(value) {
+    const raw = sanitizePhone(value);
+    if (!raw) return '';
+
+    const trimmed = raw.replace(/\s+/g, '');
+    const digits = trimmed.replace(/\D/g, '');
+    if (!digits) return '';
+
+    if (trimmed.startsWith('+')) {
+        return digits.length >= 8 && digits.length <= 15 ? digits : '';
+    }
+
+    if (digits.length === 7) {
+        return `1876${digits}`;
+    }
+
+    if (digits.length === 10 && digits.startsWith('876')) {
+        return `1${digits}`;
+    }
+
+    if (digits.length === 11 && digits.startsWith('1')) {
+        return digits;
+    }
+
+    return digits.length >= 8 && digits.length <= 15 ? digits : '';
+}
+
 function getPublicBaseUrl(req) {
     return req.headers.origin || `${req.protocol}://${req.get('host')}`;
 }
@@ -38,6 +66,12 @@ function createInvoiceNumber() {
     const shortTime = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     const randomSuffix = Math.floor(Math.random() * 900 + 100);
     return `WT-INV-${shortDate}-${shortTime}-${randomSuffix}`;
+}
+
+function queueDataBackup(reason) {
+    firebaseSync.syncAll(db, reason).catch((error) => {
+        console.error(`Firebase sync failed after ${reason}:`, error.message || error);
+    });
 }
 
 function sanitizeDate(value) {
@@ -157,8 +191,8 @@ function buildInvoicePayload(body = {}, existingInvoiceNumber = '') {
     };
 }
 
-function buildInvoiceWhatsappUrl(invoice, baseUrl) {
-    const targetPhone = sanitizePhone(invoice.whatsappPhone || invoice.customerPhone).replace(/\D/g, '');
+function buildInvoiceWhatsappShare(invoice, baseUrl) {
+    const targetPhone = normalizeWhatsappPhone(invoice.whatsappPhone || invoice.customerPhone);
     if (!targetPhone) return null;
 
     const invoiceUrl = `${baseUrl}/temp/invoices/${path.basename(invoice.pdfPath)}`;
@@ -172,7 +206,13 @@ function buildInvoiceWhatsappUrl(invoice, baseUrl) {
     const dueLine = invoice.dueDate ? `Due date: ${invoice.dueDate}.` : '';
     const message = `Hello ${invoice.customerName || 'Valued Client'}, your Windross Tailoring invoice ${invoice.invoiceNumber} is ready. Project total: ${formatCurrency(invoice.totalAmount, invoice.currency)}. ${depositLine} ${paidLine} ${balanceLine} ${dueLine} View it here: ${invoiceUrl}`.replace(/\s+/g, ' ').trim();
 
-    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
+    return {
+        phone: targetPhone,
+        message,
+        universalUrl: `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`,
+        webUrl: `https://web.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`,
+        appUrl: `whatsapp://send?phone=${targetPhone}&text=${encodeURIComponent(message)}`
+    };
 }
 
 function mapInvoiceRow(row, baseUrl) {
@@ -208,7 +248,12 @@ function mapInvoiceRow(row, baseUrl) {
     invoice.depositOutstandingDisplay = formatCurrency(invoice.depositOutstanding, invoice.currency);
     invoice.statusLabel = invoice.paymentStatus === 'paid' ? 'Paid in full' : invoice.paymentStatus === 'partial' ? 'Partially paid' : 'Awaiting payment';
     invoice.pdfUrl = row.pdf_path ? `${baseUrl}/temp/invoices/${path.basename(row.pdf_path)}` : null;
-    invoice.whatsappUrl = row.pdf_path ? buildInvoiceWhatsappUrl(invoice, baseUrl) : null;
+    const whatsappShare = row.pdf_path ? buildInvoiceWhatsappShare(invoice, baseUrl) : null;
+    invoice.whatsappPhoneE164 = whatsappShare?.phone || '';
+    invoice.whatsappMessage = whatsappShare?.message || '';
+    invoice.whatsappUrl = whatsappShare?.universalUrl || null;
+    invoice.whatsappWebUrl = whatsappShare?.webUrl || null;
+    invoice.whatsappAppUrl = whatsappShare?.appUrl || null;
 
     return invoice;
 }
@@ -348,6 +393,7 @@ router.post('/orders/draft', (req, res) => {
                 [orderId, suitId, gender, JSON.stringify(measurements)],
                 (err) => {
                     if (err) console.error(err);
+                    queueDataBackup('order_draft_created');
                     res.json({ sessionId, orderId });
                 }
             );
@@ -370,6 +416,7 @@ router.post('/orders/shipping', (req, res) => {
                 console.error(err);
                 return res.status(500).json({ error: 'Failed to update shipping' });
             }
+            queueDataBackup('order_shipping_updated');
             res.json({ success: true });
         }
     );
@@ -518,6 +565,7 @@ router.post('/payment/wipay/create', (req, res) => {
     // Update total in DB
     db.run(`UPDATE orders SET total_amount=?, currency=? WHERE session_id=?`, [total, currency, sessionId], function(err) {
         if (err) return res.status(500).json({ error: 'DB error updating order' });
+        queueDataBackup('order_payment_prepared');
 
         const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
         const wipayEnvironment = process.env.WIPAY_ENVIRONMENT || 'sandbox';
@@ -553,6 +601,7 @@ router.post('/payment/bank-transfer', (req, res) => {
     // Update total in DB and mark pending
     db.run(`UPDATE orders SET total_amount=?, currency=?, status='pending_transfer' WHERE session_id=?`, [total, currency, sessionId], function(err) {
         if (err) return res.status(500).json({ error: 'DB error updating order' });
+        queueDataBackup('bank_transfer_marked_pending');
 
         db.get(`SELECT * FROM orders WHERE session_id = ?`, [sessionId], (err, order) => {
             if (err || !order) return res.status(404).json({ error: 'Order not found' });
@@ -609,6 +658,7 @@ router.post('/payment/verify', (req, res) => {
 
         db.run(`UPDATE orders SET status='paid', payment_ref=? WHERE id=?`, [txnId, order.id], (err) => {
             if (err) console.error(err);
+            queueDataBackup('order_paid');
 
             // 2. Post-Purchase Automation
             db.all(`SELECT * FROM order_items WHERE order_id=?`, [order.id], (err, items) => {
@@ -892,6 +942,7 @@ router.post('/bookings/create', async (req, res) => {
         sendBookingConfirmation({
             name, email, phone, date, time, region, id: newId
         });
+        queueDataBackup('booking_created');
 
         broadcastBookingCreated({
             id: newId,
@@ -964,6 +1015,7 @@ router.post('/payment/deposit/create', (req, res) => {
                 console.error('Deposit session creation error:', err);
                 return res.status(500).json({ error: 'Failed to initiate deposit session.' });
             }
+            queueDataBackup('deposit_session_created');
 
             const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
             const wipayEnvironment = process.env.WIPAY_ENVIRONMENT || 'sandbox';
@@ -1041,6 +1093,7 @@ router.post('/payment/deposit/verify', (req, res) => {
                     console.error('Deposit verify update error:', err);
                     return res.status(500).json({ error: 'Failed to mark deposit as paid.' });
                 }
+                queueDataBackup('deposit_session_paid');
                 res.json({ success: true, session });
             }
         );
@@ -1067,6 +1120,7 @@ router.post('/payment/design-full/create', (req, res) => {
                 console.error('Design full payment session error:', err);
                 return res.status(500).json({ error: 'Failed to initiate payment session.' });
             }
+            queueDataBackup('design_full_payment_created');
 
             const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
             const wipayEnvironment = process.env.WIPAY_ENVIRONMENT || 'sandbox';
@@ -1122,6 +1176,7 @@ router.post('/design/submit', (req, res) => {
         ],
         function(dbErr) {
             if (dbErr) console.error('Failed to save design inquiry to DB:', dbErr);
+            if (!dbErr) queueDataBackup('design_inquiry_created');
         }
     );
 
@@ -1194,6 +1249,7 @@ router.post('/admin/unavailable', (req, res) => {
                 }
                 return res.status(500).json({ error: 'Failed to create block.' });
             }
+            queueDataBackup('availability_block_created');
             res.json({ success: true, id: this.lastID });
         }
     );
@@ -1205,6 +1261,7 @@ router.delete('/admin/unavailable/:id', (req, res) => {
     db.run(`DELETE FROM unavailable_slots WHERE id = ?`, [id], function(err) {
         if (err) return res.status(500).json({ error: 'Failed to delete block.' });
         if (this.changes === 0) return res.status(404).json({ error: 'Block not found.' });
+        queueDataBackup('availability_block_deleted');
         res.json({ success: true });
     });
 });
@@ -1250,6 +1307,7 @@ router.post('/admin/invoices', async (req, res) => {
         const invoiceData = buildInvoicePayload(req.body);
         const invoiceId = await saveInvoiceRecord(req, invoiceData);
         const savedRow = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
+        queueDataBackup('invoice_created');
 
         res.json({
             success: true,
@@ -1324,6 +1382,7 @@ router.patch('/admin/invoices/:id', async (req, res) => {
         const invoiceData = buildInvoicePayload(req.body, existingRow.invoice_number);
         await saveInvoiceRecord(req, invoiceData, existingRow);
         const updatedRow = await db.getAsync(`SELECT * FROM custom_invoices WHERE id = ?`, [invoiceId]);
+        queueDataBackup('invoice_updated');
 
         res.json({
             success: true,
@@ -1366,6 +1425,7 @@ router.post('/admin/invoices/:id/send-email', async (req, res) => {
             `UPDATE custom_invoices SET last_sent_at = CURRENT_TIMESTAMP, last_sent_to = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
             [targetEmail, invoiceId]
         );
+        queueDataBackup('invoice_emailed');
 
         res.json({ success: true });
     } catch (sendErr) {
@@ -1421,6 +1481,7 @@ router.patch('/admin/bookings/:id/status', (req, res) => {
     db.run(`UPDATE bookings SET status = ? WHERE id = ?`, [status, req.params.id], function(err) {
         if (err) return res.status(500).json({ error: 'Failed to update status.' });
         if (this.changes === 0) return res.status(404).json({ error: 'Booking not found.' });
+        queueDataBackup('booking_status_updated');
         res.json({ success: true });
     });
 });
@@ -1443,6 +1504,7 @@ router.post('/admin/bookings/:id/cancel', (req, res) => {
                 console.error('Failed to send cancellation email:', emailErr);
             }
 
+            queueDataBackup('booking_cancelled');
             res.json({ success: true });
         });
     });
@@ -1491,6 +1553,7 @@ router.patch('/admin/designs/:id/status', (req, res) => {
     db.run(`UPDATE design_inquiries SET status = ? WHERE id = ?`, [status, req.params.id], function(err) {
         if (err) return res.status(500).json({ error: 'Failed to update status.' });
         if (this.changes === 0) return res.status(404).json({ error: 'Inquiry not found.' });
+        queueDataBackup('design_status_updated');
         res.json({ success: true });
     });
 });

@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 const db = require('./database');
+const firebaseSync = require('./services/firebase-sync');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,7 +34,13 @@ app.get('*', (req, res) => {
 
 // Start Server after DB is ready
 db.ready
-    .then(() => {
+    .then(async () => {
+        try {
+            await firebaseSync.bootstrap(db);
+        } catch (firebaseErr) {
+            console.error('Firebase bootstrap skipped:', firebaseErr.message || firebaseErr);
+        }
+
         app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);
             console.log(`- Made to Measure Flow: http://localhost:${PORT}/purchase-flow.html`);

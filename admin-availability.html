@@ -2076,7 +2076,7 @@ function renderInvoiceResult() {
         <div style="font-size:0.84rem;color:var(--muted);margin-bottom:10px;">Paid ${escapeHtml(latestGeneratedInvoice.amountPaidDisplay || 'J$ 0.00')} · Outstanding ${escapeHtml(latestGeneratedInvoice.balanceDueDisplay || latestGeneratedInvoice.totalDisplay || 'J$ 0.00')}</div>
         <div style="font-size:0.84rem;line-height:1.6;">
             ${latestGeneratedInvoice.pdfUrl ? `<a href="${latestGeneratedInvoice.pdfUrl}" target="_blank">Open PDF</a>` : ''}
-            ${latestGeneratedInvoice.whatsappUrl ? ` · <a href="${latestGeneratedInvoice.whatsappUrl}" target="_blank">Open WhatsApp Draft</a>` : ''}
+            ${latestGeneratedInvoice.whatsappUrl ? ` · <a href="#" onclick="openInvoiceWhatsappFromLatest(); return false;">Open WhatsApp Draft</a>` : ''}
         </div>
         ${latestGeneratedInvoice.lastSentAt ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:10px;">Last emailed ${escapeHtml(ago(latestGeneratedInvoice.lastSentAt))}${latestGeneratedInvoice.lastSentTo ? ` to ${escapeHtml(latestGeneratedInvoice.lastSentTo)}` : ''}.</div>` : ''}
     `;
@@ -2120,7 +2120,7 @@ function renderInvoiceHistory() {
             <div class="invoice-history-actions">
                 <button class="invoice-history-btn" type="button" onclick="loadInvoiceIntoForm(${invoice.id})">Edit</button>
                 ${invoice.pdfUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoicePdf('${invoice.pdfUrl}')">Open PDF</button>` : ''}
-                ${invoice.whatsappUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoiceWhatsappLink('${invoice.whatsappUrl}')">WhatsApp</button>` : ''}
+                ${invoice.whatsappUrl ? `<button class="invoice-history-btn" type="button" onclick="openInvoiceWhatsappFromHistory(${invoice.id})">WhatsApp</button>` : ''}
             </div>
         </div>
     `).join('');
@@ -2175,12 +2175,49 @@ function openInvoicePdf(url) {
     window.open(url, '_blank');
 }
 
-function openInvoiceWhatsappLink(url) {
-    if (!url) {
+function isLikelyMobileDevice() {
+    return Boolean(navigator.userAgentData?.mobile) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+}
+
+function openInvoiceWhatsappLink(invoice) {
+    if (!invoice?.whatsappUrl) {
         toast('No WhatsApp number is saved for this invoice yet.', 'err');
         return;
     }
-    window.open(url, '_blank');
+
+    const fallbackUrl = invoice.whatsappUrl;
+    const appUrl = invoice.whatsappAppUrl || (invoice.whatsappPhoneE164 && invoice.whatsappMessage
+        ? `whatsapp://send?phone=${encodeURIComponent(invoice.whatsappPhoneE164)}&text=${encodeURIComponent(invoice.whatsappMessage)}`
+        : '');
+    const desktopUrl = invoice.whatsappWebUrl || fallbackUrl;
+
+    if (isLikelyMobileDevice() && appUrl) {
+        const fallbackTimer = window.setTimeout(() => {
+            window.location.href = fallbackUrl;
+        }, 800);
+
+        const clearFallback = () => {
+            window.clearTimeout(fallbackTimer);
+            window.removeEventListener('pagehide', clearFallback);
+            window.removeEventListener('blur', clearFallback);
+        };
+
+        window.addEventListener('pagehide', clearFallback, { once: true });
+        window.addEventListener('blur', clearFallback, { once: true });
+        window.location.href = appUrl;
+        return;
+    }
+
+    window.open(desktopUrl, '_blank');
+}
+
+function openInvoiceWhatsappFromLatest() {
+    openInvoiceWhatsappLink(latestGeneratedInvoice);
+}
+
+function openInvoiceWhatsappFromHistory(invoiceId) {
+    const invoice = invoiceHistory.find((entry) => entry.id === invoiceId);
+    openInvoiceWhatsappLink(invoice || null);
 }
 
 async function generateInvoice(showSuccessToast = true) {
@@ -2262,7 +2299,7 @@ async function sendInvoiceWhatsapp() {
             toast('Enter a WhatsApp number before sending.', 'err');
             return;
         }
-        window.open(invoice.whatsappUrl, '_blank');
+        openInvoiceWhatsappLink(invoice);
         toast('WhatsApp message prepared.', 'ok');
     } catch (err) {
         toast(err.message || 'Failed to prepare WhatsApp invoice.', 'err');
@@ -2812,6 +2849,8 @@ window.resetInvoiceForm = resetInvoiceForm;
 window.loadInvoiceIntoForm = loadInvoiceIntoForm;
 window.openInvoicePdf = openInvoicePdf;
 window.openInvoiceWhatsappLink = openInvoiceWhatsappLink;
+window.openInvoiceWhatsappFromLatest = openInvoiceWhatsappFromLatest;
+window.openInvoiceWhatsappFromHistory = openInvoiceWhatsappFromHistory;
 window.sendInvoiceEmail = sendInvoiceEmail;
 window.sendInvoiceWhatsapp = sendInvoiceWhatsapp;
 
