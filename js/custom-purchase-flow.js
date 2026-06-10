@@ -613,10 +613,12 @@ function getActivePriceJMD() {
 
     // MTM Suits
     let price = null;
-    if (catalogItem && state.suggestedSize && !state.sizeError) {
-        price = getCatalogBasePriceJMD(state.suggestedSize);
+    if (catalogItem) {
+        const sizeToUse = (state.suggestedSize && !state.sizeError) ? state.suggestedSize : 'M';
+        price = getCatalogBasePriceJMD(sizeToUse) || getCatalogBasePriceJMD('M');
     }
-    if (!price && catalogItem && window.SUIT_PRICING_JMD[state.suitId]) {
+
+    if (!price && catalogItem && window.SUIT_PRICING_JMD && window.SUIT_PRICING_JMD[state.suitId]) {
         price = window.SUIT_PRICING_JMD[state.suitId].min;
     }
 
