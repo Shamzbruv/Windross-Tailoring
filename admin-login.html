@@ -127,7 +127,20 @@
         </form>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+        // IMPORTANT: YOU MUST REPLACE THIS API KEY OR IT WILL NOT WORK.
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "windross-tailoring.firebaseapp.com",
+            projectId: "windross-tailoring",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
         const form = document.getElementById('login-form');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
@@ -142,14 +155,25 @@
             const rememberMe = rememberCheckbox.checked;
 
             btn.disabled = true;
-            btn.textContent = 'Logging in...';
+            btn.textContent = 'Logging in via Firebase...';
             errorMsg.style.display = 'none';
 
             try {
+                // Set persistence based on remember me checkbox
+                const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+                await setPersistence(auth, persistenceType);
+
+                // Sign in with Firebase
+                const result = await signInWithEmailAndPassword(auth, email, password);
+                
+                // Get ID token to send to our backend
+                const idToken = await result.user.getIdToken();
+
+                // Send to our backend to establish session cookie
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, rememberMe })
+                    body: JSON.stringify({ idToken })
                 });
                 
                 const data = await res.json();
@@ -157,11 +181,18 @@
                 if (res.ok && data.success) {
                     window.location.href = '/admin-availability.html';
                 } else {
-                    throw new Error(data.error || 'Invalid credentials');
+                    throw new Error(data.error || 'Backend verification failed.');
                 }
             } catch (err) {
                 console.error(err);
-                errorMsg.textContent = err.message || 'Failed to login.';
+                
+                // Display specific message if it's the API key error
+                if (err.code === 'auth/api-key-not-valid' || err.message.includes('api-key-not-valid')) {
+                    errorMsg.innerHTML = 'CRITICAL ERROR: The API Key in the code is missing or invalid.<br>You MUST replace "YOUR_FIREBASE_API_KEY" in the admin-login.html file with your actual Firebase Web API Key.';
+                } else {
+                    errorMsg.textContent = err.message || 'Failed to login.';
+                }
+                
                 errorMsg.style.display = 'block';
                 btn.disabled = false;
                 btn.textContent = 'Login';
