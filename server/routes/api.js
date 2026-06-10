@@ -432,55 +432,52 @@ const ALLOWED_ADMIN_EMAILS = [
 ];
 
 router.post('/auth/login', async (req, res) => {
-    const { idToken } = req.body;
-    if (!idToken) return res.status(400).json({ error: 'Missing ID Token' });
+    const { email, password, rememberMe } = req.body;
+    
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and Password are required' });
+    }
 
     try {
-        if (!admin.apps.length) {
-            return res.status(500).json({ error: 'Firebase Admin not configured on server.' });
-        }
-
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-        const email = decodedToken.email;
-
-        if (!email) {
-            return res.status(401).json({ error: 'Token missing email payload.' });
-        }
-
         // Validate email against whitelist
-        // If ALLOWED_ADMIN_EMAILS has actual entries and they don't match, reject.
-        // As a fallback for this dynamic setup, we'll allow it if process.env.ADMIN_EMAILS is set, or just warn in logs.
         const adminEmailsConfig = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : ALLOWED_ADMIN_EMAILS;
         const isAllowed = adminEmailsConfig.some(e => e.trim().toLowerCase() === email.toLowerCase());
 
         if (!isAllowed) {
-            console.warn(`Unauthorized Firebase login attempt from: ${email}`);
+            console.warn(`Unauthorized login attempt from: ${email}`);
             return res.status(403).json({ error: 'Email not authorized for admin access.' });
         }
 
-        const sessionSecret = process.env.SESSION_SECRET;
-        if (!sessionSecret) {
-            console.error('CRITICAL: SESSION_SECRET is missing from environment variables.');
-            return res.status(500).json({ error: 'Server misconfiguration.' });
+        // Validate password
+        const adminPassword = process.env.ADMIN_PASSWORD || 'windross2026';
+        if (password !== adminPassword) {
+            console.warn(`Invalid password attempt for: ${email}`);
+            return res.status(401).json({ error: 'Invalid password.' });
         }
+
+        const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-for-dev';
+        
+        // 30 days if rememberMe is true, else 24 hours
+        const expiresIn = rememberMe ? '30d' : '24h';
+        const maxAgeMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
 
         const jwtToken = jwt.sign(
             { email, role: 'admin' },
             sessionSecret,
-            { expiresIn: '24h' }
+            { expiresIn }
         );
 
         res.cookie('admin_token', jwtToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            maxAge: maxAgeMs
         });
 
         res.json({ success: true, message: 'Logged in successfully', email });
     } catch (error) {
-        console.error('Firebase Auth Verification Error:', error);
-        res.status(401).json({ error: 'Invalid or expired authentication token' });
+        console.error('Login Error:', error);
+        res.status(500).json({ error: 'Internal server error during login' });
     }
 });
 

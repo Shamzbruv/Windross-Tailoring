@@ -117,100 +117,54 @@
 
         <form id="login-form">
             <input type="email" id="email" placeholder="Admin Email Address" required autofocus />
+            <input type="password" id="password" placeholder="Password" required />
+            <label style="display:flex; align-items:center; gap:8px; color:var(--muted); font-size:0.9rem; margin-bottom: 20px; cursor:pointer;">
+                <input type="checkbox" id="remember-me" style="width:16px; height:16px; margin:0; accent-color:var(--gold);" checked />
+                Remember my login
+            </label>
             <div class="error-msg" id="error-msg"></div>
-            <div style="color:var(--gold); font-size:0.85rem; margin-top:-10px; margin-bottom:15px; display:none;" id="success-msg">Check your email for the login link!</div>
-            <button type="submit" id="submit-btn">Send Login Link</button>
+            <button type="submit" id="submit-btn">Login</button>
         </form>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "windross-tailoring.firebaseapp.com",
-            projectId: "windross-tailoring",
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
+    <script>
         const form = document.getElementById('login-form');
         const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('remember-me');
         const btn = document.getElementById('submit-btn');
         const errorMsg = document.getElementById('error-msg');
-        const successMsg = document.getElementById('success-msg');
-
-        // Check if returning from email link
-        if (isSignInWithEmailLink(auth, window.location.href)) {
-            let email = window.localStorage.getItem('emailForSignIn');
-            if (!email) {
-                email = window.prompt('Please provide your email for confirmation');
-            }
-            
-            if (email) {
-                emailInput.value = email;
-                btn.disabled = true;
-                btn.textContent = 'Verifying link...';
-                
-                signInWithEmailLink(auth, email, window.location.href)
-                    .then(async (result) => {
-                        window.localStorage.removeItem('emailForSignIn');
-                        
-                        // Get ID token to send to our backend
-                        const idToken = await result.user.getIdToken();
-                        
-                        // Send to our backend to establish session cookie
-                        const res = await fetch('/api/auth/login', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ idToken })
-                        });
-                        const data = await res.json();
-                        
-                        if (res.ok && data.success) {
-                            window.location.href = '/admin-availability.html';
-                        } else {
-                            throw new Error(data.error || 'Backend verification failed.');
-                        }
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        errorMsg.textContent = error.message || 'Error signing in. The link may have expired.';
-                        errorMsg.style.display = 'block';
-                        btn.disabled = false;
-                        btn.textContent = 'Send Login Link';
-                    });
-            }
-        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const rememberMe = rememberCheckbox.checked;
 
             btn.disabled = true;
-            btn.textContent = 'Sending...';
+            btn.textContent = 'Logging in...';
             errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
-
-            const actionCodeSettings = {
-                // Must be the full URL of this exact page
-                url: window.location.origin + '/admin-login.html',
-                handleCodeInApp: true
-            };
 
             try {
-                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-                window.localStorage.setItem('emailForSignIn', email);
-                successMsg.style.display = 'block';
-                btn.textContent = 'Link Sent!';
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, rememberMe })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    window.location.href = '/admin-availability.html';
+                } else {
+                    throw new Error(data.error || 'Invalid credentials');
+                }
             } catch (err) {
                 console.error(err);
-                errorMsg.textContent = err.message || 'Failed to send login link. Check configuration.';
+                errorMsg.textContent = err.message || 'Failed to login.';
                 errorMsg.style.display = 'block';
                 btn.disabled = false;
-                btn.textContent = 'Send Login Link';
+                btn.textContent = 'Login';
             }
         });
     </script>
