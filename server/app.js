@@ -30,7 +30,8 @@ app.use((req, res, next) => {
         
         try {
             // First try to verify as JWT (the new secure method)
-            const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+            const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-for-dev';
+            const decoded = jwt.verify(token, sessionSecret);
             if (decoded && decoded.role === 'admin') {
                 return next();
             }

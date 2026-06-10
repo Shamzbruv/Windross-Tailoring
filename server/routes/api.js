@@ -495,7 +495,8 @@ const requireAdmin = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+        const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-for-dev';
+        const decoded = jwt.verify(token, sessionSecret);
         if (decoded && decoded.role === 'admin') {
             req.admin = decoded;
             return next();
