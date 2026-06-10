@@ -27,11 +27,15 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/purchase-flow.css">
+    <link rel="stylesheet" href="css/purchase-flow.css?v=4.7">
     <script src="js/region-manager.js"></script>
+    <script src="js/pricing.js"></script>
     <script src="js/data/suit-pricing.js"></script>
     <script src="js/pricing-engine.js"></script>
     <script src="js/currency-manager.js"></script>
+        <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body>
@@ -102,7 +106,45 @@
                         <div class="suggestion-helper">This is a guide only — your suit will still be tailored to your
                             exact measurements.</div>
                     </div>
+                    
+                    <!-- Skip Measurements & Help -->
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--bg-border);">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: var(--text-main);">
+                            <input type="checkbox" id="skip-measurements" onchange="toggleMeasurementBypass()" style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold-primary);">
+                            <span style="font-size: 0.95rem;">I don't have my measurements right now. Let me secure my order, and I'll provide them later.</span>
+                        </label>
+                        <div id="skip-measurements-warning" style="display: none; margin-top: 15px; padding: 15px; background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-gold); border-radius: 8px; color: var(--gold-primary); font-size: 0.85rem; line-height: 1.5;">
+                            <i data-lucide="info" width="16" height="16" style="display: inline-block; vertical-align: middle; margin-right: 5px;"></i>
+                            <strong>Price Estimated:</strong> The final checkout price will be based on standard sizing. If your measurements require a larger size cut, a small adjustment fee may apply after consultation.
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Need help measuring? Talk to the tailor directly before committing.</p>
+                            <button type="button" class="btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="if(window.handleGlobalWhatsAppClick){handleGlobalWhatsAppClick('Hello Windross, I need help taking my measurements for a suit.', 'measurements_help_whatsapp', 'measurements_help_fallback')}else{window.open('https://wa.me/18765986434?text=Hello%20Windross,%20I%20need%20help%20taking%20my%20measurements%20for%20a%20suit.', '_blank');}">
+                                <i data-lucide="message-circle" width="18" height="18"></i> Talk to Tailor on WhatsApp
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+                <script>
+                    function toggleMeasurementBypass() {
+                        const isChecked = document.getElementById('skip-measurements').checked;
+                        const warning = document.getElementById('skip-measurements-warning');
+                        const inputs = document.querySelectorAll('#step-1 input:not(#skip-measurements)');
+                        
+                        warning.style.display = isChecked ? 'block' : 'none';
+                        
+                        inputs.forEach(input => {
+                            if (isChecked) {
+                                input.removeAttribute('required');
+                                input.style.opacity = '0.5';
+                            } else {
+                                input.setAttribute('required', 'true');
+                                input.style.opacity = '1';
+                            }
+                        });
+                    }
+                </script>
 
                 <button class="btn-primary" onclick="nextStep()">Continue to Shipping</button>
             </div>
@@ -199,13 +241,27 @@
                 <div class="form-section">
                     <h3><i data-lucide="credit-card"></i> Payment</h3>
                     <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">
-                        All transactions are secure. You will complete your payment via Bank Transfer.
+                        All transactions are secure. You will complete your payment via our secure online portal (WiPay).
                     </p>
 
-                    <button class="btn-primary" id="pay-btn" onclick="handlePayment()"
-                        style="display:flex; justify-content:center; align-items:center; gap:10px;">
-                        Complete Order (Bank Transfer)
+                    <button class="btn-primary" id="pay-btn" onclick="handlePayment()">
+                        Secure Online Deposit via WiPay
                     </button>
+
+                    <div id="wipay-conversion-note" style="display:none; margin-top:15px; padding:15px; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.2); border-radius:8px; font-size:0.9rem; color:var(--text-muted); line-height:1.5;">
+                        <!-- Content updated by JS -->
+                    </div>
+
+                    <div style="margin-top:25px; padding:20px; background:var(--bg-input); border:1px solid var(--bg-border); border-radius:8px;">
+                        <h4 style="margin-top:0; margin-bottom:10px; color:var(--gold-primary); font-family:'Playfair Display', serif; font-size:1.1rem;">What Happens After You Pay</h4>
+                        <ol style="margin:0; padding-left:20px; color:var(--text-muted); font-size:0.9rem; line-height:1.6;">
+                            <li>Your reservation deposit is securely processed via WiPay.</li>
+                            <li>Windross reviews your order and measurement details.</li>
+                            <li>A team member contacts you on WhatsApp to confirm the next step.</li>
+                            <li>Your suit goes into production, or a fitting is scheduled.</li>
+                            <li>Your final balance is completed after confirmation.</li>
+                        </ol>
+                    </div>
                 </div>
 
                 <button class="btn-secondary" onclick="prevStep()">Back</button>
@@ -223,7 +279,7 @@
                     We have sent a confirmation email with your receipt, design details, and measurement profile.
                 </p>
                 <div style="margin-top: 15px;">
-                    <button class="btn-secondary" onclick="window.location.href='index.html'" style="max-width:300px;">Return
+                    <button class="btn-secondary btn-narrow" onclick="window.location.href='index.html'">Return
                         Home</button>
                 </div>
             </div>
@@ -265,16 +321,7 @@
         lucide.createIcons();
     </script>
     <script src="js/back-to-top.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const isJM = window.Region && window.Region.isJamaica();
-        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-            if (!isJM) {
-                link.style.display = "none";
-            }
-        });
-    });
-</script>
+
 <script>
     console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: window.Region.getRegion() });
 </script>

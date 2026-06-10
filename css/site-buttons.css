@@ -1,0 +1,204 @@
+/* ========================================
+   GLOBAL BUTTON SYSTEM
+   ========================================
+*/
+
+/* --- LUXURY BUTTON SYSTEM --- */
+.btn-nav,
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-whatsapp,
+.gm-btn-primary,
+.gm-btn-secondary,
+.gm-btn-whatsapp,
+.dwt-path-btn,
+.action-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: inherit;
+    border-radius: 999px;
+    min-height: 46px;
+    padding: 12px 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    border: none;
+    text-decoration: none;
+}
+
+/* Primary Gold Button */
+.btn-next,
+.btn-primary,
+.gm-btn-primary,
+.action-btn.btn-primary {
+    background: linear-gradient(135deg, #D4AF37 0%, #F1D77A 100%);
+    color: #050505 !important;
+    border: 1px solid rgba(212, 175, 55, 0.75);
+    box-shadow: 0 10px 28px rgba(212, 175, 55, 0.16);
+}
+
+.btn-next:hover,
+.btn-primary:hover,
+.gm-btn-primary:hover,
+.action-btn.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 38px rgba(212, 175, 55, 0.28);
+}
+
+.btn-next:active,
+.btn-primary:active,
+.gm-btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-next:disabled,
+.btn-primary:disabled,
+.gm-btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Secondary Dark Glass Button */
+.btn-secondary,
+.gm-btn-secondary,
+.action-btn.btn-secondary {
+    background: rgba(255, 255, 255, 0.03);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.btn-secondary:hover,
+.gm-btn-secondary:hover,
+.action-btn.btn-secondary:hover {
+    border-color: rgba(212, 175, 55, 0.45);
+    background: rgba(212, 175, 55, 0.07);
+    transform: translateY(-1px);
+}
+
+/* Ghost / Back Button */
+.btn-ghost,
+.btn-prev {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-ghost:hover,
+.btn-prev:hover {
+    color: #ffffff;
+    border-color: rgba(212, 175, 55, 0.35);
+    background: rgba(212, 175, 55, 0.08);
+    transform: translateY(-1px);
+}
+
+/* WhatsApp Refined Green Button */
+.btn-whatsapp,
+.gm-btn-whatsapp {
+    background: rgba(37, 211, 102, 0.08);
+    color: #25D366;
+    border: 1px solid rgba(37, 211, 102, 0.45);
+}
+
+.btn-whatsapp:hover,
+.gm-btn-whatsapp:hover {
+    background: rgba(37, 211, 102, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(37, 211, 102, 0.1);
+}
+
+/* Quantity Button */
+.qty-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.qty-btn:hover {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: rgba(212, 175, 55, 0.65);
+    color: #d4af37;
+}
+
+/* Base Nav Action Button (if any) */
+.btn-nav {
+    border-color: rgba(212, 175, 55, 0.4);
+    color: #D4AF37;
+}
+
+.btn-nav:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* Legacy action-btn fallback */
+.action-btn:not(.btn-primary):not(.btn-secondary) {
+    background: transparent;
+    border: 1px solid #222;
+    color: white;
+}
+
+.action-btn:not(.btn-primary):not(.btn-secondary):hover {
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+/* --- UTILITY CLASSES --- */
+.btn-full {
+    width: 100%;
+}
+
+.btn-flex {
+    flex: 1;
+}
+
+.btn-large {
+    min-height: 54px;
+    font-size: 0.88rem;
+    padding: 16px 32px;
+}
+
+.btn-narrow {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Action Rows */
+.checkout-action-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    .checkout-action-row {
+        flex-direction: column;
+    }
+
+    .btn-flex {
+        width: 100%;
+    }
+}

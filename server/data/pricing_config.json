@@ -3,43 +3,74 @@
     "baseCurrency": "JMD",
     "internationalMarkupMultiplier": 1.85,
     "exchangeRate_USD_to_JMD": 155,
+    "shippingRates": {
+        "dhlUsdToJmd": 157.05,
+        "dhlGbpToJmd": 200,
+        "localDevFallbackJMD": 2500,
+        "intlDevFallbackJMD": 7000
+    },
+    "designSubmission": {
+        "jamaicaDepositJMD": 30000,
+        "intlBaseUSD": 750.99
+    },
+    "tiers": {
+        "mtm": {
+            "label": "Made-to-Measure",
+            "baseAdjustmentJMD": 0
+        },
+        "signature": {
+            "label": "Signature Bespoke",
+            "baseAdjustmentJMD": 20000
+        },
+        "executive": {
+            "label": "Executive Bespoke",
+            "baseAdjustmentJMD": 55000
+        }
+    },
     "styles": {
         "suit_2_piece": {
-            "basePriceJMD": 65000
+            "name": "2-Piece Suit",
+            "basePriceJMD": 46000,
+            "description": "Standard jacket and trousers",
+            "intlMultiplier": 1.803371
         },
         "suit_3_piece": {
-            "basePriceJMD": 85000
+            "name": "3-Piece Suit",
+            "basePriceJMD": 55000,
+            "description": "Jacket, trousers, and waistcoat",
+            "intlMultiplier": 1.803371
         },
         "tuxedo": {
-            "basePriceJMD": 75000
+            "name": "Tuxedo",
+            "basePriceJMD": 52000,
+            "description": "Formal tuxedo styling",
+            "intlMultiplier": 1.803371
         },
         "jacket_only": {
-            "basePriceJMD": 39000
+            "name": "Jacket Only",
+            "basePriceJMD": 27000,
+            "description": "Custom jacket",
+            "intlMultiplier": 1.840836
         },
         "pants_only": {
-            "basePriceJMD": 26000
+            "name": "Pants Only",
+            "basePriceJMD": 19500,
+            "description": "Custom trousers",
+            "intlMultiplier": 1.687451
         }
     },
     "fabricGrades": {
         "cool-wool": {
-            "multiplier": 1.00,
-            "costPerMeterJMD": 6000,
-            "priceJMD": 0
+            "pricePerYardJMD": 1800
         },
         "king-wool": {
-            "multiplier": 1.00,
-            "costPerMeterJMD": 6000,
-            "priceJMD": 0
+            "pricePerYardJMD": 1600
         },
         "2020-material": {
-            "multiplier": 1.00,
-            "costPerMeterJMD": 6000,
-            "priceJMD": 0
+            "pricePerYardJMD": 1400
         },
         "termal-wool": {
-            "multiplier": 1.00,
-            "costPerMeterJMD": 6000,
-            "priceJMD": 0
+            "pricePerYardJMD": 2000
         }
     },
     "construction": {
@@ -58,43 +89,43 @@
             "priceJMD": 0
         },
         "j-3-roll-2": {
-            "priceJMD": 0
+            "priceJMD": 1000
         },
         "j-double-6": {
-            "priceJMD": 0
+            "priceJMD": 2500
         },
         "j-mandarin": {
-            "priceJMD": 0
+            "priceJMD": 1500
         },
         "l-notch": {
             "priceJMD": 0
         },
         "l-wide-notch": {
-            "priceJMD": 0
+            "priceJMD": 500
         },
         "l-slim-notch": {
-            "priceJMD": 0
+            "priceJMD": 500
         },
         "l-peak": {
-            "priceJMD": 0
+            "priceJMD": 1000
         },
         "l-shawl": {
-            "priceJMD": 0
+            "priceJMD": 1500
         },
         "l-ulster": {
-            "priceJMD": 0
+            "priceJMD": 1500
         },
         "l-gorge": {
-            "priceJMD": 0
+            "priceJMD": 1000
         },
         "p-no-pleat": {
             "priceJMD": 0
         },
         "p-pleat": {
-            "priceJMD": 0
+            "priceJMD": 1000
         },
         "p-cuff": {
-            "priceJMD": 0
+            "priceJMD": 1000
         },
         "v-none": {
             "priceJMD": 0
@@ -104,41 +135,363 @@
         }
     },
     "sizing": {
-        "wasteFactor": 0.15,
-        "baselineMeters": 4.15,
-        "tiers": {
-            "XS": {
-                "metersNeeded": 3.5,
-                "laborScalerJMD": 0
+        "yardageMatrix": {
+            "suit_2_piece": {
+                "XS": 3.8,
+                "S": 4,
+                "M": 4.5,
+                "L": 5,
+                "XL": 5.25,
+                "2X": 5.75,
+                "3X": 6.25,
+                "4X": 6.75
             },
-            "S": {
-                "metersNeeded": 3.7,
-                "laborScalerJMD": 0
+            "suit_3_piece": {
+                "XS": 4.8,
+                "S": 5,
+                "M": 5.5,
+                "L": 6.25,
+                "XL": 6.75,
+                "2X": 7.25,
+                "3X": 7.75,
+                "4X": 8.25
             },
-            "M": {
-                "metersNeeded": 4.15,
-                "laborScalerJMD": 0
+            "tuxedo": {
+                "XS": 3.8,
+                "S": 4,
+                "M": 4.5,
+                "L": 5,
+                "XL": 5.25,
+                "2X": 5.75,
+                "3X": 6.25,
+                "4X": 6.75
             },
-            "L": {
-                "metersNeeded": 4.6,
-                "laborScalerJMD": 1500
+            "jacket_only": {
+                "XS": 2,
+                "S": 2.2,
+                "M": 2.5,
+                "L": 2.8,
+                "XL": 3,
+                "2X": 3.25,
+                "3X": 3.5,
+                "4X": 3.75
             },
-            "XL": {
-                "metersNeeded": 5.0,
-                "laborScalerJMD": 2500
-            },
-            "2X": {
-                "metersNeeded": 5.5,
-                "laborScalerJMD": 4500
-            },
-            "3X": {
-                "metersNeeded": 6.0,
-                "laborScalerJMD": 6500
-            },
-            "4X": {
-                "metersNeeded": 6.5,
-                "laborScalerJMD": 8000
+            "pants_only": {
+                "XS": 1.6,
+                "S": 1.75,
+                "M": 2,
+                "L": 2.25,
+                "XL": 2.5,
+                "2X": 2.75,
+                "3X": 3,
+                "4X": 3.25
             }
+        }
+    },
+    "catalog": {
+        "the-kensington": {
+            "name": "The Kensington",
+            "priceJMD": 38000,
+            "priceUSD": 1250,
+            "description": "A refined look for the modern professional.",
+            "occasion": "Business",
+            "fit": "Slim Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-1.png",
+            "mismatched": false
+        },
+        "the-windsor": {
+            "name": "The Windsor",
+            "priceJMD": 54000,
+            "priceUSD": 1450,
+            "description": "A strong executive suit designed for men who want a clean, commanding look without being too loud.",
+            "occasion": "Business, Weddings",
+            "fit": "Classic Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-1.png",
+            "mismatched": false
+        },
+        "the-mayfair": {
+            "name": "The Mayfair",
+            "priceJMD": 42000,
+            "priceUSD": 1250,
+            "description": "Elegance meets comfort. Perfect for long days.",
+            "occasion": "Business Casual",
+            "fit": "Tailored Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-2.png",
+            "mismatched": false
+        },
+        "the-bond": {
+            "name": "The Bond",
+            "priceJMD": 58000,
+            "priceUSD": 1550,
+            "description": "Sharp, sophisticated, and undeniable. For the man who leads.",
+            "occasion": "Formal, Evening",
+            "fit": "Slim Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-2.png",
+            "mismatched": false
+        },
+        "the-chelsea": {
+            "name": "The Chelsea",
+            "priceJMD": 44000,
+            "priceUSD": 1350,
+            "description": "Contemporary style with timeless appeal.",
+            "occasion": "Events",
+            "fit": "Modern Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-3.png",
+            "mismatched": false
+        },
+        "the-ascott": {
+            "name": "The Ascott",
+            "priceJMD": 56000,
+            "priceUSD": 1450,
+            "description": "A quintessential British look with modern flair.",
+            "occasion": "Weddings",
+            "fit": "Tailored Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-3.png",
+            "mismatched": false
+        },
+        "the-victoria": {
+            "name": "The Victoria",
+            "priceJMD": 38000,
+            "priceUSD": 1250,
+            "description": "Graceful lines and superior fabric for formal wear.",
+            "occasion": "Formal",
+            "fit": "Classic Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-4.png",
+            "mismatched": false
+        },
+        "the-oxford": {
+            "name": "The Oxford",
+            "priceJMD": 62000,
+            "priceUSD": 1400,
+            "description": "Academic prestige transformed into sartorial excellence.",
+            "occasion": "Business",
+            "fit": "Classic Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-4.png",
+            "mismatched": false
+        },
+        "the-belgravia": {
+            "name": "The Belgravia",
+            "priceJMD": 48000,
+            "priceUSD": 1350,
+            "description": "Luxury in every stitch, designed to turn heads.",
+            "occasion": "Evening",
+            "fit": "Slim Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-5.png",
+            "mismatched": false
+        },
+        "the-cambridge": {
+            "name": "The Cambridge",
+            "priceJMD": 58000,
+            "priceUSD": 1400,
+            "description": "Tradition meets contemporary styling.",
+            "occasion": "Events",
+            "fit": "Tailored Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-5.png",
+            "mismatched": false
+        },
+        "the-sovereign": {
+            "name": "The Sovereign",
+            "priceJMD": 29000,
+            "priceUSD": 1500,
+            "description": "Commanding presence with a soft touch.",
+            "occasion": "Business",
+            "fit": "Modern Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-new-1.png",
+            "mismatched": false
+        },
+        "the-regent": {
+            "name": "The Regent",
+            "priceJMD": 38000,
+            "priceUSD": 1600,
+            "description": "A royal look for the most important days of your life.",
+            "occasion": "Weddings",
+            "fit": "Slim Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-6.png",
+            "mismatched": false
+        },
+        "the-grosvenor": {
+            "name": "The Grosvenor",
+            "priceJMD": 46000,
+            "priceUSD": 1300,
+            "description": "Effortless elegance for every formal setting.",
+            "occasion": "Formal",
+            "fit": "Classic Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-new-2.png",
+            "mismatched": false
+        },
+        "the-savile": {
+            "name": "The Savile",
+            "priceJMD": 58000,
+            "priceUSD": 1800,
+            "description": "The peak of bespoke. Uncompromising quality.",
+            "occasion": "Black Tie",
+            "fit": "Tailored Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL",
+                "XXL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-7.png",
+            "mismatched": false
+        },
+        "the-westminster": {
+            "name": "The Westminster",
+            "priceJMD": 29000,
+            "priceUSD": 1350,
+            "description": "A classic piece that never goes out of style.",
+            "occasion": "Business",
+            "fit": "Classic Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-new-3.png",
+            "mismatched": false
+        },
+        "the-knightsbridge": {
+            "name": "The Knightsbridge",
+            "priceJMD": 48000,
+            "priceUSD": 1650,
+            "description": "Bold, structured, and designed for impact.",
+            "occasion": "Events",
+            "fit": "Modern Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L",
+                "XL"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-8.png",
+            "mismatched": false
+        },
+        "the-piccadilly": {
+            "name": "The Piccadilly",
+            "priceJMD": 42000,
+            "priceUSD": 1300,
+            "description": "Vibrant style with a perfect tailored finish.",
+            "occasion": "Events",
+            "fit": "Tailored Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "female",
+            "image": "images/ready-to-wear/female-new-4.png",
+            "mismatched": false
+        },
+        "the-st-james": {
+            "name": "The St. James",
+            "priceJMD": 52000,
+            "priceUSD": 1700,
+            "description": "Exclusive design for the modern gentleman.",
+            "occasion": "Formal",
+            "fit": "Slim Fit",
+            "allowedSizes": [
+                "S",
+                "M",
+                "L"
+            ],
+            "gender": "male",
+            "image": "images/ready-to-wear/male-new-9.png",
+            "mismatched": false
         }
     }
 }

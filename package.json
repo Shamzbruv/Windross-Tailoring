@@ -7,15 +7,18 @@
     "start": "node server/app.js",
     "dev": "nodemon server/app.js",
     "migrate:postgres": "node server/scripts/migrate-sqlite-to-postgres.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "zip": "zip -r windross-delivery.zip . -x 'node_modules/*' '.git/*' '.DS_Store' '__MACOSX/*' '.vscode/*' 'temp/*' '*.zip'"
   },
   "dependencies": {
     "axios": "^1.13.6",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "firebase-admin": "^13.10.0",
     "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.14.0",
     "pg": "^8.21.0",

@@ -88,24 +88,7 @@
         }
 
         /* --- NAVIGATION --- */
-        nav {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 1200px;
-            z-index: 1000;
-            background: rgba(15, 15, 15, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.5s var(--ease-out-expo);
-        }
+        
 
         nav:hover {
             background: rgba(15, 15, 15, 0.9);
@@ -121,43 +104,37 @@
             text-decoration: none;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+        
 
-        .nav-links a {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            transition: 0.3s;
-        }
+        
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--gold-primary);
-        }
+        
 
         /* Mobile Menu Toggle */
-        .mobile-toggle {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-        }
+        
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
+            
 
-            .mobile-toggle {
-                display: block;
-            }
+            
         }
+
+        /* --- MOBILE MENU OVERLAY --- */
+        
+
+        
+
+        
+
+        
+
+        
+        
+        
+        
+        
+        
+        
 
         /* --- HERO SECTION --- */
         .gallery-hero {
@@ -411,22 +388,45 @@
         }
     </style>
 <script src="js/region-manager.js"></script>
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+        <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body>
-
-    <nav>
-        <a href="index.html" class="logo">WINDROSS</a>
-        <div class="nav-links">
-            <a href="customize.html">Customize</a>
-            <a href="ready-to-wear.html">Made to Measure</a>
-            <a href="submit-style.html">Submit Design</a>
-            <a href="gallery.html" class="active">Gallery</a>
-            <a href="index.html#faq">FAQ</a>
-            <a href="book.html">Book</a>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link active">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link">Book</a>
         </div>
-        <button class="mobile-toggle"><i data-lucide="menu"></i></button>
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
+            <i data-lucide="menu" width="28" height="28"></i>
+        </button>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link active">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link">Book</a>
+    </div>
+
+
+    
+
+    
 
     <div class="gallery-hero">
         <h1>The Art<br>Of Cloth</h1>
@@ -609,15 +609,10 @@
     </script>
     <script src="js/back-to-top.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const isJM = window.Region && window.Region.isJamaica();
-        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-            if (!isJM) {
-                link.style.display = "none";
-            }
-        });
-    });
-</script>
+
+
+    </script>
+    <script src="js/site-nav.js?v=4.4"></script>
 </body>
 
 </html>

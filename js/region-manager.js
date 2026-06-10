@@ -59,15 +59,12 @@ const RegionManager = {
             console.log("REGION MANAGER: Silently loading", savedRegion);
             this.setRegion(savedRegion, false); // Initialize silently
             this.enforceRegionalCapabilities();
-            // Page content can now be shown — no overlay needed
             document.body.classList.remove('page-loading');
         } else {
-            console.log("REGION MANAGER: Showing overlay.");
-            // Need to show overlay
+            console.log("REGION MANAGER: Showing banner.");
             this.autoDetectRegion().then((code) => {
                 this.state.recommendedRegion = code;
                 this.showOverlay();
-                // Reveal page-loading lock — overlay is now on top, page behind is safe to show
                 document.body.classList.remove('page-loading');
             });
         }
@@ -86,326 +83,97 @@ const RegionManager = {
         const style = document.createElement('style');
         style.id = 'region-manager-styles';
         style.textContent = `
-            /* --- REGION SELECTOR OVERLAY --- */
+            /* --- REGION BANNER --- */
             .region-overlay {
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                height: 100dvh; /* Dynamic viewport height for mobile browsers */
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(150%);
+                width: 90%;
+                max-width: 600px;
                 z-index: 2147483647;
                 display: flex !important;
                 flex-direction: row;
-                overflow: hidden;
-                overscroll-behavior: none; /* Prevent scroll chaining to background */
-                background: #050505 !important; /* Solid background prevents mobile clipping/glitching */
-                transition: visibility 1s, opacity 1s cubic-bezier(0.25, 1, 0.5, 1);
-                opacity: 1;
+                background: rgba(10, 10, 10, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(212, 175, 55, 0.3);
+                border-radius: 12px;
+                padding: 15px 20px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+                transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+                opacity: 0;
                 pointer-events: all;
-                transform: none !important;
-                touch-action: none; /* Strictly disable browser gestures inside overlay container */
+                align-items: center;
+                gap: 20px;
+            }
+            .region-overlay.visible {
+                transform: translateX(-50%) translateY(0) !important;
+                opacity: 1;
             }
             .region-overlay.closing {
-                opacity: 0 !important;
-                pointer-events: none !important;
-                transform: scale(1.02) !important;
-                transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+                transform: translateX(-50%) translateY(150%) !important;
+                opacity: 0;
+                pointer-events: none;
             }
             
-            /* Welcome Layer */
             .region-welcome-layer {
-                position: absolute;
-                top: 15%;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 10;
-                text-align: center;
-                pointer-events: none;
-                transition: opacity 0.6s ease, top 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-                width: 90%;
+                display: none;
             }
-            /* When selecting, only hide the subtext, move the welcome to center */
-            .region-overlay.selecting .region-welcome-sub {
-                opacity: 0;
+
+            .region-banner-info {
+                flex: 1;
             }
-            .region-overlay.selecting .region-welcome-layer {
-                top: 40%;
-                transform: translate(-50%, -50px) scale(1.1);
-            }
-            .region-overlay.closing .region-welcome-layer {
-                opacity: 0;
-                transform: translate(-50%, -70px) scale(1.1);
-            }
-            .region-logo {
-                width: 180px;
-                margin-bottom: 20px;
-                filter: drop-shadow(0px 4px 10px rgba(0,0,0,0.5));
-            }
-            .region-welcome-text {
+            .region-banner-info h3 {
                 color: #fff;
                 font-family: 'Playfair Display', serif;
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-                text-shadow: 0px 2px 10px rgba(0,0,0,0.8);
+                font-size: 1.2rem;
+                margin: 0 0 5px 0;
             }
-            .region-welcome-sub {
-                color: #D4AF37;
-                font-family: 'Inter', sans-serif;
-                font-size: 1.1rem;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                text-shadow: 0px 2px 8px rgba(0,0,0,0.8);
-                transition: opacity 0.4s ease;
+            .region-banner-info p {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.85rem;
+                margin: 0;
             }
 
-            /* Base Panel Styles */
-            .region-panel {
-                flex: 1;
-                position: relative;
+            .region-banner-actions {
                 display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-                align-items: center;
-                text-align: center;
-                cursor: pointer;
-                overflow: hidden;
-                pointer-events: all;
-                padding-bottom: 10%;
-                transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1), filter 0.8s ease, opacity 0.8s ease;
-            }
-            
-            /* When ANY panel is selected, hide BOTH panels entirely so only logo remains */
-            .region-overlay.selecting .region-panel {
-                opacity: 0 !important;
-                pointer-events: none;
-                transform: translateY(30px);
-            }
-            
-            /* Jamaica Panel (Left) */
-            .region-panel.jm {
-                background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)), url('images/jamaica-bg-placeholder.jpg') center/cover;
-                background-color: #111;
-                border-right: 1px solid rgba(255,255,255,0.05);
-                transform: translateX(-100%);
-                animation: slideInLeft 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-            }
-            /* INTL Panel (Right) */
-            .region-panel.intl {
-                background: linear-gradient(rgba(20,20,20,0.5), rgba(10,10,10,0.95)), url('images/intl-bg-placeholder.jpg') center/cover;
-                background-color: #050505;
-                border-left: 1px solid rgba(255,255,255,0.05);
-                transform: translateX(100%);
-                animation: slideInRight 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-            }
-            
-            @keyframes slideInLeft { to { transform: translateX(0); } }
-            @keyframes slideInRight { to { transform: translateX(0); } }
-            
-            /* Luxury Selection States */
-            .region-panel.selected {
-                z-index: 20;
-            }
-            .region-panel.selected::before {
-                background: rgba(212, 175, 55, 0.15) !important; 
-            }
-            .region-panel.selected .region-panel-content {
-                transform: scale(1.04);
-                border-color: rgba(212, 175, 55, 0.8);
-                box-shadow: 0 15px 40px rgba(212, 175, 55, 0.25);
-                background: rgba(15, 12, 5, 0.85); /* Richer dark gold background */
-            }
-            
-            .region-panel.unselected {
-                opacity: 0 !important;
-                filter: grayscale(100%) blur(8px) !important;
-                pointer-events: none;
-            }
-            .region-panel.unselected .region-panel-content {
-                transform: scale(0.95);
+                gap: 10px;
             }
 
-            /* Hover Effects */
-            .region-panel::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: rgba(212, 175, 55, 0); 
-                transition: background 0.6s ease;
-                z-index: 1;
-            }
-            .region-panel:hover::before {
-                background: rgba(212, 175, 55, 0.1); /* Tint */
-            }
-            .region-panel-content {
-                position: relative;
-                z-index: 2;
-                padding: 2rem;
-                transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-                background: rgba(0,0,0,0.4);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(212,175,55,0.2);
-                border-radius: 12px;
-                width: 80%;
-                max-width: 400px;
-            }
-            .region-panel:hover .region-panel-content {
-                transform: scale(1.02);
-                border-color: rgba(212,175,55,0.5);
-            }
-            .region-panel h2 {
-                color: white;
-                font-family: 'Playfair Display', serif;
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
-            }
-            .region-panel p {
-                color: rgba(255,255,255,0.7);
-                font-size: 0.95rem;
-                margin: 0 auto 1.5rem;
-                line-height: 1.5;
-            }
-            .region-flag {
-                font-size: 2.5rem;
-                display: block;
-                margin-bottom: 0.5rem;
-            }
-            .region-btn {
+            .region-panel {
                 background: transparent;
-                border: 1px solid rgba(212, 175, 55, 0.5);
-                color: #D4AF37;
-                padding: 12px 30px;
-                font-family: 'Inter', sans-serif;
-                font-size: 0.9rem;
-                letter-spacing: 2px;
-                text-transform: uppercase;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 6px;
+                padding: 8px 15px;
                 cursor: pointer;
                 transition: all 0.3s ease;
+                color: #fff;
+                font-size: 0.9rem;
+                font-family: 'Inter', sans-serif;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
-            .region-panel:hover .region-btn {
-                background: rgba(212, 175, 55, 0.1);
+            .region-panel:hover, .region-panel.recommended {
                 border-color: #D4AF37;
-            }
-            .region-btn:active {
-                transform: scale(0.96);
-                background: rgba(212, 175, 55, 0.3);
-            }
-            .recommended-badge {
-                position: absolute;
-                top: -15px;
-                left: 50%;
-                transform: translateX(-50%) translateY(-10px);
-                background: #D4AF37;
-                color: #000;
-                padding: 6px 16px;
-                font-size: 0.75rem;
-                font-weight: 600;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                opacity: 0;
-                transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-                z-index: 3;
-                border-radius: 20px;
-                white-space: nowrap;
-            }
-            .region-panel.recommended .recommended-badge {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
+                background: rgba(212, 175, 55, 0.1);
+                color: #D4AF37;
             }
             
-            @media (max-width: 768px) {
-                .region-overlay { 
-                    flex-direction: column; 
-                    justify-content: center; /* Center everything beautifully */
-                    padding: 10px 15px; 
-                    gap: 15px; /* Slightly better spacing */
-                    overflow-y: auto; 
-                    align-items: center;
-                    background: #050505 !important;
-                }
-                .region-welcome-layer { 
-                    position: relative;
-                    top: auto;
-                    left: auto;
-                    transform: none;
-                    width: 100%;
-                    margin-top: 3vh; /* Significantly reduced to save space */
-                    margin-bottom: 2vh; 
-                    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            @media (max-width: 600px) {
+                .region-overlay {
+                    flex-direction: column;
                     text-align: center;
+                    padding: 20px;
                 }
-                
-                /* Selection Animation Mobile Center Rule */
-                .region-overlay.selecting .region-welcome-layer {
-                    /* On selection, move to visual center. Because panels are collapsing, this stays near the middle natively */
-                    transform: translateY(20vh) scale(1.1) !important; 
-                }
-                .region-overlay.closing .region-welcome-layer {
-                    transform: translateY(15vh) scale(1.1) !important;
-                    opacity: 0;
-                }
-
-                .region-logo { width: 90px; margin-bottom: 5px; } /* Minimized for space */
-                .region-welcome-text { font-size: 1.6rem; margin-bottom: 2px; }
-                .region-welcome-sub { font-size: 0.8rem; line-height: 1.2; }
-                
-                .region-panel { 
-                    flex: none; 
-                    justify-content: center; 
-                    padding: 0;
-                    border-radius: 12px;
-                    min-height: auto;
-                    border: 1px solid rgba(255,255,255,0.1);
+                .region-banner-actions {
                     width: 100%;
-                    transition: all 0.6s ease;
+                    flex-direction: column;
                 }
-
-                /* Crucial Fix: Completely collapse panels gracefully when selected so they don't push the screen down into wasted space */
-                .region-overlay.selecting .region-panel {
-                    opacity: 0 !important;
-                    height: 0px !important;
-                    min-height: 0px !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    border: none !important;
-                    overflow: hidden !important;
-                    pointer-events: none;
-                }
-
-                .region-panel.jm { transform: translateY(30px); animation: slideInBottom 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; animation-delay: 0.1s; }
-                .region-panel.intl { transform: translateY(30px); animation: slideInBottom 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; animation-delay: 0.2s; }
-                
-                @keyframes slideInBottom { to { transform: translateY(0); } }
-                
-                .region-panel-content { 
-                    width: 100%; 
-                    padding: 1rem; 
-                    background: transparent;
-                    border: none;
-                    transition: opacity 0.4s ease;
-                }
-                .region-overlay.selecting .region-panel-content {
-                    opacity: 0;
-                }
-
-                .region-panel h2 { font-size: 1.3rem; margin-bottom: 0px; }
-                .region-panel p { font-size: 0.8rem; margin-bottom: 10px; margin-top: 5px; line-height: 1.3; }
-                .region-flag { font-size: 1.4rem; margin-bottom: 0px; }
-                .region-btn { width: 100%; padding: 10px 15px; font-size: 0.85rem; }
-                
-                .recommended-badge {
-                    position: relative;
-                    display: inline-block;
-                    top: 0;
-                    left: auto;
-                    transform: none !important; 
-                    margin-bottom: 10px;
-                    font-size: 0.65rem;
-                    padding: 4px 10px;
-                }
-                .region-panel.recommended .recommended-badge {
-                    transform: none !important; 
-                    opacity: 1;
+                .region-panel {
+                    justify-content: center;
+                    width: 100%;
+                    padding: 12px;
                 }
             }
         `;
@@ -431,13 +199,8 @@ const RegionManager = {
     },
 
     showOverlay() {
-        // Aggressively prevent background scrolling
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overscrollBehavior = 'none';
-        document.documentElement.style.overscrollBehavior = 'none';
-
-        // Check if exists
+        // No longer blocking body scroll
+        
         let overlay = document.getElementById('region-selector-overlay');
         if (!overlay) {
             overlay = document.createElement('div');
@@ -445,28 +208,17 @@ const RegionManager = {
             overlay.className = 'region-overlay';
 
             overlay.innerHTML = `
-                <div class="region-welcome-layer">
-                    <img src="https://i.postimg.cc/NFHdd4bL/Windross-Logo.png" alt="Windross Logo" class="region-logo">
-                    <h1 class="region-welcome-text">Welcome to Windross Tailoring</h1>
-                    <p class="region-welcome-sub">Please select your shopping destination</p>
+                <div class="region-banner-info">
+                    <h3>Select Shopping Region</h3>
+                    <p>Prices and delivery options vary by region.</p>
                 </div>
-                <div class="region-panel jm" data-region-choice="JM">
-                    <div class="region-panel-content">
-                        <div class="recommended-badge">Recommended for You</div>
-                        <span class="region-flag">🇯🇲</span>
-                        <h2>Jamaica</h2>
-                        <p>Prices in JMD. Access to in-person tailoring appointments and local delivery.</p>
-                        <button class="region-btn">Continue in Jamaica</button>
-                    </div>
-                </div>
-                <div class="region-panel intl" data-region-choice="INTL">
-                    <div class="region-panel-content">
-                        <div class="recommended-badge">Recommended for You</div>
-                        <span class="region-flag">🌍</span>
-                        <h2>Overseas</h2>
-                        <p>Global pricing. DHL Express Worldwide Shipping directly to your door.</p>
-                        <button class="region-btn">Continue Overseas</button>
-                    </div>
+                <div class="region-banner-actions">
+                    <button class="region-panel jm" data-region-choice="JM">
+                        <span>🇯🇲</span> Jamaica (JMD)
+                    </button>
+                    <button class="region-panel intl" data-region-choice="INTL">
+                        <span>🌍</span> Global (USD)
+                    </button>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -474,74 +226,24 @@ const RegionManager = {
             // Bind clicks
             overlay.querySelectorAll('.region-panel').forEach(panel => {
                 panel.addEventListener('click', () => {
-                    // Prevent multiple clicks
-                    if (overlay.classList.contains('closing') || overlay.classList.contains('selecting')) {
-                        return;
-                    }
-
                     const chosen = panel.getAttribute('data-region-choice');
                     this.setRegion(chosen, true);
-
-                    // Luxury click animation Phase 1: Hide panels, center logo & welcome text
-                    overlay.classList.add('selecting');
-                    panel.classList.add('selected');
-
-                    // If we want the welcoming message to explicitly change upon click
-                    const welcomeMsg = overlay.querySelector('.region-welcome-text');
-                    const regionName = chosen === 'JM' ? 'Jamaica' : 'Global Shopping';
-
-                    // Small fade transition for the text change if desired:
-                    welcomeMsg.style.opacity = '0';
-                    setTimeout(() => {
-                        welcomeMsg.innerHTML = `Welcome to<br>${regionName}`;
-                        welcomeMsg.style.opacity = '1';
-                        // Add some luxurious glow
-                        welcomeMsg.style.textShadow = '0px 0px 20px rgba(212, 175, 55, 0.6)';
-                    }, 300);
-
-                    // Wait for the centered welcoming screen to be admired, then fade to main page
-                    setTimeout(() => {
-                        // Phase 2: Fade the entire overlay to transparent
-                        overlay.classList.add('closing');
-
-                        setTimeout(() => {
-                            overlay.style.display = 'none';
-                            // Restore scrolling gracefully
-                            document.body.style.overflow = ''; 
-                            document.documentElement.style.overflow = '';
-                            document.body.style.overscrollBehavior = '';
-                            document.documentElement.style.overscrollBehavior = '';
-
-                            // Ensure page content is visible after overlay closes
-                            document.body.classList.remove('page-loading');
-
-                            // Re-run nav enforcement now that the page is fully visible
-                            RegionManager.enforceRegionalCapabilities();
-
-                            // Destroy DOM to prevent lingering elements and z-index issues
-                            overlay.remove();
-                        }, 1200); // Overlay completely gone
-                    }, 1800); // Enjoy the centered logo for 1.8 seconds
+                    overlay.classList.add('closing');
+                    overlay.classList.remove('visible');
+                    setTimeout(() => { overlay.remove(); }, 600);
                 });
             });
         }
 
-        overlay.style.display = 'none'; // reset
         requestAnimationFrame(() => {
-            overlay.style.display = 'flex';
-            overlay.style.setProperty('display', 'flex', 'important');
-            overlay.style.opacity = '1';
-            overlay.style.pointerEvents = 'all';
-            overlay.style.zIndex = '2147483647';
+            overlay.classList.add('visible');
             overlay.classList.remove('closing');
-
-            // Apply recommended highlight
+            
+            // Highlight recommendation
             overlay.querySelectorAll('.region-panel').forEach(p => p.classList.remove('recommended'));
             if (this.state.recommendedRegion) {
                 const bestPanel = overlay.querySelector(`.region-panel[data-region-choice="${this.state.recommendedRegion}"]`);
-                if (bestPanel) {
-                    bestPanel.classList.add('recommended');
-                }
+                if (bestPanel) bestPanel.classList.add('recommended');
             }
         });
     },
@@ -569,22 +271,10 @@ const RegionManager = {
     },
 
     enforceRegionalCapabilities() {
-        const isIntl = !window.Region.isJamaica();
-
-        // Always ensure the nav itself is visible
+        // We no longer hide Book links or block access to book.html for INTL users.
+        // Instead, book.html handles displaying the proper fallback message internally.
         const nav = document.querySelector('nav');
         if (nav) nav.style.display = '';
-
-        // Only hide/show the Book link — never the entire nav
-        document.querySelectorAll('a[href*="book.html"]').forEach(link => {
-            link.style.display = isIntl ? 'none' : '';
-        });
-
-        // 2. Page Guard
-        if (window.location.pathname.includes('book.html') && isIntl) {
-            alert('In-person measurement booking is only available in Jamaica.');
-            window.location.href = 'index.html';
-        }
     }
 };
 

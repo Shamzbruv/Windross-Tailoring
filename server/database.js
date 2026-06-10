@@ -16,6 +16,14 @@ const CUSTOM_INVOICE_MIGRATION_COLUMNS = [
     { name: 'last_sent_to', sqlite: `TEXT`, postgres: `TEXT` },
     { name: 'updated_at', sqlite: `DATETIME`, postgres: `TIMESTAMP DEFAULT CURRENT_TIMESTAMP` }
 ];
+const ORDER_MIGRATION_COLUMNS = [
+    { name: 'region_code', sqlite: `TEXT DEFAULT 'INTL'`, postgres: `TEXT DEFAULT 'INTL'` },
+    { name: 'pricing_version', sqlite: `TEXT`, postgres: `TEXT` },
+    { name: 'pricing_snapshot', sqlite: `TEXT`, postgres: `TEXT` },
+    { name: 'shipping_details', sqlite: `TEXT`, postgres: `TEXT` },
+    { name: 'shipping_amount_jmd', sqlite: `REAL DEFAULT 0`, postgres: `DOUBLE PRECISION DEFAULT 0` },
+    { name: 'shipping_service', sqlite: `TEXT`, postgres: `TEXT` }
+];
 
 function normalizeArgs(params, callback) {
     if (typeof params === 'function') {
@@ -119,6 +127,24 @@ async function ensureSqliteInvoiceColumns(connection, runStatement) {
     await runStatement(connection, `CREATE INDEX IF NOT EXISTS idx_custom_invoices_payment_status ON custom_invoices (payment_status)`);
 }
 
+async function ensureSqliteOrderColumns(connection, runStatement) {
+    const columns = await getSqliteTableColumns(connection, 'orders');
+    const existingColumns = new Set(columns.map((column) => column.name));
+
+    for (const column of ORDER_MIGRATION_COLUMNS) {
+        if (!existingColumns.has(column.name)) {
+            await runStatement(connection, `ALTER TABLE orders ADD COLUMN ${column.name} ${column.sqlite}`);
+        }
+    }
+
+    await runStatement(connection, `UPDATE orders
+        SET currency = 'JMD'
+        WHERE currency = 'GBP'
+          AND status = 'draft'
+          AND COALESCE(total_amount, 0) = 0
+    `);
+}
+
 async function ensurePostgresInvoiceColumns(pool) {
     for (const column of CUSTOM_INVOICE_MIGRATION_COLUMNS) {
         await pool.query(`ALTER TABLE custom_invoices ADD COLUMN IF NOT EXISTS ${column.name} ${column.postgres}`);
@@ -146,6 +172,20 @@ async function ensurePostgresInvoiceColumns(pool) {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_custom_invoices_payment_status ON custom_invoices (payment_status)`);
 }
 
+async function ensurePostgresOrderColumns(pool) {
+    for (const column of ORDER_MIGRATION_COLUMNS) {
+        await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS ${column.name} ${column.postgres}`);
+    }
+
+    await pool.query(`ALTER TABLE orders ALTER COLUMN currency SET DEFAULT 'JMD'`);
+    await pool.query(`UPDATE orders
+        SET currency = 'JMD'
+        WHERE currency = 'GBP'
+          AND status = 'draft'
+          AND COALESCE(total_amount, 0) = 0
+    `);
+}
+
 class SqliteAdapter {
     constructor(filePath) {
         const sqlite3 = require('sqlite3').verbose();
@@ -164,6 +204,7 @@ class SqliteAdapter {
         for (const statement of SQLITE_SCHEMA) {
             await this.runStatement(this.connection, statement);
         }
+        await ensureSqliteOrderColumns(this.connection, this.runStatement.bind(this));
         await ensureSqliteInvoiceColumns(this.connection, this.runStatement.bind(this));
         console.log('Database tables initialized.');
     }
@@ -335,6 +376,7 @@ class PostgresAdapter {
         for (const statement of POSTGRES_SCHEMA) {
             await this.pool.query(statement);
         }
+        await ensurePostgresOrderColumns(this.pool);
         await ensurePostgresInvoiceColumns(this.pool);
         console.log('Database tables initialized.');
     }

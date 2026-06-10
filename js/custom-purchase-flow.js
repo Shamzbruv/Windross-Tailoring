@@ -32,30 +32,36 @@ const state = {
 };
 
 const suits = {
-    'The Kensington': { price: 1250, image: 'images/ready-to-wear/female-1.png', gender: 'female' },
-    'The Windsor': { price: 1450, image: 'images/ready-to-wear/male-new-1.png', gender: 'male' },
-    'The Mayfair': { price: 1250, image: 'images/ready-to-wear/female-2.png', gender: 'female' },
-    'The Bond': { price: 1550, image: 'images/ready-to-wear/male-new-2.png', gender: 'male' },
-    'The Chelsea': { price: 1350, image: 'images/ready-to-wear/female-3.png', gender: 'female' },
-    'The Ascott': { price: 1450, image: 'images/ready-to-wear/male-new-3.png', gender: 'male' },
-    'The Victoria': { price: 1250, image: 'images/ready-to-wear/female-4.png', gender: 'female' },
-    'The Oxford': { price: 1650, image: 'images/ready-to-wear/male-new-4.png', gender: 'male' },
-    'The Belgravia': { price: 1400, image: 'images/ready-to-wear/female-5.png', gender: 'female' },
-    'The Cambridge': { price: 1550, image: 'images/ready-to-wear/male-new-5.png', gender: 'male' },
-    'The Sovereign': { price: 1100, image: 'images/ready-to-wear/female-new-1.png', gender: 'female' },
-    'The Regent': { price: 1300, image: 'images/ready-to-wear/male-new-6.png', gender: 'male' },
-    'The Grosvenor': { price: 1350, image: 'images/ready-to-wear/female-new-2.png', gender: 'female' },
-    'The Savile': { price: 1800, image: 'images/ready-to-wear/male-new-7.png', gender: 'male' },
-    'The Westminster': { price: 1350, image: 'images/ready-to-wear/female-new-3.png', gender: 'female' },
-    'The Knightsbridge': { price: 1650, image: 'images/ready-to-wear/male-new-8.png', gender: 'male' },
-    'The Piccadilly': { price: 1300, image: 'images/ready-to-wear/female-new-4.png', gender: 'female' },
-    'The St James': { price: 1700, image: 'images/ready-to-wear/male-new-9.png', gender: 'male' },
-
     // Defaults for unknowns
-    'default': { price: 1350, image: 'images/logo.png', gender: 'male' }
+    'default': { image: 'images/logo.png', gender: 'male' }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function getRegionCode() {
+    return window.Pricing ? window.Pricing.getRegionCode() : (window.Region && window.Region.isJamaica() ? 'JM' : 'INTL');
+}
+
+function getCatalogItemForState() {
+    if (!window.Pricing || !window.BACKEND_PRICING_CONFIG) return null;
+    return window.Pricing.getCatalogItem(window.BACKEND_PRICING_CONFIG, state.suitId);
+}
+
+function getCatalogBasePriceJMD(size = state.suggestedSize || 'M') {
+    if (!window.SUIT_PRICING_JMD || !window.calculateSuitPriceBase) return null;
+    return window.calculateSuitPriceBase(state.suitId, size);
+}
+
+async function initCustomPurchaseFlow() {
+    if (window.Pricing && !window.BACKEND_PRICING_CONFIG) {
+        await window.Pricing.loadConfig();
+    }
+
+    if (window.BACKEND_PRICING_CONFIG && window.BACKEND_PRICING_CONFIG.catalog) {
+        const catalogData = window.BACKEND_PRICING_CONFIG.catalog;
+        for (const [key, val] of Object.entries(catalogData)) {
+            suits[key] = { sku: window.Pricing ? window.Pricing.normalizeSku(key) : key, image: val.image, gender: val.gender };
+        }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const wipayStatus = urlParams.get('status');
     const orderId = urlParams.get('order_id');
@@ -76,10 +82,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    function normalizeSuitName(name) {
+        if (name === 'The St James') return 'The St. James';
+        return name;
+    }
+
     // 1. Get Suit from URL
     const params = new URLSearchParams(window.location.search);
-    let suitName = params.get('suit') || 'Custom';
+    let suitName = normalizeSuitName(params.get('suit') || 'Custom');
     state.suitId = suitName;
+
+    const catalogMatch = window.Pricing && window.BACKEND_PRICING_CONFIG
+        ? window.Pricing.getCatalogItem(window.BACKEND_PRICING_CONFIG, suitName)
+        : null;
+    if (catalogMatch) {
+        suitName = catalogMatch.productName;
+        state.suitId = catalogMatch.productName;
+    }
 
     // Load suit details
     // Load suit details
@@ -212,6 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial Address Format
     updateAddressFormat();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCustomPurchaseFlow();
+    if (window.wtTrack) {
+        window.wtTrack('ViewContent', { page: 'custom_checkout_step_1' });
+    }
 });
 
 function updateAddressFormat() {
@@ -292,7 +318,11 @@ function renderStep(stepNum) {
             waBtn.onclick = () => {
                 const phone = "18765986434";
                 const msg = `*New Order Confirmed*\nOrder Ref: ${state.sessionId}\nName: ${state.shipping.name}\nItem: ${state.suitId}\nTotal: ${document.getElementById('summary-total').textContent}`;
-                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                if (window.handleGlobalWhatsAppClick) {
+                    window.handleGlobalWhatsAppClick(msg, 'custom_suit_order', 'custom_purchase_flow_success');
+                } else {
+                    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                }
             };
         }
     }
@@ -349,20 +379,23 @@ function nextStep() {
     // Validation Logic
     if (state.step === 1) {
         // Validate measurements
-        const inputs = document.querySelectorAll('#step-1 input');
+        const skipMeasurementsCheckbox = document.getElementById('skip-measurements');
+        const skipMeasurements = skipMeasurementsCheckbox ? skipMeasurementsCheckbox.checked : false;
+
+        const inputs = document.querySelectorAll('#step-1 input:not(#skip-measurements)');
         let valid = true;
         inputs.forEach(i => {
             if (!i.value) valid = false;
         });
 
-        if (!window.RegionManager || !window.RegionManager.state.region) { alert("Please select your shopping region before proceeding."); return; }
+        if (!getRegionCode()) { alert("Please select your shopping region before proceeding."); return; }
 
-        if (!valid) {
+        if (!skipMeasurements && !valid) {
             alert("Please fill in all measurements.");
             return;
         }
 
-        if (state.sizeError && state.suitId !== 'Custom' && state.suitId !== 'Custom Bespoke Suit') {
+        if (!skipMeasurements && state.sizeError && state.suitId !== 'Custom' && state.suitId !== 'Custom Bespoke Suit') {
             alert("Size could not be determined or style is unavailable in your size. Please re-check measurements.");
             return;
         }
@@ -374,6 +407,11 @@ function nextStep() {
             payloadMeasurements._config = suits[state.suitId].config;
         }
 
+        if (skipMeasurements) {
+            payloadMeasurements._skipMeasurements = true;
+            state.suggestedSize = 'TBD';
+        }
+
         payloadMeasurements.suggestedSize = state.suggestedSize || 'N/A';
         payloadMeasurements.suggestedConfidence = state.suggestedConfidence || 0;
         payloadMeasurements.suggestedGender = state.gender;
@@ -382,19 +420,28 @@ function nextStep() {
         let baseJMD;
         let pricingPayload = null;
         let pricingEngineSelection = null;
+        const isCatalog = !!getCatalogItemForState();
+        const suitRecord = suits[state.suitId];
+        const isCustomSuit = state.suitId === 'Custom' || state.suitId === 'Custom Bespoke Suit' || !!(suitRecord && suitRecord.pricingEngineSelection);
 
-        if (state.suitId === 'Custom' || state.suitId === 'Custom Bespoke Suit') {
+        if (isCustomSuit) {
             baseJMD = suits[state.suitId].price; // mapped from subtotalJMD previously
             pricingPayload = suits[state.suitId].pricing;
             pricingEngineSelection = suits[state.suitId].pricingEngineSelection;
-        } else if (window.SUIT_PRICING_JMD && window.SUIT_PRICING_JMD[state.suitId]) {
-            baseJMD = window.calculateSuitPriceBase(state.suitId, state.suggestedSize) || window.SUIT_PRICING_JMD[state.suitId].min;
+        } else if (isCatalog) {
+            baseJMD = getCatalogBasePriceJMD(state.suggestedSize) || getCatalogBasePriceJMD('M');
         } else {
-            baseJMD = suits[state.suitId] ? suits[state.suitId].price : 38000;
+            alert(`Price unavailable for ${state.suitId}. Please return to the collection and select the design again.`);
+            return;
         }
 
-        const finalJMD = window.calculateDisplayPrice ? window.calculateDisplayPrice(baseJMD) : baseJMD;
-        const isIntl = window.RegionManager ? window.RegionManager.state.region === 'INTL' : false;
+        if (!Number.isFinite(Number(baseJMD)) || Number(baseJMD) <= 0) {
+            alert(`Price unavailable for ${state.suitId}. Please return to the collection and select the design again.`);
+            return;
+        }
+
+        const finalJMD = isCatalog ? baseJMD : (window.calculateDisplayPrice ? window.calculateDisplayPrice(baseJMD) : baseJMD);
+        const regionCode = getRegionCode();
 
         fetch('/api/orders/draft', {
             method: 'POST',
@@ -403,11 +450,11 @@ function nextStep() {
                 suitId: state.suitId,
                 gender: state.gender,
                 measurements: payloadMeasurements,
-                region: isIntl ? 'INTL' : 'JM',
+                region: regionCode,
                 basePriceJMD: baseJMD,
                 finalPriceJMD: finalJMD,
-                appliedMarkupPercent: isIntl ? 85 : 0,
-                currencyDisplay: isIntl ? 'USD' : 'JMD',
+                appliedMarkupPercent: pricingPayload && Number.isFinite(Number(pricingPayload.appliedMarkupPercent)) ? pricingPayload.appliedMarkupPercent : 0,
+                currencyDisplay: regionCode === 'INTL' ? 'USD' : 'JMD',
                 pricingEngineSelection: pricingEngineSelection,
                 pricing: pricingPayload,
                 quantity: suits[state.suitId] ? suits[state.suitId].quantity || 1 : 1,
@@ -418,6 +465,10 @@ function nextStep() {
             console.log("Draft created:", d);
             state.sessionId = d.sessionId;
         }).catch(e => console.error("Draft save failed", e));
+        
+        if (window.wtTrack) {
+            window.wtTrack('InitiateCheckout', { suitId: state.suitId, value: finalJMD, currency: 'JMD' });
+        }
     }
 
     if (state.step === 2) {
@@ -438,7 +489,7 @@ function nextStep() {
             }
         });
 
-        if (!window.RegionManager || !window.RegionManager.state.region) { alert("Please select your shopping region before proceeding."); return; }
+        if (!getRegionCode()) { alert("Please select your shopping region before proceeding."); return; }
 
         if (!valid) {
             alert("Please complete your shipping details.");
@@ -515,7 +566,7 @@ async function calculateShipping() {
         const res = await fetch('/api/shipping/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ country, city, zip, shipmentType, weight })
+                body: JSON.stringify({ country, city, zip, shipmentType, weight, sessionId: state.sessionId })
         });
         const data = await res.json();
 
@@ -547,13 +598,14 @@ async function calculateShipping() {
 }
 
 function getActivePriceJMD() {
+    const catalogItem = getCatalogItemForState();
+
     // Custom Suits
-    if (state.suitId === 'Custom' || state.suitId === 'Custom Bespoke Suit' || (!window.SUIT_PRICING_JMD[state.suitId] && suits[state.suitId])) {
+    if (!catalogItem && (state.suitId === 'Custom' || state.suitId === 'Custom Bespoke Suit' || (suits[state.suitId] && suits[state.suitId].pricingEngineSelection))) {
         let customBaseJMD = suits[state.suitId].price;
 
-        // Global Hard Cap: No custom suit base price can surpass 65,000 JMD
-        if (customBaseJMD > 65000) {
-            customBaseJMD = 65000;
+        if (!Number.isFinite(Number(customBaseJMD))) {
+            return 0;
         }
 
         return window.calculateDisplayPrice ? window.calculateDisplayPrice(customBaseJMD) : customBaseJMD;
@@ -561,17 +613,14 @@ function getActivePriceJMD() {
 
     // MTM Suits
     let price = null;
-    if (state.suggestedSize && !state.sizeError && window.calculateSuitPriceBase) {
-        price = window.calculateSuitPriceBase(state.suitId, state.suggestedSize);
+    if (catalogItem && state.suggestedSize && !state.sizeError) {
+        price = getCatalogBasePriceJMD(state.suggestedSize);
     }
-    if (!price && window.SUIT_PRICING_JMD[state.suitId]) {
+    if (!price && catalogItem && window.SUIT_PRICING_JMD[state.suitId]) {
         price = window.SUIT_PRICING_JMD[state.suitId].min;
     }
 
-    // Fallback
-    if (!price) price = 38000;
-
-    return window.calculateDisplayPrice ? window.calculateDisplayPrice(price) : price;
+    return Number.isFinite(Number(price)) ? price : 0;
 }
 
 function updateSummaryPrices() {
@@ -579,7 +628,9 @@ function updateSummaryPrices() {
     document.getElementById('summary-suit-name').textContent = state.suitId;
 
     const priceJMD = getActivePriceJMD();
-    const formattedPrice = window.formatJMDWithRegion ? window.formatJMDWithRegion(priceJMD) : `J$ ${priceJMD}`;
+    const formattedPrice = priceJMD > 0
+        ? (window.formatJMDWithRegion ? window.formatJMDWithRegion(priceJMD) : `J$ ${priceJMD}`)
+        : 'Price unavailable';
 
     // Base Price
     document.getElementById('summary-price').textContent = formattedPrice;
@@ -646,6 +697,20 @@ function updateTotal(shippingJMD) {
     if (payBtn) {
         payBtn.innerHTML = `COMPLETE ORDER (<span id="total-amount-display">${formattedTotal}</span>)`;
     }
+
+    // WiPay Conversion Note
+    const noteEl = document.getElementById('wipay-conversion-note');
+    if (noteEl && window.CurrencyManager && window.CurrencyManager.state.currency === 'USD') {
+        const rate = (1 / window.CurrencyManager.state.rates.USD).toFixed(0);
+        const jmdTotalStr = new Intl.NumberFormat('en-JM', { style: 'currency', currency: 'JMD', minimumFractionDigits: 0 }).format(totalJMD);
+        noteEl.innerHTML = `Your order total is shown in USD for convenience. Since payments are processed through our Jamaica payment provider, WiPay, your final payment will be charged in Jamaican Dollars using the exchange rate shown below.<br><br>
+        <strong>Order Total:</strong> ${formattedTotal}<br>
+        <strong>Exchange Rate:</strong> 1 USD = J$${rate}<br>
+        <strong>WiPay Payment Total:</strong> ${jmdTotalStr}`;
+        noteEl.style.display = 'block';
+    } else if (noteEl) {
+        noteEl.style.display = 'none';
+    }
 }
 
 function handlePayment() {
@@ -657,18 +722,12 @@ function handlePayment() {
     const suitPriceJMD = getActivePriceJMD();
     const totalJMD = suitPriceJMD + shippingJMD;
 
-    // Convert total native JMD int to final active currency amount mathematically
-    const activeTotal = CurrencyManager ? CurrencyManager.convert(totalJMD) : totalJMD;
-    const finalTotal = parseFloat(activeTotal.toFixed(2));
-
     fetch('/api/payment/wipay/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             sessionId: state.sessionId,
-            // Force JMD for WiPay specifically to avoid banking errors on USD checkout
-            total: parseFloat(totalJMD).toFixed(2),
-            currency: 'JMD'
+            shippingJMD
         })
     })
         .then(r => r.json())
@@ -696,6 +755,36 @@ function handlePayment() {
             btn.disabled = false;
             alert("Payment initialization failed. Please try again.");
         });
+}
+
+function submitViaWhatsAppCustom() {
+    const total = document.getElementById('summary-total').textContent;
+    let msg = `Hi, I would like to submit my custom suit order.\n\n`;
+    msg += `Style: ${state.suitId}\n`;
+    msg += `Total: ${total}\n`;
+    msg += `Name: ${state.shipping.name}\n`;
+    msg += `Email: ${state.shipping.email}\n`;
+    msg += `Phone: ${state.shipping.phone}\n`;
+    msg += `Address: ${document.getElementById('checkout-address').textContent}\n`;
+    
+    if(window.handleGlobalWhatsAppClick) {
+        handleGlobalWhatsAppClick(msg, 'custom_checkout', 'whatsapp_submit');
+    } else {
+        window.open(`https://wa.me/18768045952?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+}
+
+function submitViaEmailCustom() {
+    const total = document.getElementById('summary-total').textContent;
+    let msg = `Hi, I would like to submit my custom suit order.\n\n`;
+    msg += `Style: ${state.suitId}\n`;
+    msg += `Total: ${total}\n`;
+    msg += `Name: ${state.shipping.name}\n`;
+    msg += `Email: ${state.shipping.email}\n`;
+    msg += `Phone: ${state.shipping.phone}\n`;
+    msg += `Address: ${document.getElementById('checkout-address').textContent}\n`;
+    
+    window.open(`mailto:info@windrosstailoring.com?subject=${encodeURIComponent("Custom Suit Order Submission")}&body=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function verifyPayment(sessionId, txnId, hash = null) {

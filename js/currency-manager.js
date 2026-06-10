@@ -11,7 +11,7 @@ const CurrencyManager = {
         currency: 'JMD', // Default fallback
         rates: {
             'JMD': 1,
-            'USD': 1 / 157.05  // Synchronized directly with DHL's internal exchange rate
+            'USD': 1
         },
         locales: {
             'USD': 'en-US',
@@ -23,24 +23,8 @@ const CurrencyManager = {
         }
     },
 
-    async loadLiveRates() {
-        try {
-            // Fetch the live global Bank Exchange Rate for USD to JMD dynamically
-            const res = await fetch('https://open.er-api.com/v6/latest/USD');
-            const data = await res.json();
-            if (data && data.rates && data.rates.JMD) {
-                this.state.rates['USD'] = 1 / data.rates.JMD;
-                console.log(`[Currency] Live Exchange Rate synced dynamically: 1 USD = ${data.rates.JMD} JMD`);
-                this.updateDOM(); // Refresh all prices on screen with live exact math
-            }
-        } catch (e) {
-            console.warn("[Currency] Failed to load live exchange rate, falling back safely to hardcoded default (157.05)", e);
-        }
-    },
-
     init() {
-        // Kick off live rate fetching instantly in the background without slowing down the site
-        this.loadLiveRates();
+        this.syncBusinessRate();
 
         // 1. Check URL override
         const params = new URLSearchParams(window.location.search);
@@ -85,6 +69,30 @@ const CurrencyManager = {
             console.warn("[Currency] Running on file:// protocol. Automatic detection may fail due to CORS. Use ?currency=XXX to test.");
         }
         this.detectLocation();
+    },
+
+    syncBusinessRate() {
+        const applyRate = (config) => {
+            const usdToJmd = Number(config && config.exchangeRate_USD_to_JMD);
+            if (Number.isFinite(usdToJmd) && usdToJmd > 0) {
+                this.state.rates.USD = 1 / usdToJmd;
+            }
+        };
+
+        if (window.BACKEND_PRICING_CONFIG) {
+            applyRate(window.BACKEND_PRICING_CONFIG);
+            return;
+        }
+
+        if (window.Pricing && typeof window.Pricing.loadConfig === 'function') {
+            window.Pricing.loadConfig()
+                .then((config) => {
+                    applyRate(config);
+                    this.updateDOM();
+                    window.dispatchEvent(new CustomEvent('currency-change', { detail: { currency: this.state.currency } }));
+                })
+                .catch((err) => console.warn('[Currency] Failed to load configured exchange rate', err));
+        }
     },
 
     detectLocation() {
@@ -133,16 +141,15 @@ const CurrencyManager = {
 
     format(amountInJMD, showCents = false) {
         const val = this.convert(amountInJMD);
-        const symbol = this.state.symbols[this.state.currency];
+        const currency = this.state.currency;
+        const fractionDigits = currency === 'JMD' && !showCents ? 0 : 2;
 
-        // JMD usually doesn't show cents for high values
-        const fractionDigits = (this.state.currency === 'JMD' && val > 100) ? 0 : 2;
-
-        // Force nice formatting
-        return symbol + val.toLocaleString(this.state.locales[this.state.currency], {
-            minimumFractionDigits: showCents ? fractionDigits : 0,
+        return new Intl.NumberFormat(this.state.locales[currency], {
+            style: 'currency',
+            currency,
+            minimumFractionDigits: fractionDigits,
             maximumFractionDigits: fractionDigits
-        });
+        }).format(val);
     },
 
     updateDOM() {
@@ -157,16 +164,9 @@ const CurrencyManager = {
             }
         });
 
-        const elementsGBP = document.querySelectorAll('[data-price-gbp]');
-        elementsGBP.forEach(el => {
-            const basePriceGBP = parseFloat(el.getAttribute('data-price-gbp'));
-            if (!isNaN(basePriceGBP)) {
-                // Convert old GBP to standard JMD assuming old rate 230
-                const estimatedJMD = basePriceGBP * 230;
-                const currentText = el.textContent;
-                const prefix = currentText.toLowerCase().includes('from') ? 'From ' : '';
-                el.textContent = prefix + this.format(estimatedJMD);
-            }
+        document.querySelectorAll('[data-price-gbp]').forEach(el => {
+            el.removeAttribute('data-price-gbp');
+            console.warn('[Currency] Ignored legacy data-price-gbp value. Use data-price-jmd or window.Pricing.');
         });
     }
 };

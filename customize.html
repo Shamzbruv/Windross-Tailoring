@@ -14,25 +14,25 @@
     <script src="js/region.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design Your Custom Suit | Made to Measure | Windross Tailoring</title>
+    <title>Design With a Tailor | Custom Suits in Jamaica | Windross Tailoring</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Enter the Windross Design Studio. Customize your luxury bespoke suit or tuxedo in 3D. Choose premium Italian fabrics, linings, and precise measurements.">
+    <meta name="description" content="Design your custom suit with guidance from Windross Tailoring. Choose a guided path, get help with measurements, explore bespoke tiers, and reserve your tailoring slot with confidence.">
     <meta name="keywords" content="custom suit designer, bespoke tailoring online, jamaica tailor, 3d suit customizer, luxury menswear">
     <meta name="author" content="Windross Tailoring">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://windrosstailoringanddesign.com/customize.html">
-    <meta property="og:title" content="Design Your Custom Suit | Windross Tailoring">
-    <meta property="og:description" content="Customize your luxury bespoke suit in 3D. Choose premium fabrics, linings, and styles.">
+    <meta property="og:title" content="Design With a Tailor | Windross Tailoring">
+    <meta property="og:description" content="Design your custom suit with guidance from Windross Tailoring. Choose a guided path, get help with measurements, explore bespoke tiers, and reserve your tailoring slot with confidence.">
     <meta property="og:image" content="https://windrosstailoringanddesign.com/images/favicon.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://windrosstailoringanddesign.com/customize.html">
-    <meta property="twitter:title" content="Design Your Custom Suit | Windross Tailoring">
-    <meta property="twitter:description" content="Customize your luxury bespoke suit in 3D. Choose premium fabrics, linings, and styles.">
+    <meta property="twitter:title" content="Design With a Tailor | Windross Tailoring">
+    <meta property="twitter:description" content="Design your custom suit with guidance from Windross Tailoring. Choose a guided path, get help with measurements, explore bespoke tiers, and reserve your tailoring slot with confidence.">
     <meta property="twitter:image" content="https://windrosstailoringanddesign.com/images/favicon.png">
 
     <link rel="icon" type="image/png" href="images/favicon.png">
@@ -44,6 +44,7 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/currency-manager.js"></script>
+    <link rel="stylesheet" href="css/design-with-tailor.css?v=4.7">
 
     <style>
         .hidden-initial {
@@ -94,31 +95,12 @@
         }
 
         /* --- NAVIGATION --- */
-        nav {
-            height: 80px;
-            background: rgba(15, 15, 15, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--bg-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
+        
 
         @media (max-width: 768px) {
-            nav {
-                padding: 0 20px;
-                height: 70px;
-            }
+            
 
-            .nav-center {
-                display: none;
-                /* Hide intermediate step text on mobile to prevent collision */
-            }
+            
         }
 
         .logo {
@@ -131,12 +113,7 @@
             text-transform: uppercase;
         }
 
-        .nav-center {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
-            color: var(--gold-primary);
-            letter-spacing: 1px;
-        }
+        
 
         .action-btn {
             background: transparent;
@@ -152,30 +129,14 @@
             letter-spacing: 1px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+        
 
-        .nav-links a {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            font-weight: 500;
-            position: relative;
-            text-decoration: none;
-            transition: 0.3s;
-        }
+        
 
-        .nav-links a:hover {
-            color: white;
-        }
+        
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
+            
         }
 
         /* --- FABRIC PREVIEW MODAL --- */
@@ -286,92 +247,6 @@
         #image-modal-img:hover {
             transform: scale(1.05);
         }
-
-        /* --- GENDER MODAL --- */
-        .gender-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s var(--ease-lux);
-        }
-
-        .gender-modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .gender-modal-content {
-            text-align: center;
-            max-width: 600px;
-            padding: 40px;
-            transform: translateY(20px);
-            transition: transform 0.8s var(--ease-lux);
-        }
-
-        .gender-modal-overlay.active .gender-modal-content {
-            transform: translateY(0);
-        }
-
-        .gender-modal-content h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            color: white;
-            margin-bottom: 20px;
-            font-weight: 400;
-        }
-
-        .gender-modal-content p {
-            color: var(--text-muted);
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-        }
-
-        .gender-options {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            /* For mobile */
-        }
-
-        .gender-btn {
-            background: transparent;
-            border: 1px solid var(--bg-border);
-            color: white;
-            padding: 20px 40px;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            min-width: 180px;
-        }
-
-        .gender-btn:hover {
-            border-color: var(--gold-primary);
-            background: rgba(212, 175, 55, 0.1);
-            transform: translateY(-5px);
-        }
-
-        .gender-btn i {
-            color: var(--gold-primary);
-            margin-bottom: 10px;
-        }
-
-
 
         /* --- WIZARD CONTAINER --- */
         .wizard-container {
@@ -594,51 +469,21 @@
         /* FOOTER ACTIONS */
         .wizard-footer {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--bg-panel);
-            border-top: 1px solid var(--bg-border);
-            padding: 20px 40px;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(calc(100% - 40px), 1180px);
+            background: rgba(8, 8, 8, 0.88);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 999px;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
-        }
-
-        .btn-nav {
-            padding: 12px 30px;
-            border-radius: 2px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-prev {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid transparent;
-        }
-
-        .btn-prev:hover {
-            color: white;
-            border-color: var(--bg-border);
-        }
-
-        .btn-next {
-            background: var(--gold-gradient);
-            color: black;
-        }
-
-        .btn-next:hover {
-            box-shadow: var(--gold-glow);
-            transform: translateY(-2px);
         }
 
         /* Inline Preview Accordion */
@@ -658,42 +503,37 @@
         }
 
         /* Mobile Adjustments for Wizard Footer */
-        /* Mobile Adjustments for Wizard Footer */
         @media (max-width: 768px) {
             .wizard-footer {
+                bottom: 12px;
+                width: calc(100% - 24px);
+                border-radius: 24px;
+                padding: 16px;
                 flex-direction: column;
-                padding: 15px 20px;
-                gap: 15px;
-                height: auto;
-                background: var(--bg-panel);
-                border-top: 1px solid var(--bg-border);
+                gap: 12px;
             }
 
-            .wizard-footer>div {
+            .wizard-footer > div {
                 width: 100%;
                 text-align: center;
             }
 
-            .total-estimate {
-                order: 1;
-                /* Price on Top */
-                margin-bottom: 0;
+            .btn-next,
+            .btn-prev {
+                width: 100%;
+            }
+
+            .btn-prev {
+                order: 3;
+                min-height: 42px;
             }
 
             .btn-next {
                 order: 2;
-                /* Button Below */
-                width: 100%;
-                justify-content: center;
-                padding: 16px;
-                font-size: 1rem;
             }
 
-            /* Hide previous button text to save space, make it icon only or small top link? */
-            /* User didn't complain about Prev. Let's make it a small link at bottom or top-left */
-            .btn-prev {
-                display: none;
-                /* Templarily hide to solve overcrowding as it wasn't requested */
+            .total-estimate {
+                order: 1;
             }
         }
 
@@ -745,22 +585,45 @@
         }
     </style>
     <script src="js/region-manager.js"></script>
+    <script src="js/pricing.js"></script>
     <script src="js/data/suit-pricing.js"></script>
     <script src="js/pricing-engine.js"></script>
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+    <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body>
-    <nav>
-        <a href="index.html" class="logo">Windross</a>
-        <div class="nav-center">Bespoke Studio</div>
-        <div style="display: flex; gap: 30px; align-items: center;">
-            <div class="nav-links">
-                <a href="ready-to-wear.html">Made to Measure</a>
-                <a href="gallery.html">Gallery</a>
-            </div>
-            <button class="action-btn" onclick="window.location.href='index.html'">Exit</button>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link active">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link">Book</a>
         </div>
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
+            <i data-lucide="menu" width="28" height="28"></i>
+        </button>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link active">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link">Book</a>
+    </div>
+
+    
 
     <div class="wizard-container hidden-initial" id="app">
         <!-- Injected by JS -->
@@ -771,32 +634,60 @@
             <i data-lucide="arrow-left"></i> Back
         </button>
         <div style="text-align: right;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">
-                Estimated Total</div>
-            <div id="price-display" style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">$850</div>
+            <div id="footer-price-label" style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">
+                Build So Far</div>
+            <div id="price-display" style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">Calculating...</div>
+            <div id="price-breakdown" style="font-size: 0.75rem; color: #a1a1aa; margin-top: 5px; text-align: right; max-width: 250px;"></div>
         </div>
         <button id="btn-next" class="btn-nav btn-next" onclick="handleNext()">
             Next Step <i data-lucide="arrow-right"></i>
         </button>
     </div>
 
-    <!-- Gender Selection Modal -->
-    <div id="gender-modal" class="gender-modal-overlay">
-            <div class="gender-modal-content">
-                <h2>Who are you customizing for?</h2>
-                <p>Select a collection to begin your bespoke journey.</p>
-                <div class="gender-options">
-                    <button class="gender-btn" onclick="selectGender('male')">
-                        <i data-lucide="user"></i>
-                        Men
-                    </button>
-                    <button class="gender-btn" onclick="selectGender('female')">
-                        <i data-lucide="gem"></i>
-                        Women
-                    </button>
-                </div>
+    <div id="dwt-landing" class="dwt-landing">
+        <noscript>
+            <div style="background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.4); border-radius:12px; padding:20px; margin:20px auto; color:#D4AF37; font-size:0.95rem; text-align:center; max-width: 800px;">
+                Design With a Tailor requires JavaScript. Please enable it or contact Windross on WhatsApp.
+            </div>
+        </noscript>
+
+        
+        <h1 class="dwt-hero-title">Design your suit with guidance from a real tailor.</h1>
+        <p class="dwt-hero-sub">You do not need to know fabrics, lapels, or measurements before starting. Choose a guided path, customize every detail, or speak with Windross first.</p>
+        
+        <div class="dwt-paths-grid">
+            <div class="dwt-path-card" onclick="startPath('guide')">
+                <div class="dwt-path-icon"><i data-lucide="compass" style="width:30px; height:30px;"></i></div>
+                <h3>Guide Me</h3>
+                <p>I need help building my look based on occasion and budget.</p>
+                <button class="dwt-path-btn">Guide Me Through It</button>
+            </div>
+            
+            <div class="dwt-path-card" onclick="startPath('advanced')">
+                <div class="dwt-path-icon"><i data-lucide="sliders" style="width:30px; height:30px;"></i></div>
+                <h3>I Know What I Want</h3>
+                <p>I'm ready to select my fabrics, lapels, and custom details.</p>
+                <button class="dwt-path-btn">Customize Every Detail</button>
+            </div>
+            
+            <div class="dwt-path-card" onclick="startPath('whatsapp')">
+                <div class="dwt-path-icon"><i data-lucide="message-circle" style="width:30px; height:30px;"></i></div>
+                <h3>Talk to the Tailor First</h3>
+                <p>I'd like a professional consultation before deciding.</p>
+                <button class="dwt-path-btn">Speak With Windross First</button>
             </div>
         </div>
+        
+        <div class="dwt-reassurance">
+            <h4>Not sure what to choose? That is exactly why this exists.</h4>
+            <p>You do not need to understand tailoring terms before starting. Windross will help you choose the right fit, fabric, colour, and finish based on your occasion, timeline, and budget.</p>
+        </div>
+    </div>
+
+    <!-- Guide Me Wizard Container -->
+    <div id="dwt-wizard-container" class="guide-me-container" style="display:none;"></div>
+
+    <script src="js/design-with-tailor.js"></script>
 
     <script>
         // --- DATA WITH DYNAMIC RELATIONSHIPS ---
@@ -836,8 +727,8 @@
                 title: 'Garment Package',
                 desc: 'Choose what pieces you want to customize.',
                 items: [
-                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, icon: 'layers', img: 'https://i.postimg.cc/D0F6VMx5/Chat-GPT-Image-Feb-21-2026-04-06-33-PM.png' },
-                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, icon: 'shirt', img: 'https://i.postimg.cc/dtc3FKRg/Chat-GPT-Image-Feb-21-2026-04-16-59-PM.png' },
+                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, icon: 'layers', img: 'images/package-full-suit.jpg' },
+                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, icon: 'shirt', img: 'images/package-jacket.jpg' },
                     { id: 'pkg-pants', name: 'Trousers Only', desc: 'Custom tailored pants.', price: 0, icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
                 ]
             },
@@ -946,26 +837,21 @@
             measurements: {},
             details: {}
         };
+        window.selections = selections;
+
+        // Expose key functions to window for design-with-tailor.js integration
+        // (render and selectGender are declared later in this script block)
+        Object.defineProperty(window, 'render', { get() { return render; }, configurable: true });
+        Object.defineProperty(window, 'selectGender', { get() { return selectGender; }, configurable: true });
 
         const BASE_PRICE = 850;
 
         // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 0. Always Show Modal on Load (User Request)
-            document.getElementById('gender-modal').classList.add('active');
-
-            // Pre-select defaults for static steps ONLY
-            steps.forEach(step => {
-                if (step.items) {
-                    selections[step.id] = step.items[0];
-                }
-            });
-            // Default texture
-            const firstFabricKey = Object.keys(fabricData)[0];
-            selections['texture'] = { id: firstFabricKey, ...fabricData[firstFabricKey] };
-
-            // Default color (based on default texture)
-            selections['color'] = { id: fabricData[firstFabricKey].colors[0], name: fabricData[firstFabricKey].colors[0], price: 0 };
+            initDWT(); 
+            
+            // Priority Fix: Do NOT pre-populate selections so the price starts at 0
+            // and builds up as the user clicks.
 
             render();
 
@@ -1070,25 +956,67 @@
             }
             // TYPE: MEASUREMENTS
             else if (step.type === 'measurements') {
+                const pref = selections.measurementMethod || 'pending';
                 contentHtml += '<div class="measurement-form" style="padding-bottom:50px;">';
-                step.sections.forEach(section => {
-                    const pkg = selections['package'] ? selections['package'].id : 'pkg-full';
-                    if (pkg === 'pkg-jacket' && section.title.includes('Pants')) return;
-                    if (pkg === 'pkg-pants' && (section.title.includes('Blazer') || section.title.includes('Jacket'))) return;
-
-                    contentHtml += `<div class="measurement-group"><h3>${section.title}</h3><div class="options-grid">`; // Re-using grid for layout
-                    section.fields.forEach(field => {
-                        const val = selections.measurements[field.id] || '';
-                        contentHtml += `
-                            <div class="measure-field">
-                                <label>${field.label}</label>
-                                <p>${field.desc}</p>
-                                <input type="text" placeholder="e.g. 40 in" value="${val}" onchange="saveMeasurement('${field.id}', this.value)">
+                
+                contentHtml += `
+                    <div class="measurement-group" style="margin-bottom: 40px; animation: slideUp 0.3s ease;">
+                        <h3>Measurement Preference</h3>
+                        <p style="color:var(--text-muted); margin-bottom: 20px;">Choose how you want to provide your measurements.</p>
+                        <div class="options-grid">
+                            <div class="option-card ${pref === 'in_person' ? 'selected' : ''}" onclick="window.selections.measurementMethod='in_person'; window.selections.measurementStatus='pending'; render();">
+                                <div class="card-header"><i data-lucide="map-pin" class="card-icon" width="24"></i><div class="card-title">Windross will measure me</div></div>
+                                <div class="card-desc">Book an in-person fitting in Jamaica.</div>
                             </div>
-                        `;
+                            <div class="option-card ${pref === 'self_known' ? 'selected' : ''}" onclick="window.selections.measurementMethod='self_known'; window.selections.measurementStatus='pending_entry'; render();">
+                                <div class="card-header"><i data-lucide="edit-3" class="card-icon" width="24"></i><div class="card-title">I know my measurements</div></div>
+                                <div class="card-desc">Enter them manually below.</div>
+                            </div>
+                            <div class="option-card ${pref === 'guide_me' ? 'selected' : ''}" onclick="window.selections.measurementMethod='guide_me'; window.selections.measurementStatus='pending'; render();">
+                                <div class="card-header"><i data-lucide="book-open" class="card-icon" width="24"></i><div class="card-title">Send me a guide</div></div>
+                                <div class="card-desc">Learn how to measure yourself at home.</div>
+                            </div>
+                            <div class="option-card ${pref === 'whatsapp_later' ? 'selected' : ''}" onclick="window.selections.measurementMethod='whatsapp_later'; window.selections.measurementStatus='pending'; render();">
+                                <div class="card-header"><i data-lucide="message-circle" class="card-icon" width="24"></i><div class="card-title">WhatsApp later</div></div>
+                                <div class="card-desc">Connect with us to provide them.</div>
+                            </div>
+                            <div class="option-card ${pref === 'after_checkout' ? 'selected' : ''}" onclick="window.selections.measurementMethod='after_checkout'; window.selections.measurementStatus='pending'; render();">
+                                <div class="card-header"><i data-lucide="clock" class="card-icon" width="24"></i><div class="card-title">Provide after checkout</div></div>
+                                <div class="card-desc">Reserve slot now, measure later.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (pref === 'self_known') {
+                    step.sections.forEach(section => {
+                        const pkg = selections['package'] ? selections['package'].id : 'pkg-full';
+                        if (pkg === 'pkg-jacket' && section.title.includes('Pants')) return;
+                        if (pkg === 'pkg-pants' && (section.title.includes('Blazer') || section.title.includes('Jacket'))) return;
+
+                        contentHtml += `<div class="measurement-group" style="animation: slideUp 0.3s ease;"><h3>${section.title}</h3><div class="options-grid">`;
+                        section.fields.forEach(field => {
+                            const val = selections.measurements[field.id] || '';
+                            contentHtml += `
+                                <div class="measure-field">
+                                    <label>${field.label}</label>
+                                    <p>${field.desc}</p>
+                                    <input type="text" placeholder="e.g. 40 in" value="${val}" onchange="saveMeasurement('${field.id}', this.value)">
+                                </div>
+                            `;
+                        });
+                        contentHtml += `</div></div>`;
                     });
-                    contentHtml += `</div></div>`;
-                });
+                } else if (pref !== 'pending') {
+                    // Just show a continue message
+                    contentHtml += `
+                        <div class="nco-what-happens" style="background:var(--bg-panel); border-color:var(--bg-border); animation: slideUp 0.3s ease;">
+                            <i data-lucide="check-circle" style="color:var(--gold-primary); margin-bottom:10px;"></i>
+                            <h3 style="margin-bottom:10px;">Measurement Preference Saved</h3>
+                            <p style="margin:0;">You can proceed to checkout. Your measurements will be handled via: <strong style="color:white;">${formatMeasurementMethod(pref)}</strong></p>
+                        </div>
+                    `;
+                }
                 contentHtml += '</div>';
             }
             // TYPE: QUANTITY
@@ -1102,9 +1030,9 @@
                         <h3>Select Quantity</h3>
                         <div class="options-grid" style="grid-template-columns: 1fr;">
                             <div class="measure-field" style="display:flex; align-items:center; gap:20px; background:var(--bg-panel); padding:30px;">
-                                <button onclick="updateQuantity(-1)" style="padding:15px 25px; background:var(--bg-border); color:white; border:none; border-radius:4px; cursor:pointer; font-size:1.5rem;">-</button>
-                                <span style="font-size:2rem; font-weight:bold; color:var(--gold-primary); width:60px; text-align:center;">${qty}</span>
-                                <button onclick="updateQuantity(1)" style="padding:15px 25px; background:var(--bg-border); color:white; border:none; border-radius:4px; cursor:pointer; font-size:1.5rem;">+</button>
+                                <button class="qty-btn" onclick="updateQuantity(-1)">-</button>
+                                <span id="qty-display" style="font-size:1.8rem; font-family:'Playfair Display', serif; min-width:40px; display:inline-block;">${qty}</span>
+                                <button class="qty-btn" onclick="updateQuantity(1)">+</button>
                             </div>
                         </div>
                     </div>
@@ -1290,7 +1218,7 @@
                             <div class="card-header">
                                 <i data-lucide="${item.icon}" class="card-icon" width="24"></i>
                                 <div class="card-title">${item.name}</div>
-                                ${item.price > 0 ? `<div class="card-price">+${window.formatJMDWithRegion ? window.formatJMDWithRegion(window.calculateDisplayPrice ? window.calculateDisplayPrice(item.price * 230) : (item.price * 230)) : CurrencyManager.format(item.price)}</div>` : ''}
+                                ${item.price > 0 ? `<div class="card-price">+${window.formatJMDWithRegion ? window.formatJMDWithRegion(item.priceJMD || item.price) : CurrencyManager.format(item.priceJMD || item.price)}</div>` : ''}
                             </div>
                             <div class="card-desc">${item.desc}</div>
                             ${inlineImgHtml}
@@ -1412,6 +1340,16 @@
 
         function handleNext() {
             const activeSteps = getActiveSteps();
+            const currentStep = activeSteps[currentStepIndex];
+            
+            // Validate selection
+            if (currentStep.type !== 'measurements' && currentStep.type !== 'details' && currentStep.type !== 'quantity') {
+                if (!selections[currentStep.id]) {
+                    alert("Please make a selection to continue.");
+                    return;
+                }
+            }
+            
             if (currentStepIndex < activeSteps.length - 1) {
                 currentStepIndex++;
                 render();
@@ -1429,6 +1367,18 @@
             }
         }
 
+        window.goToStepById = function(stepId) {
+            const activeSteps = getActiveSteps();
+            const targetIndex = activeSteps.findIndex(s => s.id === stepId);
+            if (targetIndex !== -1) {
+                currentStepIndex = targetIndex;
+                render();
+                window.scrollTo(0, 0);
+            } else {
+                console.warn("Step not found in active steps:", stepId);
+            }
+        };
+
         function updateFooter() {
             const activeSteps = getActiveSteps();
             const backBtn = document.getElementById('btn-back');
@@ -1443,42 +1393,150 @@
                 nextBtn.innerHTML = 'Next Step <i data-lucide="arrow-right"></i>';
             }
 
+            function hasReachedStep(stepId) {
+                const activeSteps = getActiveSteps();
+                const stepIndex = activeSteps.findIndex(s => s.id === stepId);
+                return stepIndex !== -1 && currentStepIndex >= stepIndex;
+            }
+
             if (window.PricingEngine && window.PricingEngine.isLoaded) {
-                let styleId = selections.vest && selections.vest.id === 'v-add' ? 'suit_3_piece' : 'suit_2_piece';
-                if (selections['package'] && selections['package'].id === 'pkg-jacket') styleId = 'jacket_only';
-                if (selections['package'] && selections['package'].id === 'pkg-pants') styleId = 'pants_only';
+                // Update footer label
+                const labelElem = document.getElementById('footer-price-label');
+                if (labelElem) {
+                    if (currentStepIndex === activeSteps.length - 1) {
+                        labelElem.innerText = 'Final Estimate';
+                    } else {
+                        labelElem.innerText = 'Build So Far';
+                    }
+                }
+
+                let styleId = null;
+                if (selections['package']) {
+                    styleId = (hasReachedStep('vest') && selections.vest && selections.vest.id === 'v-add') ? 'suit_3_piece' : 'suit_2_piece';
+                    if (selections['package'].id === 'pkg-jacket') styleId = 'jacket_only';
+                    if (selections['package'].id === 'pkg-pants') styleId = 'pants_only';
+                }
 
                 const configSelection = {
                     styleId: styleId,
-                    fabricId: selections.texture ? selections.texture.id : null,
-                    fabricGrade: selections.texture ? selections.texture.id : 'cool-wool', // Mapped one-to-one in config
+                    tierId: selections.tier || 'mtm',
+                    fabricId: hasReachedStep('texture') && selections.texture ? selections.texture.id : null,
+                    fabricGrade: hasReachedStep('texture') && selections.texture ? selections.texture.id : null,
                     constructionType: 'half_canvas',
                     options: [],
-                    measurements: selections.measurements || {},
-                    quantity: selections.quantity || 1
+                    measurements: hasReachedStep('measurements') ? (selections.measurements || {}) : {},
+                    quantity: hasReachedStep('quantity') ? (selections.quantity || 1) : 1
                 };
 
-                ['jacket', 'lapels', 'pants', 'vest'].forEach(k => {
-                    if (selections[k] && selections[k].id) configSelection.options.push(selections[k].id);
-                });
+                const gatedOptions = [];
+                if (hasReachedStep('jacket') && selections.jacket?.id) gatedOptions.push(selections.jacket.id);
+                if (hasReachedStep('lapels') && selections.lapels?.id) gatedOptions.push(selections.lapels.id);
+                if (hasReachedStep('pants') && selections.pants?.id) gatedOptions.push(selections.pants.id);
+                if (hasReachedStep('vest') && selections.vest?.id) gatedOptions.push(selections.vest.id);
+                
+                configSelection.options = gatedOptions;
 
                 const estimate = window.PricingEngine.calculateEstimate(configSelection);
                 if (estimate) {
                     priceDisplay.innerText = estimate.finalDisplay;
                     window.currentPricingEstimate = estimate;
+                    
+                    const pBreakdown = document.getElementById('price-breakdown');
+                    if (pBreakdown) {
+                        if (currentStepIndex > 0) {
+                            let buildItems = [];
+                            if (selections['package']) buildItems.push(selections['package'].title || '2-Piece Suit');
+                            if (hasReachedStep('texture') && selections.texture) buildItems.push(selections.texture.title || 'Fabric');
+                            
+                            pBreakdown.innerHTML = buildItems.join(' + ');
+                        } else {
+                            pBreakdown.innerHTML = '';
+                        }
+                    }
+                    
                     return;
                 }
             }
 
             // Fallback while loading
             priceDisplay.innerText = "Calculating...";
+            const pb = document.getElementById('price-breakdown');
+            if(pb) pb.innerHTML = '';
+        }
+
+        function validateCheckoutDetails() {
+            const d = selections.details || {};
+            const missing = [];
+            
+            if (!d.name) missing.push("Full Name");
+            if (!d.email) missing.push("Email Address");
+            if (!d.phone) missing.push("Phone Number");
+            if (!d.location) missing.push("Location (Local/Overseas)");
+
+            if (d.location === 'local' && !d.deliveryMethod) {
+                missing.push("Delivery Method");
+            }
+
+            if (d.location === 'abroad' || d.deliveryMethod === 'delivery') {
+                if (!d.address1) missing.push("Address Line 1");
+                if (!d.city) missing.push("City / Parish / State");
+                if (!d.country) missing.push("Country");
+            }
+
+            // Task 4: Enforce measurements validation if self_known
+            if (selections.measurementMethod === 'self_known') {
+                // We should ensure they entered *something* or force them to the step
+                const hasMeasurements = Object.keys(selections.measurements || {}).length > 0;
+                if (!hasMeasurements) {
+                    selections.measurementStatus = 'pending_entry';
+                    missing.push("Measurements (you selected 'I know my measurements')");
+                } else {
+                    selections.measurementStatus = 'provided';
+                }
+            }
+
+            return missing;
         }
 
         function finish() {
-            if (!window.RegionManager || !window.RegionManager.state.region) {
+            if (!window.Region || !window.Region.getRegion()) {
                 alert("Please select your shopping region first.");
                 if (window.RegionManager) window.RegionManager.showOverlay();
                 return;
+            }
+
+            const missingFields = validateCheckoutDetails();
+            if (missingFields.length > 0) {
+                const isMeasurements = missingFields.some(f => f.includes('Measurements'));
+                
+                // Show a visible error in footer
+                const footer = document.querySelector('.wizard-footer');
+                let errDiv = document.getElementById('validation-error-notice');
+                if (!errDiv) {
+                    errDiv = document.createElement('div');
+                    errDiv.id = 'validation-error-notice';
+                    errDiv.style.cssText = 'background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); border-radius:6px; padding:15px; margin-top:15px; color:#ff6b6b; font-size:0.9rem; text-align:center; animation: slideUp 0.3s ease; width:100%;';
+                    // Insert before the buttons
+                    const btnContainer = footer.querySelector('div[style*="display: flex; gap: 10px;"]');
+                    if (btnContainer) {
+                        footer.insertBefore(errDiv, btnContainer);
+                    } else {
+                        footer.appendChild(errDiv);
+                    }
+                }
+                
+                if (isMeasurements) {
+                    errDiv.innerHTML = `<strong>Missing Measurements:</strong> You chose to provide your measurements now. Please complete them before checkout.`;
+                    goToStepById('measurements');
+                } else {
+                    errDiv.innerHTML = `<strong>Almost there:</strong> Please complete your contact details so Windross can confirm your design and fitting.<br><small style="color:var(--text-muted);">Missing: ${missingFields.join(', ')}</small>`;
+                    goToStepById('details');
+                }
+                
+                return;
+            } else {
+                const errDiv = document.getElementById('validation-error-notice');
+                if (errDiv) errDiv.remove();
             }
 
             // Re-run estimate just in case
@@ -1512,6 +1570,9 @@
                 quantity: selections.quantity || 1,
                 additionalColors: selections.additionalColors || 'same',
                 extraColors: selections.extraColors || {},
+                measurementMethod: selections.measurementMethod || 'after_checkout',
+                measurementStatus: selections.measurementStatus || 'pending',
+                measurementNotes: selections.measurementNotes || '',
                 config: config,
                 details: selections.details || {},
                 // Pricing Engine Output
@@ -1519,6 +1580,8 @@
                     styleId: (selections['package'] && selections['package'].id === 'pkg-jacket') ? 'jacket_only' :
                              (selections['package'] && selections['package'].id === 'pkg-pants') ? 'pants_only' :
                              (selections.vest && selections.vest.id === 'v-add') ? 'suit_3_piece' : 'suit_2_piece',
+                    tierId: selections.tier || 'mtm',
+                    quantity: selections.quantity || 1,
                     fabricId: selections.texture ? selections.texture.id : null,
                     fabricGrade: selections.texture ? selections.texture.id : 'cool-wool',
                     constructionType: 'half_canvas',
@@ -1548,20 +1611,13 @@
 
         function selectGender(gender) {
             selections.gender = gender;
-            // sessionStorage.setItem('custom_gender_selection', gender); // Disabled per user request to show modal on refresh
 
             document.getElementById('app').classList.remove('hidden-initial');
-            document.querySelector('.wizard-footer').classList.remove('hidden-initial');
-
-            // Update Nav Display
-            const navCenter = document.querySelector('.nav-center');
-            if (navCenter) {
-                navCenter.innerHTML = `Bespoke Studio <span style="color:var(--text-muted); margin:0 10px;">|</span> <span style="color:white;">${gender === 'male' ? 'Men' : 'Women'}</span>`;
-            }
+            const wizardFooter = document.querySelector('.wizard-footer');
+            if (wizardFooter) wizardFooter.classList.remove('hidden-initial');
 
             updateMeasurementFields(gender);
             render();
-            document.getElementById('gender-modal').classList.remove('active');
         }
 
         function updateMeasurementFields(gender) {
@@ -1610,31 +1666,45 @@
             </div>
             
             <div id="nco-payment" style="display:none; text-align:left;">
-                <h2 style="margin-bottom:20px; text-align:center;">Review & Pay</h2>
+                <h2 style="font-family:'Playfair Display', serif; color:var(--gold-primary); text-align:center; margin-bottom:10px;">Reserve Your Slot</h2>
+                <p style="text-align:center; color:var(--text-muted); margin-bottom:30px;">Your design is saved. Complete your 50% deposit to begin.</p>
+                
+                <div class="nco-what-happens" style="background:rgba(212, 175, 55, 0.05); border:1px solid rgba(212, 175, 55, 0.2); border-radius:6px; padding:20px; margin-bottom:20px;">
+                    <h3 style="color:var(--gold-primary); font-family:'Playfair Display', serif; font-size:1.2rem; margin-bottom:15px;">What Happens After You Reserve Your Slot</h3>
+                    <ol style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; padding-left:20px; margin:0;">
+                        <li style="margin-bottom:8px;">Windross receives your design.</li>
+                        <li style="margin-bottom:8px;">Your selections are reviewed.</li>
+                        <li style="margin-bottom:8px;">The team contacts you to confirm details.</li>
+                        <li style="margin-bottom:8px;">Measurements or fitting are completed.</li>
+                        <li style="margin-bottom:8px;">Your suit moves into production.</li>
+                    </ol>
+                </div>
+
                 <div style="background:var(--bg-input); padding:20px; margin-bottom:20px; border-radius:8px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                         <span>Suit Customization</span>
-                        <span id="nco-suit-price" style="font-weight:bold;">$0</span>
+                        <span id="nco-suit-price" style="font-weight:bold;">...</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                         <span>Shipping (<span id="nco-shipping-method">DHL</span>)</span>
-                        <span id="nco-shipping-price" style="font-weight:bold;">$0</span>
+                        <span id="nco-shipping-price" style="font-weight:bold;">...</span>
                     </div>
                     <hr style="border-color:var(--bg-border); margin:15px 0;">
                     <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:bold; color:var(--gold-primary);">
                         <span>Total Due</span>
-                        <span id="nco-total-price">$0</span>
+                        <span id="nco-total-price">...</span>
                     </div>
                 </div>
                 
-                <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px; text-align:center;">
-                    All transactions are secure. You will be redirected securely to WiPay to complete your payment.
-                </p>
-                
-                <button id="nco-pay-btn" class="btn-primary" style="width:100%; margin-bottom:15px;" onclick="processNativePayment()">
+                <button id="nco-pay-btn" class="btn-primary btn-full btn-large" onclick="processNativePayment()">
                     Complete Order (<span id="nco-btn-total"></span>)
                 </button>
-                <button class="btn-secondary" style="width:100%;" onclick="closeNativeCheckout()">Return to Editor</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-secondary btn-flex" onclick="closeNativeCheckout()">Return to Editor</button>
+                    <button class="btn-whatsapp btn-flex" onclick="handleGlobalWhatsAppClick('Hello Windross, I am at the checkout for my custom suit and need some help before placing my deposit.')">
+                        <i data-lucide="message-circle" width="16" height="16" style="vertical-align:middle;"></i> WhatsApp Us
+                    </button>
+                </div>
             </div>
             
             <div id="nco-success" style="display:none; text-align:center;">
@@ -1643,20 +1713,25 @@
                 </div>
                 <h2>Order Placed Successfully!</h2>
                 <p style="color:var(--text-muted); margin:20px 0;">We have sent a confirmation email with your custom profile, images, and receipt.</p>
-                <button id="nco-whatsapp-btn" class="btn-primary" style="margin-bottom:15px; width:100%;">
-                    <i data-lucide="message-circle" width="20" height="20"></i> Send WhatsApp to Finalize
+                <button id="nco-whatsapp-btn" class="btn-whatsapp btn-full btn-large">
+                    Confirm on WhatsApp
                 </button>
-                <button class="btn-secondary" style="width:100%;" onclick="window.location.href='index.html'">Return Home</button>
+                <button class="btn-secondary btn-full" onclick="window.location.href='index.html'">Return Home</button>
             </div>
         </div>
     </div>
 
     <script>
         let nativeOrderSessionId = null;
-        let nativeFinalTotal = 0;
-        let nativeTotalJMD = 0;
+        let nativeShippingJMD = 0;
         let nativeCheckoutData = null;
         let isIntl = false;
+
+        function getNativeDevFallbackShippingJMD() {
+            const shippingRates = window.BACKEND_PRICING_CONFIG?.shippingRates || {};
+            const configured = isIntl ? shippingRates.intlDevFallbackJMD : shippingRates.localDevFallbackJMD;
+            return Number(configured || 0);
+        }
 
         async function initiateNativeCheckout(checkoutData) {
             nativeCheckoutData = checkoutData;
@@ -1667,8 +1742,9 @@
             lucide.createIcons();
 
             try {
-                // Determine Region explicitly from checkoutData location
-                isIntl = checkoutData.details && checkoutData.details.location === 'abroad';
+                // Determine price region from the canonical region source, not form wording.
+                const regionCode = window.Pricing ? window.Pricing.getRegionCode() : (window.Region && window.Region.isJamaica() ? 'JM' : 'INTL');
+                isIntl = regionCode === 'INTL';
 
                 // Base Pricing
                 const baseJMD = checkoutData.pricing ? checkoutData.pricing.subtotalJMD : checkoutData.price;
@@ -1683,11 +1759,13 @@
                             suitId: checkoutData.suitId || 'Custom Bespoke Suit',
                             gender: checkoutData.gender,
                             measurements: { ...checkoutData.measurements, _config: checkoutData.config },
-                            region: isIntl ? 'INTL' : 'JM',
+                            measurementMethod: checkoutData.measurementMethod || 'pending',
+                            measurementStatus: checkoutData.measurementStatus || 'pending',
+                            region: regionCode,
                             basePriceJMD: baseJMD,
                             finalPriceJMD: finalJMD,
-                            appliedMarkupPercent: isIntl ? 85 : 0,
-                            currencyDisplay: isIntl ? 'USD' : 'JMD',
+                            appliedMarkupPercent: checkoutData.pricing && Number.isFinite(Number(checkoutData.pricing.appliedMarkupPercent)) ? checkoutData.pricing.appliedMarkupPercent : 0,
+                            currencyDisplay: regionCode === 'INTL' ? 'USD' : 'JMD',
                             pricingEngineSelection: checkoutData.pricingEngineSelection,
                             pricing: checkoutData.pricing,
                             quantity: checkoutData.quantity || 1,
@@ -1753,7 +1831,8 @@
                                 city: shipData.city,
                                 zip: shipData.zip,
                                 shipmentType: shipmentType,
-                                weight: 2.0 * (checkoutData.quantity || 1)
+                                weight: 2.0 * (checkoutData.quantity || 1),
+                                sessionId: nativeOrderSessionId
                             })
                         });
                         if (calcRes.ok) {
@@ -1767,7 +1846,7 @@
                     } catch (e) {
                         if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
                             console.warn("Shipping Calc API offline, using default", e);
-                            shippingJMD = isIntl ? 7000 : 2500; // rough fallback for dev viewing
+                            shippingJMD = getNativeDevFallbackShippingJMD();
                         } else {
                             throw e;
                         }
@@ -1780,15 +1859,13 @@
                 // 4. Present Totals
                 const suitPriceJMD = getActivePriceJMDForNative(baseJMD);
                 const totalJMD = suitPriceJMD + shippingJMD;
+                nativeShippingJMD = shippingJMD;
 
-                const activeTotal = CurrencyManager.convert(totalJMD);
-                nativeFinalTotal = parseFloat(activeTotal.toFixed(2));
-                nativeTotalJMD = parseFloat(totalJMD).toFixed(2);
-
-                document.getElementById('nco-suit-price').textContent = CurrencyManager.format(suitPriceJMD);
-                document.getElementById('nco-shipping-price').textContent = CurrencyManager.format(shippingJMD);
-                document.getElementById('nco-total-price').textContent = CurrencyManager.format(totalJMD);
-                document.getElementById('nco-btn-total').textContent = CurrencyManager.format(totalJMD);
+                const formatNativeMoney = (amountJMD) => window.Pricing ? window.Pricing.formatJMD(amountJMD) : CurrencyManager.format(amountJMD);
+                document.getElementById('nco-suit-price').textContent = formatNativeMoney(suitPriceJMD);
+                document.getElementById('nco-shipping-price').textContent = formatNativeMoney(shippingJMD);
+                document.getElementById('nco-total-price').textContent = formatNativeMoney(totalJMD);
+                document.getElementById('nco-btn-total').textContent = formatNativeMoney(totalJMD);
 
                 // Show Payment Screen
                 document.getElementById('nco-loading').style.display = 'none';
@@ -1796,15 +1873,28 @@
 
             } catch (err) {
                 console.error("Native checkout initialization failed", err);
-                alert("Failed to initialize checkout. Please check your connection and try again.");
-                closeNativeCheckout();
+                const loadingDiv = document.getElementById('nco-loading');
+                const wMsg = encodeURIComponent("Hello Windross, I'm trying to start my checkout for a custom suit but the quote generation failed. Can you help me reserve my slot manually?");
+                loadingDiv.innerHTML = `
+                    <h2 style="color:#ff6b6b; font-family:'Playfair Display', serif; margin-bottom:10px;">We could not calculate your quote right now.</h2>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Your design is not lost. You can message Windross and continue from here.</p>
+                    <div class="checkout-action-row" style="margin-top:20px;">
+                        <button class="btn-primary btn-flex" onclick="initiateNativeCheckout(nativeCheckoutData)">Try Again</button>
+                        <button class="btn-whatsapp btn-flex" onclick="handleGlobalWhatsAppClick(decodeURIComponent('${wMsg}'))">
+                            Message on WhatsApp
+                        </button>
+                    </div>
+                    <div style="margin-top:15px; text-align:center;">
+                        <button class="btn-ghost" onclick="closeNativeCheckout()">Return to Editor</button>
+                    </div>
+                `;
+                if (window.lucide) window.lucide.createIcons();
             }
         }
 
         function getActivePriceJMDForNative(baseJMD) {
-            let cappedBaseJMD = baseJMD;
-            if (cappedBaseJMD > 65000) cappedBaseJMD = 65000;
-            return window.calculateDisplayPrice ? window.calculateDisplayPrice(cappedBaseJMD) : cappedBaseJMD;
+            // TODO: Ensure business is okay with premium tiers pricing above J$65,000.
+            return window.calculateDisplayPrice ? window.calculateDisplayPrice(baseJMD) : baseJMD;
         }
 
         function closeNativeCheckout() {
@@ -1825,8 +1915,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             sessionId: nativeOrderSessionId,
-                            total: nativeTotalJMD,
-                            currency: 'JMD', // Force JMD for Jamaican WiPay integration
+                            shippingJMD: nativeShippingJMD,
                             returnUrl: 'custom-purchase-flow.html' // Redirect here for success handler
                         })
                     });
@@ -1871,20 +1960,32 @@
                 console.error("WiPay checkout failed", err);
                 btn.innerHTML = `Complete Order (<span id="nco-btn-total">${document.getElementById('nco-total-price').textContent}</span>)`;
                 btn.disabled = false;
-                alert("Payment initiation failed. Please try again.");
+                
+                // Show friendly error with WhatsApp fallback
+                const paymentDiv = document.getElementById('nco-payment');
+                let errDiv = document.getElementById('nco-error-fallback');
+                if (!errDiv) {
+                    errDiv = document.createElement('div');
+                    errDiv.id = 'nco-error-fallback';
+                    errDiv.style.cssText = 'background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); border-radius:6px; padding:20px; margin-top:20px; text-align:center; animation: slideUp 0.3s ease;';
+                    paymentDiv.appendChild(errDiv);
+                }
+                
+                const wMsg = encodeURIComponent("Hello Windross, I'm trying to pay the deposit for my custom suit but the checkout failed. Can you help me reserve my slot manually?");
+                errDiv.innerHTML = `
+                    <h3 style="color:#ff6b6b; font-family:'Playfair Display', serif; margin-bottom:10px;">We could not prepare payment right now.</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">Your design is safe. Please contact Windross to reserve your slot manually.</p>
+                    <button class="btn-whatsapp btn-full" onclick="handleGlobalWhatsAppClick(decodeURIComponent('${wMsg}'))">
+                        <i data-lucide="message-circle" width="16" height="16" style="vertical-align:middle;"></i> Contact Windross on WhatsApp
+                    </button>
+                `;
+                if (window.lucide) window.lucide.createIcons();
             }
         }
     </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const isJM = window.Region && window.Region.isJamaica();
-            document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-                if (!isJM) {
-                    link.style.display = "none";
-                }
-            });
-        });
-    </script>
+
+    <script src="js/site-nav.js?v=4.4"></script>
+
 </body>
 
 </html>

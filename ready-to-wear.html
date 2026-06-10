@@ -120,24 +120,7 @@
         }
 
         /* --- NAVIGATION --- */
-        nav {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 1200px;
-            z-index: 1000;
-            background: var(--bg-glass-strong);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.5s var(--ease-out-expo);
-        }
+        
 
         nav:hover {
             background: rgba(15, 15, 15, 0.95);
@@ -153,105 +136,39 @@
             text-decoration: none;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+        
 
-        .nav-links a {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            transition: 0.3s;
-        }
+        
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--gold-primary);
-        }
+        
 
         /* Mobile Menu Toggle */
-        .mobile-toggle {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-        }
+        
 
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 5, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1500;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.5s var(--ease-out-expo);
-        }
+        
 
-        .mobile-menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
+        
 
-        .mobile-link {
-            font-size: 2rem;
-            font-family: 'Playfair Display', serif;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-decoration: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.5s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        
 
         /* Staggered animation delays for mobile links */
-        .mobile-menu-overlay.active .mobile-link:nth-child(1) {
-            transition-delay: 0.1s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(2) {
-            transition-delay: 0.2s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(3) {
-            transition-delay: 0.3s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(4) {
-            transition-delay: 0.4s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(5) {
-            transition-delay: 0.5s;
-        }
+        
 
 
         @media (max-width: 900px) {
-            .nav-links {
-                display: none;
-            }
+            
 
-            .mobile-toggle {
-                display: block;
-            }
+            
         }
 
         /* --- HERO SECTION --- */
@@ -490,34 +407,48 @@
         }
     </style>
     <script src="js/region-manager.js"></script>
+    <script src="js/pricing.js"></script>
     <script src="js/data/suit-pricing.js"></script>
     <script src="js/currency-manager.js"></script>
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+        <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body>
-
-    <nav>
-        <a href="index.html" class="logo">WINDROSS</a>
-        <div class="nav-links">
-            <a href="customize.html">Customize</a>
-            <a href="ready-to-wear.html" class="active">Made to Measure</a>
-            <a href="submit-style.html">Submit Design</a>
-            <a href="gallery.html">Gallery</a>
-            <a href="index.html#faq">FAQ</a>
-            <a href="book.html">Book</a>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link active">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link">Book</a>
         </div>
-        <button class="mobile-toggle"><i data-lucide="menu"></i></button>
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
+            <i data-lucide="menu" width="28" height="28"></i>
+        </button>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay">
-        <a href="customize.html" class="mobile-link">Customize</a>
-        <a href="ready-to-wear.html" class="mobile-link">Made to Measure</a>
-        <a href="submit-style.html" class="mobile-link">Submit Design</a>
-        <a href="gallery.html" class="mobile-link">Gallery</a>
-        <a href="index.html#faq" class="mobile-link" onclick="toggleMenu()">FAQ</a>
-        <a href="book.html" class="mobile-link">Book</a>
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link active">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link">Book</a>
     </div>
+
+
+    
+
+    
 
     <div class="rtw-hero">
         <h1>Made to Measure</h1>
@@ -539,9 +470,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Kensington</h3>
-                        <p class="product-price">From 1,250</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Kensington" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Kensington" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -554,9 +485,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Windsor</h3>
-                        <p class="product-price">From 1,450</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Windsor" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Windsor" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -569,9 +500,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Mayfair</h3>
-                        <p class="product-price">From 1,250</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Mayfair" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Mayfair" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -584,9 +515,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Bond</h3>
-                        <p class="product-price">From 1,550</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Bond" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Bond" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -599,9 +530,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Chelsea</h3>
-                        <p class="product-price">From 1,350</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Chelsea" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Chelsea" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -614,9 +545,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Ascott</h3>
-                        <p class="product-price">From 1,450</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Ascott" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Ascott" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -629,9 +560,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Victoria</h3>
-                        <p class="product-price">From 1,250</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Victoria" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Victoria" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -644,9 +575,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Oxford</h3>
-                        <p class="product-price">From 1,400</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Oxford" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Oxford" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -659,9 +590,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Belgravia</h3>
-                        <p class="product-price">From 1,350</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Belgravia" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Belgravia" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -674,9 +605,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Cambridge</h3>
-                        <p class="product-price">From 1,400</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Cambridge" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Cambridge" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -689,9 +620,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Sovereign</h3>
-                        <p class="product-price">From 1,500</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Sovereign" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Sovereign" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -704,9 +635,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Regent</h3>
-                        <p class="product-price">From 1,600</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Regent" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Regent" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -719,9 +650,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Grosvenor</h3>
-                        <p class="product-price">From 1,300</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Grosvenor" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Grosvenor" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -734,9 +665,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Savile</h3>
-                        <p class="product-price">From 1,800</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Savile" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Savile" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -749,9 +680,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Westminster</h3>
-                        <p class="product-price">From 1,350</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Westminster" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Westminster" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -764,9 +695,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Knightsbridge</h3>
-                        <p class="product-price">From 1,650</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Knightsbridge" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Knightsbridge" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -779,9 +710,9 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The Piccadilly</h3>
-                        <p class="product-price">From 1,300</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20Piccadilly" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20Piccadilly" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
 
@@ -794,14 +725,17 @@
                 <div class="product-overlay">
                     <div class="product-info">
                         <h3 class="product-name">The St. James</h3>
-                        <p class="product-price">From 1,700</p>
+                        <p class="product-price" data-price-role="catalog-starting">Loading...</p>
                     </div>
-                    <a href="purchase-flow.html?suit=The%20St%20James" class="purchase-btn">Purchase</a>
+                    <a href="purchase-flow.html?suit=The%20St.%20James" class="purchase-btn">Personalize This Design</a>
                 </div>
             </div>
     </section>
 
     <footer>
+        <div style="margin-bottom: 10px;">
+            <a href="meet-the-tailor.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Meet the Tailor</a>
+        </div>
         <p>&copy; 2026 Windross Tailoring. All rights reserved.</p>
     </footer>
 
@@ -812,19 +746,95 @@
     <script>
         lucide.createIcons();
 
+        function normalizeSuitName(name) {
+            if (name === 'The St James') return 'The St. James';
+            return name;
+        }
+
         // 0. Update Prices Dynamically based on Region
-        const updateRtwPrices = () => {
-            document.querySelectorAll('.product-card').forEach(card => {
+        const updateRtwPrices = async () => {
+            const cards = Array.from(document.querySelectorAll('.product-card'));
+            let catalogData = {};
+            try {
+                const config = await window.Pricing.loadConfig();
+                catalogData = config.catalogDisplayUSD || config.catalog || {};
+            } catch(e) {}
+
+            for (const card of cards) {
                 const nameEl = card.querySelector('.product-name');
                 const priceEl = card.querySelector('.product-price');
-                if (nameEl && priceEl) {
-                    const suitName = nameEl.textContent.trim();
-                    const startingPrice = window.getSuitStartingPrice(suitName);
-                    if (startingPrice) {
-                        priceEl.textContent = "From " + window.formatJMDWithRegion(startingPrice);
-                    }
+                const infoContainer = card.querySelector('.product-info');
+                const overlay = card.querySelector('.product-overlay');
+                if (!nameEl || !priceEl || !window.Pricing) continue;
+
+                const suitNameRaw = nameEl.textContent.trim();
+                const suitName = normalizeSuitName(suitNameRaw);
+
+                try {
+                    const quote = await window.Pricing.getCatalogPrice(suitName, 'S');
+                    priceEl.textContent = "From " + window.Pricing.format(quote.display);
+                } catch (err) {
+                    priceEl.textContent = "Price unavailable";
                 }
-            });
+
+                // Inject description and CTAs
+                const itemData = catalogData[suitName];
+                if (itemData && !card.dataset.upgraded) {
+                    card.dataset.upgraded = "true";
+
+                    // Add description
+                    const descDiv = document.createElement('div');
+                    descDiv.className = 'product-details-extra';
+                    descDiv.innerHTML = `
+                        <p style="font-size:0.85rem; color:#ccc; margin: 8px 0;">${itemData.description || ''}</p>
+                        <p style="font-size:0.75rem; color:var(--gold-primary); margin: 4px 0;"><strong>Occasion:</strong> ${itemData.occasion || 'Various'}</p>
+                        <p style="font-size:0.75rem; color:var(--gold-primary); margin: 4px 0;"><strong>Fit:</strong> ${itemData.fit || 'Tailored'}</p>
+                    `;
+                    infoContainer.appendChild(descDiv);
+
+                    // Replace old CTA with new CTAs
+                    const oldBtn = card.querySelector('.purchase-btn');
+                    if (oldBtn) oldBtn.remove();
+
+                    const ctaContainer = document.createElement('div');
+                    ctaContainer.style.display = 'flex';
+                    ctaContainer.style.flexDirection = 'column';
+                    ctaContainer.style.gap = '8px';
+                    ctaContainer.style.width = '100%';
+
+                    const reserveBtn = document.createElement('a');
+                    reserveBtn.href = `purchase-flow.html?suit=${encodeURIComponent(suitNameRaw)}`;
+                    reserveBtn.className = 'purchase-btn';
+                    reserveBtn.textContent = 'Reserve This Look';
+
+                    const detailsBtn = document.createElement('a');
+                    detailsBtn.href = `purchase-flow.html?suit=${encodeURIComponent(suitNameRaw)}`;
+                    detailsBtn.className = 'purchase-btn';
+                    detailsBtn.style.background = 'transparent';
+                    detailsBtn.style.border = '1px solid rgba(255,255,255,0.3)';
+                    detailsBtn.style.color = 'white';
+                    detailsBtn.textContent = 'View Details';
+
+                    const whatsappBtn = document.createElement('button');
+                    whatsappBtn.className = 'purchase-btn';
+                    whatsappBtn.style.background = '#25D366';
+                    whatsappBtn.style.color = 'white';
+                    whatsappBtn.style.border = 'none';
+                    whatsappBtn.innerHTML = '<i data-lucide="message-circle" style="width:16px; height:16px; margin-right:6px; vertical-align:middle;"></i> Ask About This Suit';
+                    whatsappBtn.onclick = (e) => {
+                        e.preventDefault();
+                        if (window.WhatsAppHelper) {
+                            window.WhatsAppHelper.openChat('18768097063', `Hi Windross, I'm interested in the ${suitNameRaw} ready-to-wear suit. Can you provide more details?`);
+                        }
+                    };
+
+                    ctaContainer.appendChild(reserveBtn);
+                    ctaContainer.appendChild(detailsBtn);
+                    ctaContainer.appendChild(whatsappBtn);
+                    overlay.appendChild(ctaContainer);
+                }
+            }
+            if (window.lucide) window.lucide.createIcons();
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -833,6 +843,7 @@
 
         window.addEventListener('region-change', updateRtwPrices);
         window.addEventListener('currency-change', updateRtwPrices);
+        window.addEventListener('pricing-loaded', updateRtwPrices);
 
         // 1. Initialize Smooth Scroll
         const lenis = new Lenis({
@@ -853,24 +864,7 @@
 
         requestAnimationFrame(raf);
 
-        // Mobile Menu Logic
-        const mobileToggle = document.querySelector('.mobile-toggle');
-        const mobileOverlay = document.querySelector('.mobile-menu-overlay');
-        let isMenuOpen = false;
 
-        function toggleMenu() {
-            isMenuOpen = !isMenuOpen;
-            mobileOverlay.classList.toggle('active');
-
-            if (isMenuOpen) {
-                mobileToggle.innerHTML = '<i data-lucide="x" width="28" height="28"></i>';
-            } else {
-                mobileToggle.innerHTML = '<i data-lucide="menu" width="28" height="28"></i>';
-            }
-            lucide.createIcons();
-        }
-
-        mobileToggle.addEventListener('click', toggleMenu);
 
         // Anti-Theft
         document.addEventListener('DOMContentLoaded', () => {
@@ -881,16 +875,8 @@
         });
     </script>
     <script src="js/back-to-top.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const isJM = window.Region && window.Region.isJamaica();
-        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-            if (!isJM) {
-                link.style.display = "none";
-            }
-        });
-    });
-</script>
+
+    <script src="js/site-nav.js?v=4.4"></script>
 </body>
 
 </html>

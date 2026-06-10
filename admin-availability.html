@@ -1115,6 +1115,10 @@
         <button class="nav-tab" onclick="switchTab('availability')" id="tab-availability">
             <i data-lucide="clock" style="width:14px;height:14px;"></i> Availability
         </button>
+        <div style="width: 1px; height: 24px; background: var(--border); margin: 0 10px;"></div>
+        <button class="nav-tab" onclick="adminLogout()" style="color: var(--red);">
+            <i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout
+        </button>
     </div>
     <button class="mobile-menu-btn" onclick="toggleAdminMenu()">
         <i data-lucide="menu" style="width:26px;height:26px;"></i>
@@ -1137,6 +1141,10 @@
     </button>
     <button class="mob-dropdown-btn" onclick="switchTab('availability'); toggleAdminMenu()">
         <i data-lucide="clock"></i> Availability
+    </button>
+    <div style="height: 1px; background: var(--border); margin: 8px 0;"></div>
+    <button class="mob-dropdown-btn" onclick="adminLogout()" style="color: var(--red);">
+        <i data-lucide="log-out"></i> Logout
     </button>
 </div>
 
@@ -2460,16 +2468,36 @@ async function openBookingDrawer(id) {
                 <div class="detail-section-title">Notes</div>
                 <div class="detail-desc">${b.notes}</div>
             </div>` : ''}
-            <div class="detail-section" style="margin-top:20px;">
+            <div class="detail-section" style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
                 <a href="https://wa.me/${b.phone.replace(/\D/g,'')}" target="_blank" style="display:flex;align-items:center;gap:8px;color:#25D366;font-size:0.85rem;text-decoration:none;border:1px solid rgba(37,211,102,0.3);border-radius:6px;padding:10px 14px;background:rgba(37,211,102,0.06);">
                     <i data-lucide="message-circle" style="width:16px;height:16px;"></i> Message on WhatsApp
                 </a>
+                ${(b.notes && b.notes.includes('VIRTUAL GOOGLE MEET')) ? `
+                <a href="#" onclick="createGoogleMeet(event, '${escapeHtml(b.name)}', '${escapeHtml(b.email)}', '${b.booking_date}', '${b.booking_time}')" style="display:flex;align-items:center;gap:8px;color:#4285F4;font-size:0.85rem;text-decoration:none;border:1px solid rgba(66,133,244,0.3);border-radius:6px;padding:10px 14px;background:rgba(66,133,244,0.06);">
+                    <i data-lucide="video" style="width:16px;height:16px;"></i> Create Google Meeting
+                </a>` : ''}
             </div>
         `;
         lucide.createIcons();
     } catch {
         document.getElementById('bd-body').innerHTML = '<p style="color:var(--red);text-align:center;padding:30px;">Failed to load booking.</p>';
     }
+}
+
+function createGoogleMeet(e, name, email, dateStr, timeStr) {
+    e.preventDefault();
+    const start = new Date(`${dateStr}T${timeStr}:00`);
+    const end = new Date(start.getTime() + 30 * 60000); // 30 min duration
+    
+    const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const dates = `${fmt(start)}/${fmt(end)}`;
+    
+    const text = encodeURIComponent(`Windross Virtual Consultation: ${name}`);
+    const details = encodeURIComponent(`Virtual style consultation for ${name}.`);
+    const add = encodeURIComponent(email);
+    
+    const url = `https://calendar.google.com/calendar/r/eventedit?text=${text}&dates=${dates}&details=${details}&add=${add}`;
+    window.open(url, '_blank');
 }
 
 async function saveBookingStatus() {
@@ -2873,6 +2901,16 @@ function toggleAdminMenu() {
 }
 
 // ── Expose globals for inline handlers
+window.adminLogout = async function() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.href = '/admin-login.html';
+    } catch (err) {
+        console.error('Logout error:', err);
+        window.location.href = '/admin-login.html';
+    }
+};
+
 window.openBookingDrawer = openBookingDrawer;
 window.openDesignDrawer = openDesignDrawer;
 window.closeDrawer = closeDrawer;

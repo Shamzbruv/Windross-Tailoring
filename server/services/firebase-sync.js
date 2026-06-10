@@ -40,6 +40,11 @@ const TABLE_CONFIG = [
         name: 'custom_invoices',
         orderBy: 'id ASC',
         columns: ['id', 'invoice_number', 'customer_name', 'customer_email', 'customer_phone', 'whatsapp_phone', 'customer_address', 'issue_date', 'due_date', 'currency', 'line_items', 'subtotal_amount', 'tax_amount', 'total_amount', 'deposit_percentage', 'deposit_amount', 'amount_paid', 'amount_paid_percentage', 'balance_due', 'payment_status', 'notes', 'pdf_path', 'last_sent_at', 'last_sent_to', 'updated_at', 'created_at']
+    },
+    {
+        name: 'testimonials',
+        orderBy: 'id ASC',
+        columns: ['id', 'name', 'location', 'comment', 'rating', 'is_approved', 'created_at']
     }
 ];
 
@@ -266,4 +271,7 @@ class FirebaseSyncService {
     }
 }
 
-module.exports = new FirebaseSyncService();
+module.exports = {
+    firebaseSync: new FirebaseSyncService(),
+    admin
+};

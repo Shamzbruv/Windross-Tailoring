@@ -26,14 +26,14 @@
     <meta property="og:url" content="https://windrosstailoringanddesign.com/">
     <meta property="og:title" content="Windross Tailoring | Premium Bespoke Custom Suits">
     <meta property="og:description" content="Experience luxury bespoke tailoring. Premium custom-made suits in Jamaica, shipped globally.">
-    <meta property="og:image" content="https://windrosstailoringanddesign.com/images/hero-1.jpg">
+    <meta property="og:image" content="https://windrosstailoringanddesign.com/images/wedding.jpg">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://windrosstailoringanddesign.com/">
     <meta property="twitter:title" content="Windross Tailoring | Premium Bespoke Custom Suits">
     <meta property="twitter:description" content="Experience luxury bespoke tailoring. Premium custom-made suits in Jamaica, shipped globally.">
-    <meta property="twitter:image" content="https://windrosstailoringanddesign.com/images/hero-1.jpg">
+    <meta property="twitter:image" content="https://windrosstailoringanddesign.com/images/wedding.jpg">
 
     <!-- JSON-LD LocalBusiness Schema -->
     <script type="application/ld+json">
@@ -139,25 +139,7 @@
         }
 
         /* --- NAVIGATION (Floating Glass) --- */
-        nav {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 1200px;
-            z-index: 2000;
-            background: var(--bg-glass-strong);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            border-radius: 100px;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
+        
 
         .logo {
             font-family: 'Playfair Display', serif;
@@ -174,131 +156,44 @@
             -webkit-user-drag: none;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+        
 
-        .nav-links a {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            font-weight: 500;
-            position: relative;
-            text-decoration: none;
-        }
+        
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 1px;
-            bottom: -5px;
-            left: 0;
-            background: var(--gold-primary);
-            transform: scaleX(0);
-            transform-origin: bottom right;
-            transition: transform 0.4s var(--ease-lux);
-        }
+        
 
         /* Mobile Menu Toggle */
-        .mobile-toggle {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            z-index: 2000;
-        }
+        
 
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 5, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1500;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.5s var(--ease-lux);
-        }
+        
 
-        .mobile-menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
+        
 
-        .mobile-link {
-            font-size: 2rem;
-            font-family: 'Playfair Display', serif;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.5s;
-            text-decoration: none;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        
 
         /* Staggered animation delays for mobile links */
-        .mobile-menu-overlay.active .mobile-link:nth-child(1) {
-            transition-delay: 0.1s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(2) {
-            transition-delay: 0.2s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(3) {
-            transition-delay: 0.3s;
-        }
+        
 
-        .mobile-socials {
-            display: flex;
-            gap: 30px;
-            margin-top: 40px;
-            opacity: 0;
-            transition: 0.5s 0.4s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-socials {
-            opacity: 1;
-        }
+        
 
         /* Fix for mobile navigation display */
         @media (max-width: 768px) {
-            .mobile-toggle {
-                display: block;
-            }
+            
 
-            .nav-links {
-                display: none;
-            }
+            
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--gold-primary);
-        }
+        
 
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
+        
 
         .icon-btn {
             background: transparent;
@@ -811,9 +706,7 @@
                 font-size: 3rem;
             }
 
-            .nav-links {
-                display: none;
-            }
+            
         }
 
         /* WhatsApp Floating Button */
@@ -860,44 +753,48 @@
         }
     </style>
     <script src="js/region-manager.js"></script>
+    <script src="js/pricing.js"></script>
     <script src="js/data/suit-pricing.js"></script>
     <script src="js/currency-manager.js"></script>
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+    <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body class="page-loading">
-
-    <nav>
-        <a href="index.html" class="logo">WINDROSS</a>
-
-        <div class="nav-links">
-            <a href="customize.html">Customize</a>
-            <a href="ready-to-wear.html">Made to Measure</a>
-            <a href="submit-style.html">Submit Design</a>
-            <a href="gallery.html">Gallery</a>
-            <a href="#faq">FAQ</a>
-            <a href="book.html">Book</a>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link">Book</a>
         </div>
-
-        <button class="mobile-toggle" aria-label="Toggle Menu">
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
             <i data-lucide="menu" width="28" height="28"></i>
         </button>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay">
-        <a href="customize.html" class="mobile-link">Customize</a>
-        <a href="ready-to-wear.html" class="mobile-link">Made to Measure</a>
-        <a href="submit-style.html" class="mobile-link">Submit Design</a>
-        <a href="gallery.html" class="mobile-link">Gallery</a>
-        <a href="index.html#faq" class="mobile-link" onclick="toggleMenu()">FAQ</a>
-        <a href="book.html" class="mobile-link">Book</a>
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link">Book</a>
+    </div>
 
-        <div class="mobile-socials">
-            <a href="https://www.instagram.com/windrosstailoring/?hl=en" target="_blank" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-            <a href="https://www.facebook.com/david.windross/" target="_blank" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-            <a href="https://www.threads.com/@windrosstailoring?xmt=AQF07-30tq9WyQ6nE2j_7cWgzcmnp3m4TdxJeA4svP-Uyrk" target="_blank" aria-label="Threads"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 192 192" fill="currentColor"><path d="M141.537 88.988a66.667 66.667 0 0 0-2.518-1.143c-1.482-27.307-16.403-42.94-41.457-43.1h-.34c-14.986 0-27.449 6.396-35.12 18.035l13.78 9.452c5.73-8.695 14.724-10.548 21.348-10.548h.229c8.249.053 14.474 2.452 18.503 7.129 2.932 3.405 4.893 8.111 5.864 14.05-7.314-1.243-15.224-1.626-23.68-1.14-23.82 1.371-39.134 15.264-38.105 34.568.522 9.792 5.4 18.216 13.735 23.719 7.047 4.652 16.124 6.927 25.557 6.412 12.458-.683 22.231-5.436 29.049-14.127 5.178-6.6 8.453-15.153 9.899-25.93 5.937 3.583 10.337 8.298 12.767 13.966 4.132 9.635 4.373 25.468-8.546 38.376-11.319 11.308-24.925 16.2-45.488 16.35-22.809-.169-40.06-7.484-51.275-21.742-10.535-13.389-15.998-32.79-16.23-57.654.232-24.865 5.695-44.266 16.23-57.655 11.215-14.258 28.466-21.573 51.275-21.742 22.976.17 40.443 7.516 51.92 21.843 5.619 7.008 9.864 15.817 12.692 26.192l16.147-4.308c-3.44-12.68-8.853-23.606-16.182-32.611C150.522 20.652 129.037 11.6 96.24 11.42h-.48C62.8 11.6 41.446 20.68 28.36 38.943 16.83 55.088 10.863 78.02 10.65 96.04v.12c.213 18.02 6.18 40.95 17.71 57.093 13.086 18.265 34.44 27.343 67.4 27.523h.48c29.6-.16 50.386-7.943 67.433-25.007 22.236-22.234 21.637-50.985 14.285-68.411-5.03-11.726-14.663-20.591-26.42-26.37zm-49.143 46.374c-10.435.57-21.256-4.096-21.82-14.189-.396-7.44 5.277-15.743 22.725-16.739 1.986-.114 3.942-.169 5.874-.169 6.183 0 11.975.606 17.271 1.789-1.964 24.376-13.826 28.665-24.05 29.308z"/></svg></a>
-            <a href="https://www.tiktok.com/@tailor8765986434?_r=1&_t=ZS-947S8ChaepB" target="_blank" aria-label="TikTok"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg></a>
-        </div>
+
+    
+
+    
     </div>
 
     <section class="hero">
@@ -905,26 +802,31 @@
         <div class="hero-container">
 
             <div class="hero-content">
-                <span class="eyebrow">EST. 1998 • Jamaica</span>
-                <h1>The Art of <br><span class="text-gold">Bespoke Fitting.</span></h1>
-                <p>Experience the pinnacle of tailoring. Design your suit from over 700 premium fabrics.</p>
-                <div class="hero-actions">
-                    <a href="customize.html" class="btn-primary">Start Designing</a>
-                    <a href="book.html" class="btn-secondary">Book Appointment</a>
+                <span class="eyebrow">Windross Tailoring</span>
+                <h1 style="font-size: clamp(2.2rem, 5vw, 4.2rem);">Custom Suits Made for the <br><span class="text-gold">Moments That Matter</span></h1>
+                <p>Designed in Jamaica. Tailored to your body. Crafted for weddings, business, church, formal events, and every occasion where your appearance must speak before you do.</p>
+                <div class="hero-actions" style="flex-wrap: wrap;">
+                    <a href="#consultation" class="btn-primary">Book a Style Consultation</a>
+                    <a href="ready-to-wear.html" class="btn-secondary">Explore Suit Designs</a>
+                    <a href="customize.html" class="btn-secondary">Start Guided Suit Builder</a>
                 </div>
 
                 <div class="hero-metrics">
                     <div class="metric">
-                        <p class="metric-value">700+</p>
-                        <p class="metric-label">Fabrics</p>
+                        <p class="metric-value" style="font-size: 1.5rem;">Est. 1998</p>
+                        <p class="metric-label">Trusted Craftsmanship</p>
                     </div>
                     <div class="metric">
-                        <p class="metric-value">4 Wks</p>
-                        <p class="metric-label">Crafting Time</p>
+                        <p class="metric-value" style="font-size: 1.5rem;">700+</p>
+                        <p class="metric-label">Fabric Options</p>
                     </div>
                     <div class="metric">
-                        <p class="metric-value">100%</p>
-                        <p class="metric-label">Perfect Fit</p>
+                        <p class="metric-value" style="font-size: 1.5rem;">3-4 Wks</p>
+                        <p class="metric-label">Production Time</p>
+                    </div>
+                    <div class="metric">
+                        <p class="metric-value" style="font-size: 1.5rem;">Global</p>
+                        <p class="metric-label">Delivery Accepted</p>
                     </div>
                 </div>
             </div>
@@ -969,6 +871,41 @@
             </div>
         </div>
         </div>
+        </div>
+    </section>
+
+    <!-- SHOP BY OCCASION -->
+    <section class="occasion-section">
+        <div class="container">
+            <header class="section-head">
+                <h2>Shop by Occasion</h2>
+                <p>Every event demands a specific presence. Find the perfect look for your moment.</p>
+            </header>
+
+            <div class="occasion-grid">
+                <a href="ready-to-wear.html" class="occasion-card">
+                    <div class="occasion-bg" style="background-image: url('images/wedding.jpg');"></div>
+                    <div class="occasion-content">
+                        <h3>Weddings</h3>
+                        <span class="occasion-link">Explore Wedding Looks <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i></span>
+                    </div>
+                </a>
+                <a href="ready-to-wear.html" class="occasion-card">
+                    <div class="occasion-bg" style="background-image: url('images/business-exec.jpg');"></div>
+                    <div class="occasion-content">
+                        <h3>Business & Exec</h3>
+                        <span class="occasion-link">Explore Executive Looks <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i></span>
+                    </div>
+                </a>
+                <a href="ready-to-wear.html" class="occasion-card">
+                    <div class="occasion-bg" style="background-image: url('images/gala-photo.jpg');"></div>
+                    <div class="occasion-content">
+                        <h3>Gala & Formal</h3>
+                        <span class="occasion-link">Explore Formal Looks <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i></span>
+                    </div>
+                </a>
+            </div>
+        </div>
     </section>
 
     <!-- READY TO WEAR TEASER (NEW) -->
@@ -990,6 +927,84 @@
     </section>
 
     <style>
+        .occasion-section {
+            padding: 100px 0;
+            background: #050505;
+        }
+
+        .occasion-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .occasion-card {
+            position: relative;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            text-decoration: none;
+            display: flex;
+            align-items: flex-end;
+            padding: 30px;
+            group;
+        }
+
+        .occasion-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center top;
+            filter: grayscale(40%) brightness(0.6);
+            transition: 0.5s ease;
+            z-index: 1;
+        }
+
+        .occasion-card:hover .occasion-bg {
+            filter: grayscale(0%) brightness(0.8);
+            transform: scale(1.05);
+        }
+
+        .occasion-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .occasion-content h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .occasion-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gold-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            transition: 0.3s;
+        }
+
+        .occasion-card:hover .occasion-link {
+            opacity: 1;
+            gap: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .occasion-grid {
+                grid-template-columns: 1fr;
+            }
+            .occasion-card {
+                height: 300px;
+            }
+        }
+
         .rtw-teaser {
             padding: 100px 0;
             background: #080808;
@@ -1290,6 +1305,17 @@
         </div>
     </div>
 
+    <!-- MEET THE TAILOR TRUST CTA -->
+    <div style="background: radial-gradient(circle at center, #151515 0%, #000 100%); text-align: center; padding: 100px 24px; border-bottom: 1px solid var(--border-glass);">
+        <div style="max-width: 600px; margin: 0 auto;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #fff; margin-bottom: 20px;">Meet the Tailor Behind the Craft</h2>
+            <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 40px;">Before the fabric is cut and before the suit is finished, Windross begins with understanding the person wearing it.</p>
+            <a href="meet-the-tailor.html" class="btn-primary" style="display: inline-block; padding: 18px 36px; font-size: 1rem; text-decoration: none;">
+                Meet the Tailor <i data-lucide="arrow-right" style="vertical-align: middle; margin-left:10px;"></i>
+            </a>
+        </div>
+    </div>
+
     <!-- FAQ SECTION (Replaces Journal) -->
     <section id="faq" class="faq-section">
         <div class="container">
@@ -1358,11 +1384,316 @@
         </div>
     </section>
 
+    <!-- Social Proof / Testimonials Section -->
+    <section id="testimonials" style="padding:80px 20px; background:var(--bg-card); text-align:center;">
+        <div class="container">
+            <h2 style="font-family:'Playfair Display', serif; color:var(--gold-primary); margin-bottom:15px; font-size:2.2rem;">What Our Clients Say</h2>
+            <p style="color:var(--text-muted); margin-bottom:40px; font-size:1.1rem; max-width:600px; margin-left:auto; margin-right:auto;">Experience the Windross difference.</p>
+            
+            <div id="recent-testimonials-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:30px;">
+                <!-- Testimonials will be injected here via JS -->
+            </div>
+            
+            <div style="margin-top:40px; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+                <button class="btn-primary" onclick="document.getElementById('review-modal').style.display='flex'">Submit a Review</button>
+                <a href="testimonials.html" class="btn-secondary" style="text-decoration:none; padding:12px 24px;">Read All Reviews</a>
+            </div>
+            
+            <!-- Submit Review Modal -->
+            <div id="review-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+                <div style="background:#0A0A0A; border:1px solid var(--border-gold); border-radius:12px; padding:30px; max-width:500px; width:100%; position:relative;">
+                    <button onclick="document.getElementById('review-modal').style.display='none'" style="position:absolute; top:15px; right:15px; background:transparent; border:none; color:white; cursor:pointer;"><i data-lucide="x"></i></button>
+                    <h3 style="font-family:'Playfair Display', serif; color:var(--gold-primary); margin-bottom:20px; font-size:1.8rem;">Leave a Review</h3>
+                    <form id="review-form">
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; color:var(--text-main); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase;">Your Name *</label>
+                            <input type="text" id="review-name" required style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; color:var(--text-main); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase;">Location / Event (Optional)</label>
+                            <input type="text" id="review-location" placeholder="e.g. Kingston, or Wedding" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; color:var(--text-main); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase;">Rating</label>
+                            <select id="review-rating" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                                <option value="5" style="color:black;">5 Stars - Excellent</option>
+                                <option value="4" style="color:black;">4 Stars - Very Good</option>
+                                <option value="3" style="color:black;">3 Stars - Good</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; color:var(--text-main); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase;">Your Comment *</label>
+                            <textarea id="review-comment" required rows="4" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit; resize:vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%;" id="submit-review-btn">Submit Review</button>
+                    </form>
+                    <div id="review-success" style="display:none; text-align:center; padding:20px 0;">
+                        <i data-lucide="check-circle" color="var(--gold-primary)" width="48" height="48" style="margin-bottom:15px;"></i>
+                        <h4 style="color:var(--gold-primary); font-size:1.2rem; margin-bottom:10px;">Thank you!</h4>
+                        <p style="color:var(--text-muted);">Your review has been submitted successfully.</p>
+                        <button onclick="document.getElementById('review-modal').style.display='none'; document.getElementById('review-success').style.display='none'; document.getElementById('review-form').style.display='block';" class="btn-secondary" style="margin-top:15px;">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    fetchTestimonials();
+
+                    document.getElementById('review-form').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const btn = document.getElementById('submit-review-btn');
+                        btn.disabled = true;
+                        btn.textContent = 'Submitting...';
+
+                        const payload = {
+                            name: document.getElementById('review-name').value.trim(),
+                            location: document.getElementById('review-location').value.trim(),
+                            rating: parseInt(document.getElementById('review-rating').value),
+                            comment: document.getElementById('review-comment').value.trim()
+                        };
+
+                        try {
+                            const res = await fetch('/api/testimonials', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                            if(res.ok) {
+                                document.getElementById('review-form').style.display = 'none';
+                                document.getElementById('review-success').style.display = 'block';
+                                document.getElementById('review-form').reset();
+                                fetchTestimonials(); // Refresh list immediately
+                            } else {
+                                alert('Failed to submit review.');
+                            }
+                        } catch(err) {
+                            alert('An error occurred.');
+                        } finally {
+                            btn.disabled = false;
+                            btn.textContent = 'Submit Review';
+                        }
+                    });
+                });
+
+                async function fetchTestimonials() {
+                    try {
+                        const res = await fetch('/api/testimonials');
+                        const data = await res.json();
+                        if(data.success && data.testimonials) {
+                            const container = document.getElementById('recent-testimonials-container');
+                            container.innerHTML = '';
+                            
+                            // Take up to 3 most recent
+                            const recent = data.testimonials.slice(0, 3);
+                            
+                            if(recent.length === 0) {
+                                container.innerHTML = '<p style="color:var(--text-muted); grid-column: 1 / -1;">No reviews yet. Be the first to leave one!</p>';
+                                return;
+                            }
+
+                            recent.forEach(t => {
+                                const stars = Array(t.rating).fill('<i data-lucide="star" width="20" fill="currentColor"></i>').join('');
+                                const dateStr = new Date(t.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                                
+                                const card = document.createElement('div');
+                                card.style.cssText = 'background:var(--bg-surface); border:1px solid rgba(212,175,55,0.2); padding:30px; border-radius:12px; text-align:left; display:flex; flex-direction:column;';
+                                card.innerHTML = `
+                                    <div style="color:var(--gold-primary); margin-bottom:15px;">${stars}</div>
+                                    <p style="font-style:italic; color:#ccc; line-height:1.6; margin-bottom:20px; flex-grow:1;">"${t.comment.replace(/</g, '&lt;')}"</p>
+                                    <p style="font-weight:bold; color:#fff;">- ${t.name.replace(/</g, '&lt;')}</p>
+                                    <p style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                                        <span>${t.location ? t.location.replace(/</g, '&lt;') : 'Valued Client'}</span>
+                                        <span style="font-size:0.75rem; opacity:0.7;">${dateStr}</span>
+                                    </p>
+                                `;
+                                container.appendChild(card);
+                            });
+                            if(window.lucide) lucide.createIcons();
+                        }
+                    } catch(err) {
+                        console.error('Failed to load testimonials', err);
+                    }
+                }
+            </script>
+        </div>
+    </section>
+
+    <!-- Consultation Section -->
+    <section id="consultation" class="consultation-section" style="padding:80px 20px; background:transparent; text-align:center;">
+        <div style="max-width:600px; margin:0 auto; background:var(--bg-surface, #111); border:1px solid var(--border-gold, #d4af37); border-radius:12px; padding:40px; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+            <h2 style="font-family:'Playfair Display', serif; color:var(--gold-primary, #d4af37); margin-bottom:15px; font-size:2.2rem;">Free Style Consultation</h2>
+            <p style="color:var(--text-muted, #aaa); margin-bottom:30px; font-size:1rem;">Request a session with Windross to discuss your bespoke suit, occasion, and preferences.</p>
+            
+            <form id="consultation-form" style="text-align:left;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Full Name *</label>
+                        <input type="text" id="consult-name" required style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                    </div>
+                    <div>
+                        <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Phone / WhatsApp *</label>
+                        <input type="tel" id="consult-phone" required style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Email Address</label>
+                    <input type="email" id="consult-email" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Location</label>
+                        <input type="text" id="consult-location" placeholder="e.g. Kingston, Jamaica" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                    </div>
+                    <div>
+                        <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Occasion</label>
+                        <input type="text" id="consult-occasion" placeholder="e.g. Wedding, Business" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Event Date (Optional)</label>
+                        <input type="date" id="consult-date" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit;">
+                    </div>
+                    <div>
+                        <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Preferred Contact Method</label>
+                        <select id="consult-method" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit; appearance:none;">
+                            <option value="whatsapp" style="color:#000;">WhatsApp</option>
+                            <option value="phone" style="color:#000;">Phone Call</option>
+                            <option value="email" style="color:#000;">Email</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; color:var(--text-main, #fff); font-size:0.85rem; margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Notes / Vision</label>
+                    <textarea id="consult-notes" rows="3" placeholder="Tell us about the suit you want..." style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; font-family:inherit; resize:vertical;"></textarea>
+                </div>
+
+                <div style="display:flex; gap:15px; margin-top:20px; flex-wrap:wrap;">
+                    <button type="button" onclick="submitConsultation('whatsapp')" class="btn-whatsapp" style="padding:15px; font-size:1.1rem; flex:1; display:flex; justify-content:center; align-items:center; gap:8px;">
+                        <i data-lucide="message-circle"></i> Send via WhatsApp
+                    </button>
+                    <button type="button" id="btn-submit-email" onclick="submitConsultation('email')" class="btn-primary" style="padding:15px; font-size:1.1rem; flex:1; display:flex; justify-content:center; align-items:center; gap:8px;">
+                        <i data-lucide="mail"></i> Send via Email
+                    </button>
+                </div>
+            </form>
+
+            <div id="consultation-result" style="display:none; margin-top:30px; text-align:center;">
+                <div id="consultation-message" style="font-size:1.1rem; margin-bottom:25px; line-height:1.6;"></div>
+                <div class="checkout-action-row" style="flex-direction:column; gap:10px;">
+                    <button class="btn-whatsapp btn-full" onclick="handleGlobalWhatsAppClick('Hello Windross, I just requested a style consultation on your website.')">Message Windross on WhatsApp</button>
+                    <a href="customize.html" class="btn-primary btn-full" style="text-align:center;">Continue Designing</a>
+                    <a href="ready-to-wear.html" class="btn-secondary btn-full" style="text-align:center;">View Made to Measure</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function gatherConsultationData() {
+            return {
+                fullName: document.getElementById('consult-name').value,
+                phone: document.getElementById('consult-phone').value,
+                email: document.getElementById('consult-email').value,
+                location: document.getElementById('consult-location').value,
+                occasion: document.getElementById('consult-occasion').value,
+                eventDate: document.getElementById('consult-date').value,
+                preferredContactMethod: document.getElementById('consult-method').value,
+                message: document.getElementById('consult-notes').value,
+            };
+        }
+
+        async function submitConsultation(method) {
+            const form = document.getElementById('consultation-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (window.wtTrack) window.wtTrack('wt_consultation_form_submitted', { sourcePage: 'index.html', method });
+
+            const data = gatherConsultationData();
+            
+            if (method === 'whatsapp') {
+                let waText = `Hello Windross, I'd like a style consultation!\n\nName: ${data.fullName}\nPhone: ${data.phone}`;
+                if (data.email) waText += `\nEmail: ${data.email}`;
+                if (data.location) waText += `\nLocation: ${data.location}`;
+                if (data.occasion) waText += `\nOccasion: ${data.occasion}`;
+                if (data.eventDate) waText += `\nDate: ${data.eventDate}`;
+                if (data.message) waText += `\nNotes: ${data.message}`;
+                
+                handleGlobalWhatsAppClick(waText);
+            } else {
+                const submitBtn = document.getElementById('btn-submit-email');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i data-lucide="loader" class="spin"></i> Submitting...';
+                submitBtn.disabled = true;
+
+                data.leadType = 'consultation_request';
+                data.sourcePage = 'index.html';
+                data.sourceSection = 'homepage_consultation';
+
+                const resultDiv = document.getElementById('consultation-result');
+                const msgDiv = document.getElementById('consultation-message');
+
+                try {
+                    const response = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const resData = await response.json();
+                    
+                    form.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                    
+                    if (resData.success) {
+                        if (window.wtTrack) window.wtTrack('generate_lead', { leadType: 'consultation_request' });
+                        msgDiv.innerHTML = '<span style="color:#25D366;"><i data-lucide="check-circle" width="32" height="32" style="display:block;margin:0 auto 10px;"></i>Thank you.</span><br>Windross has received your request and will contact you via email shortly.';
+                    } else {
+                        msgDiv.innerHTML = '<span style="color:#ff6b6b;"><i data-lucide="alert-circle" width="32" height="32" style="display:block;margin:0 auto 10px;"></i>We could not submit the form right now.</span><br>You can still message Windross directly on WhatsApp.';
+                    }
+                    if (window.lucide) window.lucide.createIcons();
+                } catch (err) {
+                    form.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                    msgDiv.innerHTML = '<span style="color:#ff6b6b;"><i data-lucide="alert-circle" width="32" height="32" style="display:block;margin:0 auto 10px;"></i>We could not submit the form right now.</span><br>You can still message Windross directly on WhatsApp.';
+                    if (window.lucide) window.lucide.createIcons();
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+        
+        // Track when they start typing
+        const formInputs = document.querySelectorAll('#consultation-form input, #consultation-form textarea');
+        let formStarted = false;
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (!formStarted) {
+                    formStarted = true;
+                    if (window.wtTrack) window.wtTrack('wt_consultation_form_started', { sourcePage: 'index.html' });
+                }
+            }, { once: true });
+        });
+    </script>
+
+
     <footer>
         <div class="footer-content">
             <div class="footer-brand">
                 <div class="logo">WINDROSS</div>
                 <p>Bespoke Tailoring & Design</p>
+                <div style="margin-top: 20px;">
+                    <a href="meet-the-tailor.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Meet the Tailor</a>
+                </div>
             </div>
 
             <div class="footer-contact">
@@ -1583,8 +1914,8 @@
         }
     </style>
 
-    <a href="https://wa.me/18765986434?text=Hello%20Windross%20Tailoring,%20I%20would%20like%20to%20inquire%20about%20a%20bespoke%20suit."
-        class="whatsapp-float" target="_blank" aria-label="Chat on WhatsApp">
+    <a href="javascript:void(0)" onclick="handleGlobalWhatsAppClick('Hello Windross Tailoring, I would like to inquire about a bespoke suit.')"
+        class="whatsapp-float" aria-label="Chat on WhatsApp">
         <i data-lucide="message-circle" width="32" height="32"></i>
     </a>
 
@@ -1599,27 +1930,7 @@
             });
         });
 
-        // Mobile Menu Logic
-        const mobileToggle = document.querySelector('.mobile-toggle');
-        const mobileOverlay = document.querySelector('.mobile-menu-overlay');
-        let isMenuOpen = false;
 
-        function toggleMenu() {
-            isMenuOpen = !isMenuOpen;
-            mobileOverlay.classList.toggle('active');
-
-            // Switch Icon
-            const icon = mobileToggle.querySelector('i');
-            if (isMenuOpen) {
-                // We'll manually swap the SVG for X
-                mobileToggle.innerHTML = '<i data-lucide="x" width="28" height="28"></i>';
-            } else {
-                mobileToggle.innerHTML = '<i data-lucide="menu" width="28" height="28"></i>';
-            }
-            lucide.createIcons();
-        }
-
-        mobileToggle.addEventListener('click', toggleMenu);
 
         // WhatsApp Visibility (Intersection Observer)
         const whatsappBtn = document.querySelector('.whatsapp-float');
@@ -1651,19 +1962,11 @@
     </script>
     <script src="js/back-to-top.js"></script>
     <script src="js/welcome-popup.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const isJM = window.Region && window.Region.isJamaica();
-        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-            if (!isJM) {
-                link.style.display = "none";
-            }
-        });
-    });
-</script>
+
 <script>
     console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: window.Region.getRegion() });
 </script>
+    <script src="js/site-nav.js?v=4.4"></script>
 </body>
 
 </html>

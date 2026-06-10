@@ -385,10 +385,70 @@ async function sendCustomInvoiceEmail({ toEmail, invoice, pdfPath, publicUrl }) 
     });
 }
 
+async function sendLeadNotificationEmail(lead) {
+    const resend = getResendClient();
+
+    if (!resend) {
+        console.warn("No RESEND_API_KEY configured. Lead notification from:", lead.email || lead.full_name);
+        return;
+    }
+
+    try {
+        const adminEmail = process.env.ADMIN_EMAIL || '876david@gmail.com';
+        const displayType = lead.lead_type ? lead.lead_type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'New Lead';
+        
+        await resend.emails.send({
+            from: 'Windross Tailoring <inquiries@windrosstailoringanddesign.com>',
+            to: [adminEmail],
+            subject: `New Lead: ${displayType} from ${lead.full_name}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #DAA520; letter-spacing: 2px;">WINDROSS TAILORING & DESIGN</h2>
+                        <h3 style="margin-top:0;">${displayType}</h3>
+                    </div>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #DAA520; margin: 25px 0;">
+                        <p style="margin: 5px 0;"><strong>Name:</strong> ${lead.full_name}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> ${lead.email ? `<a href="mailto:${lead.email}">${lead.email}</a>` : 'Not provided'}</p>
+                        <p style="margin: 5px 0;"><strong>Phone:</strong> ${lead.phone || 'Not provided'}</p>
+                        <p style="margin: 5px 0;"><strong>Location:</strong> ${lead.location || 'Not provided'}</p>
+                        <p style="margin: 5px 0;"><strong>Preferred Contact:</strong> ${lead.preferred_contact_method || 'whatsapp'}</p>
+                    </div>
+
+                    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px;">Lead Details</h4>
+                    ${lead.occasion ? `<p><strong>Occasion:</strong> ${lead.occasion}</p>` : ''}
+                    ${lead.event_date ? `<p><strong>Event Date:</strong> ${lead.event_date}</p>` : ''}
+                    ${lead.budget_range ? `<p><strong>Budget Range:</strong> ${lead.budget_range}</p>` : ''}
+                    ${lead.interested_service ? `<p><strong>Service:</strong> ${lead.interested_service}</p>` : ''}
+                    ${lead.source_page ? `<p><strong>Source Page:</strong> ${lead.source_page}</p>` : ''}
+                    ${lead.source_section ? `<p><strong>Source Section:</strong> ${lead.source_section}</p>` : ''}
+                    
+                    ${lead.message ? `
+                    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top:20px;">Message</h4>
+                    <p style="white-space: pre-wrap;">${lead.message}</p>
+                    ` : ''}
+
+                    ${lead.whatsapp_message ? `
+                    <div style="background: rgba(37, 211, 102, 0.08); padding: 10px; border-left: 4px solid #25D366; margin-top:20px;">
+                        <p style="margin: 0; font-size: 13px; color: #555;"><strong>Generated WhatsApp Message:</strong></p>
+                        <p style="margin: 5px 0 0; font-style: italic;">"${lead.whatsapp_message}"</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `
+        });
+        console.log(`Lead notification sent via Resend for ${lead.full_name}`);
+    } catch (error) {
+        console.error("Error sending lead notification via Resend:", error);
+    }
+}
+
 module.exports = {
     sendOrderConfirmation,
     sendBookingConfirmation,
     sendDesignInquiryEmail,
     sendBookingCancellationEmail,
-    sendCustomInvoiceEmail
+    sendCustomInvoiceEmail,
+    sendLeadNotificationEmail
 };

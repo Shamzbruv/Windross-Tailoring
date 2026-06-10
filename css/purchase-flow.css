@@ -270,41 +270,7 @@ select:focus {
     border-radius: 2px;
 }
 
-/* --- BUTTONS --- */
-.btn-primary {
-    width: 100%;
-    background: var(--gold-gradient);
-    color: #050505;
-    padding: 15px;
-    border: none;
-    border-radius: 2px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 20px;
-}
 
-.btn-primary:hover {
-    box-shadow: var(--gold-glow);
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.9rem;
-    padding: 10px;
-}
-
-.btn-secondary:hover {
-    color: white;
-}
 
 /* --- ANIMATIONS --- */
 @keyframes fadeUp {

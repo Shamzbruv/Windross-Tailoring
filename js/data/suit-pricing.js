@@ -1,29 +1,11 @@
 /**
- * Made-to-Measure Suit Pricing & Sizing Rules (JMD Base)
+ * Legacy compatibility layer for older pages.
+ * New code should prefer window.Pricing directly.
  */
 
-window.SUIT_PRICING_JMD = {
-    'The Kensington': { min: 38000, max: 44000, allowedSizes: ['S', 'M', 'L'] },
-    'The Oxford': { min: 62000, max: 74000, allowedSizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-    'The Windsor': { min: 54000, max: 64000, allowedSizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-    'The Mayfair': { min: 42000, max: 52000, allowedSizes: ['S', 'M', 'L', 'XL'] },
-    'The Bond': { min: 58000, max: 68000, allowedSizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-    'The Chelsea': { min: 44000, max: 54000, allowedSizes: ['S', 'M', 'L'] },
-    'The Ascott': { min: 56000, max: 68000, allowedSizes: ['S', 'M', 'L'] },
-    'The Victoria': { min: 38000, max: 42000, allowedSizes: ['S', 'M', 'L', 'XL'] },
-    'The Belgravia': { min: 48000, max: 58000, allowedSizes: ['S', 'M', 'L'] },
-    'The Cambridge': { min: 58000, max: 68000, allowedSizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-    'The Sovereign': { min: 29000, max: 38000, allowedSizes: ['S', 'M', 'L', 'XL'] },
-    'The Regent': { min: 38000, max: 52000, allowedSizes: ['S', 'M', 'L', 'XL'] },
-    'The Grosvenor': { min: 46000, max: 56000, allowedSizes: ['S', 'M', 'L', 'XL'] },
-    'The Savile': { min: 58000, max: 68000, allowedSizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-    'The Westminster': { min: 29000, max: 38000, allowedSizes: ['S', 'M', 'L'] },
-    'The Knightsbridge': { min: 48000, max: 58000, allowedSizes: ['S', 'M', 'L', 'XL'] },
-    'The Piccadilly': { min: 42000, max: 52000, allowedSizes: ['S', 'M', 'L'] },
-    'The St. James': { min: 52000, max: 64000, allowedSizes: ['S', 'M', 'L'] }
-};
+window.SUIT_PRICING_JMD = {};
+window.BACKEND_PRICING_CONFIG = window.BACKEND_PRICING_CONFIG || null;
 
-// Map alternate size notations to standard for interpolation lookup
 const SIZE_MAPPING = {
     'XS': 'XS',
     'S': 'S',
@@ -38,28 +20,56 @@ const SIZE_MAPPING = {
     '4X': 'XXXXL'
 };
 
-/**
- * Calculates the interpolated base price for a given suit and size.
- */
+const DEFAULT_ALLOWED_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+
+window.dispatchEvent(new Event('pricing-loaded'));
+
+function getSuitRecord(suitName) {
+    if (!suitName) return null;
+
+    if (window.BACKEND_PRICING_CONFIG && window.BACKEND_PRICING_CONFIG.catalog) {
+        const cat = window.BACKEND_PRICING_CONFIG.catalog;
+        
+        let sku = suitName;
+        if (window.Pricing) {
+            sku = window.Pricing.normalizeSku(suitName);
+        } else {
+            sku = suitName.toLowerCase().replace(/\s+/g, '-').replace(/\./g, '');
+        }
+
+        if (cat[sku] && cat[sku].priceJMD) {
+            return {
+                priceJMD: cat[sku].priceJMD,
+                priceUSD: cat[sku].priceUSD,
+                allowedSizes: cat[sku].allowedSizes
+            };
+        }
+    }
+
+    if (window.SUIT_PRICING_JMD[suitName]) return window.SUIT_PRICING_JMD[suitName];
+
+    if (window.Pricing) {
+        const sku = window.Pricing.normalizeSku(suitName);
+        if (window.SUIT_PRICING_JMD[sku]) return window.SUIT_PRICING_JMD[sku];
+    }
+
+    return null;
+}
+
 window.calculateSuitPriceBase = function (suitName, size) {
-    const suit = window.SUIT_PRICING_JMD[suitName];
-    if (!suit) return null; // Not found
+    const suit = getSuitRecord(suitName);
+    if (!suit) return null;
 
-    const standardSize = SIZE_MAPPING[size];
-    if (!standardSize) return null; // Invalid size
+    if (suit.priceJMD) return suit.priceJMD;
 
-    const allowed = suit.allowedSizes;
+    // Fallback logic for legacy hardcoded window.SUIT_PRICING_JMD
+    const standardSize = SIZE_MAPPING[size] || 'M';
+    const allowed = suit.allowedSizes || DEFAULT_ALLOWED_SIZES;
     const sizeIndex = allowed.indexOf(standardSize);
 
-    if (sizeIndex === -1) {
-        return null; // Size not available for this suit
-    }
+    if (sizeIndex === -1) return null;
+    if (allowed.length === 1) return suit.min;
 
-    if (allowed.length === 1) {
-        return suit.min;
-    }
-
-    // Interpolate: even steps from min to max
     const steps = allowed.length - 1;
     const range = suit.max - suit.min;
     const stepSize = range / steps;
@@ -67,43 +77,40 @@ window.calculateSuitPriceBase = function (suitName, size) {
     return Math.round(suit.min + (stepSize * sizeIndex));
 };
 
-/**
- * Applies the 85% regional markup if the user is INTL.
- */
 window.calculateDisplayPrice = function (basePriceJMD) {
     if (typeof basePriceJMD !== 'number') return basePriceJMD;
 
-    // Check global region manager
-    const isIntl = window.RegionManager ? window.RegionManager.state.region === 'INTL' : false;
+    const config = window.BACKEND_PRICING_CONFIG || {};
+    const multiplier = Number(config.internationalMarkupMultiplier || 1);
+    const isIntl = window.Pricing
+        ? window.Pricing.getRegionCode() === window.Pricing.INTL
+        : !(window.Region && window.Region.isJamaica && window.Region.isJamaica());
 
-    if (isIntl) {
-        return Math.round(basePriceJMD * 1.85);
-    }
-    return basePriceJMD;
+    return isIntl ? Math.round(basePriceJMD * multiplier) : basePriceJMD;
 };
 
-/**
- * Formats JMD properly or USD if region is INTL
- */
-window.formatJMDWithRegion = function (priceJMD) {
+window.formatJMDWithRegion = function (priceJMD, showCents = false) {
+    if (window.Pricing && typeof window.Pricing.formatJMD === 'function') {
+        try {
+            return window.Pricing.formatJMD(priceJMD, showCents);
+        } catch (err) {
+            console.warn('[Pricing] Falling back to plain JMD formatting:', err.message || err);
+        }
+    }
+
     if (window.CurrencyManager) {
-        const rateJMD = window.CurrencyManager.state.rates['JMD'] || 230;
-        const priceGBP = priceJMD / rateJMD;
-        return window.CurrencyManager.format(priceGBP, true);
+        return window.CurrencyManager.format(priceJMD, showCents);
     }
 
-    const formatted = priceJMD.toLocaleString('en-JM', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-    return `J$${formatted}`;
+    return `J$${Number(priceJMD || 0).toLocaleString('en-JM')}`;
 };
 
-/**
- * Gets the starting price for display on cards.
- * Returns the marked-up price if INTL.
- */
 window.getSuitStartingPrice = function (suitName) {
-    const suit = window.SUIT_PRICING_JMD[suitName];
-    if (!suit) return null;
+    const suit = getSuitRecord(suitName);
+    return suit ? suit.min : null;
+};
 
-    const baseMin = suit.min;
-    return window.calculateDisplayPrice(baseMin);
+window.getSuitStartingQuote = async function (suitName, size = 'M') {
+    if (!window.Pricing) return null;
+    return window.Pricing.getCatalogPrice(suitName, size);
 };

@@ -1,0 +1,400 @@
+/* --- DESIGN WITH A TAILOR - LANDING & GUIDE ME --- */
+/* Landing State */
+.dwt-landing {
+    padding: 160px 20px 80px;
+    min-height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    animation: fadeIn 0.8s ease;
+}
+
+
+
+.dwt-hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    color: white;
+    margin-bottom: 20px;
+}
+
+.dwt-hero-sub {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto 50px;
+    line-height: 1.6;
+}
+
+/* 3 Paths Grid */
+.dwt-paths-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.dwt-path-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--bg-border);
+    border-radius: 8px;
+    padding: 40px 30px;
+    transition: 0.4s var(--ease-lux);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.dwt-path-card:hover {
+    border-color: var(--gold-primary);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.1);
+}
+
+.dwt-path-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: 0.4s;
+}
+
+.dwt-path-card:hover .dwt-path-icon {
+    background: var(--gold-primary);
+    color: black;
+}
+
+.dwt-path-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.dwt-path-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+    flex-grow: 1;
+}
+
+.dwt-path-btn {
+    background: transparent;
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    width: 100%;
+    transition: 0.3s;
+}
+
+.dwt-path-card:hover .dwt-path-btn {
+    background: var(--gold-gradient);
+    color: black;
+    border-color: transparent;
+}
+
+/* Reassurance Block */
+.dwt-reassurance {
+    background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(10,10,10,0.9));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.dwt-reassurance h4 {
+    color: var(--gold-primary);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.dwt-reassurance p {
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* --- GUIDE ME WIZARD --- */
+.guide-me-container {
+    max-width: 800px;
+    margin: 120px auto 100px;
+    padding: 0 20px;
+}
+
+.gm-step {
+    animation: slideUp 0.5s ease;
+}
+
+.gm-question {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.gm-question h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.gm-question p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.gm-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.gm-option-btn {
+    background: var(--bg-panel);
+    border: 1px solid var(--bg-border);
+    padding: 20px 25px;
+    border-radius: 6px;
+    color: white;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.gm-option-btn:hover {
+    border-color: var(--gold-primary);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.gm-option-btn i {
+    color: var(--gold-primary);
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.gm-option-btn:hover i {
+    opacity: 1;
+    transform: translateX(5px);
+}
+
+/* Date Input Step */
+.gm-date-input {
+    width: 100%;
+    padding: 20px;
+    background: var(--bg-panel);
+    border: 1px solid var(--gold-primary);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.dwt-timeline-note {
+    margin: 28px auto 0;
+    max-width: 760px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: 18px;
+    padding: 22px 24px;
+    box-shadow: 0 18px 48px rgba(0,0,0,0.28);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.dwt-timeline-note-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    color: #d4af37;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.dwt-timeline-note h4 {
+    margin: 0 0 6px;
+    color: #d4af37;
+    font-size: 0.9rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.dwt-timeline-note p {
+    margin: 0;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.dwt-timeline-note strong {
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .dwt-timeline-note {
+        flex-direction: column;
+        padding: 18px;
+        text-align: left;
+    }
+}
+
+/* Recommendation Screen */
+.gm-recommendation {
+    background: var(--bg-panel);
+    border: 1px solid var(--gold-primary);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+}
+
+.gm-recommendation h2 {
+    color: var(--gold-primary);
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.gm-rec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.gm-rec-item {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--bg-border);
+}
+
+.gm-rec-item span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.gm-rec-item strong {
+    color: white;
+    font-size: 1.1rem;
+}
+
+.gm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.gm-actions button {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.gm-btn-primary {
+    background: var(--gold-gradient);
+    color: black;
+    border: none;
+}
+
+.gm-btn-primary:hover {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+}
+
+.gm-btn-secondary {
+    background: transparent;
+    color: white;
+    border: 1px solid var(--bg-border);
+}
+
+.gm-btn-secondary:hover {
+    border-color: white;
+}
+
+.gm-btn-whatsapp {
+    background: transparent;
+    color: #25D366;
+    border: 1px solid #25D366;
+}
+
+.gm-btn-whatsapp:hover {
+    background: rgba(37, 211, 102, 0.1);
+}
+
+/* What Happens Next Block */
+.nco-what-happens {
+    background: rgba(212, 175, 55, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.nco-what-happens h3 {
+    color: var(--gold-primary);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.nco-what-happens ol {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.nco-what-happens li {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+    .gm-rec-grid {
+        grid-template-columns: 1fr;
+    }
+    .dwt-paths-grid {
+        grid-template-columns: 1fr;
+    }
+}

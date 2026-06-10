@@ -177,40 +177,7 @@ h2 {
     background: rgba(255, 255, 255, .08);
 }
 
-/* Buttons */
-.btn-primary,
-.btn-secondary,
-.btn-ghost {
-    padding: 14px 32px;
-    border-radius: 100px;
-    font-weight: 500;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    display: inline-block;
-    border: none;
-}
 
-.btn-primary {
-    background: #fff;
-    color: #000;
-}
-
-.btn-primary:hover {
-    transform: scale(1.02);
-}
-
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
 
 /* === MEASUREMENT CHOICE & FORMS === */
 .measure-choice {

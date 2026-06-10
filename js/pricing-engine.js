@@ -9,7 +9,7 @@ const PricingEngine = {
 
     async init() {
         try {
-            const res = await fetch('/api/config/pricing');
+            const res = await fetch('/api/pricing');
             if (res.ok) {
                 this.config = await res.json();
                 this.isLoaded = true;
@@ -25,65 +25,21 @@ const PricingEngine = {
         }
     },
 
-    _loadFallback() {
-        console.warn("[PricingEngine] Using fallback hardcoded configuration.");
-        this.config = {
-            "version": "1.0.0",
-            "baseCurrency": "JMD",
-            "internationalMarkupMultiplier": 1.85,
-            "exchangeRate_USD_to_JMD": 155,
-            "styles": {
-                "suit_2_piece": { "basePriceJMD": 65000 },
-                "suit_3_piece": { "basePriceJMD": 85000 },
-                "tuxedo": { "basePriceJMD": 75000 },
-                "jacket_only": { "basePriceJMD": 39000 },
-                "pants_only": { "basePriceJMD": 26000 }
-            },
-            "fabricGrades": {
-                "cool-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
-                "king-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
-                "2020-material": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 },
-                "termal-wool": { "multiplier": 1.00, "costPerMeterJMD": 6000, "priceJMD": 0 }
-            },
-            "construction": {
-                "half_canvas": { "priceJMD": 0 },
-                "full_canvas": { "priceJMD": 0 }
-            },
-            "options": {
-                "j-single-2": { "priceJMD": 0 },
-                "j-single-1": { "priceJMD": 0 },
-                "j-3-roll-2": { "priceJMD": 0 },
-                "j-double-6": { "priceJMD": 0 },
-                "j-mandarin": { "priceJMD": 0 },
-                "l-notch": { "priceJMD": 0 },
-                "l-wide-notch": { "priceJMD": 0 },
-                "l-slim-notch": { "priceJMD": 0 },
-                "l-peak": { "priceJMD": 0 },
-                "l-shawl": { "priceJMD": 0 },
-                "l-ulster": { "priceJMD": 0 },
-                "l-gorge": { "priceJMD": 0 },
-                "p-no-pleat": { "priceJMD": 0 },
-                "p-pleat": { "priceJMD": 0 },
-                "p-cuff": { "priceJMD": 0 },
-                "v-none": { "priceJMD": 0 },
-                "v-add": { "priceJMD": 0 }
-            },
-            "sizing": {
-                "wasteFactor": 0.15,
-                "baselineMeters": 4.15,
-                "tiers": {
-                    "XS": { "metersNeeded": 3.5, "laborScalerJMD": 0 },
-                    "S": { "metersNeeded": 3.7, "laborScalerJMD": 0 },
-                    "M": { "metersNeeded": 4.15, "laborScalerJMD": 0 },
-                    "L": { "metersNeeded": 4.6, "laborScalerJMD": 1500 },
-                    "XL": { "metersNeeded": 5.0, "laborScalerJMD": 2500 },
-                    "2X": { "metersNeeded": 5.5, "laborScalerJMD": 4500 },
-                    "3X": { "metersNeeded": 6.0, "laborScalerJMD": 6500 },
-                    "4X": { "metersNeeded": 6.5, "laborScalerJMD": 8000 }
-                }
+    async _loadFallback() {
+        console.warn("[PricingEngine] Pricing API unavailable. Attempting to load static config...");
+        try {
+            const fallbackRes = await fetch('server/data/pricing_config.json');
+            if (fallbackRes.ok) {
+                this.config = await fallbackRes.json();
+                this.isLoaded = true;
+                window.BACKEND_PRICING_CONFIG = this.config;
+                console.log("[PricingEngine] Static config loaded successfully.");
             }
-        };
-        this.isLoaded = true;
+        } catch (err) {
+            console.error("[PricingEngine] Both API and static config failed to load.", err);
+            this.config = window.BACKEND_PRICING_CONFIG || null;
+            this.isLoaded = !!this.config;
+        }
         window.dispatchEvent(new CustomEvent('pricing-engine-ready'));
     },
 
@@ -95,6 +51,8 @@ const PricingEngine = {
         if (!this.isLoaded || !this.config) return null;
 
         const { styleId, fabricId, constructionType, options, measurements } = selection;
+        const tierId = selection.tierId || 'mtm';
+        
         let basePriceJMD = 0;
         let fabricMultiplier = 1.0;
         let fabricCostPerMeterJMD = 6000;
@@ -107,55 +65,66 @@ const PricingEngine = {
             basePriceJMD = this.config.styles[styleId].basePriceJMD;
         }
 
-        // 2. Fabric
-        // Assume fabricId corresponds directly to a grade (e.g. 'A', 'B', 'C') for now
-        // Real implementation would lookup fabricId -> grade mapping. Let's assume selection passes fabricGrade.
-        const fabricGrade = selection.fabricGrade || 'cool-wool';
-        let fabricFlatAddJMD = 0;
-        if (this.config.fabricGrades[fabricGrade]) {
-            fabricMultiplier = this.config.fabricGrades[fabricGrade].multiplier || 1.0;
-            fabricCostPerMeterJMD = this.config.fabricGrades[fabricGrade].costPerMeterJMD || 6000;
-            if (this.config.fabricGrades[fabricGrade].priceJMD !== undefined) {
-                fabricFlatAddJMD = this.config.fabricGrades[fabricGrade].priceJMD;
+        // 2. Fabric & Size Surcharge (Yardage-based calculation)
+        const fabricGrade = selection.fabricGrade;
+        let fabricPricePerYardJMD = 0;
+        
+        if (fabricGrade && this.config.fabricGrades[fabricGrade]) {
+            fabricPricePerYardJMD = this.config.fabricGrades[fabricGrade].pricePerYardJMD || 1800;
+        }
+
+        // Determine provisional yardage based on package type
+        const provisionalYards = {
+            suit_2_piece: 4.0,
+            suit_3_piece: 5.0,
+            tuxedo: 4.0,
+            jacket_only: 2.5,
+            pants_only: 2.0
+        };
+        
+        let packageStyle = 'suit_2_piece';
+        if (this.config.sizing && this.config.sizing.yardageMatrix && this.config.sizing.yardageMatrix[styleId]) {
+            packageStyle = styleId;
+        }
+
+        let yardsNeeded = provisionalYards[packageStyle] || 4.0;
+        let suggestedSize = 'M';
+        
+        // Only use the yardage matrix if the user has actually entered measurements
+        const hasMeasurements = measurements && (measurements.chest || measurements.bust || measurements.pant_waist || measurements.torso_waist);
+        if (hasMeasurements) {
+            suggestedSize = this._computeSuggestedSize(measurements);
+            if (this.config.sizing && this.config.sizing.yardageMatrix && this.config.sizing.yardageMatrix[packageStyle]) {
+                if (this.config.sizing.yardageMatrix[packageStyle][suggestedSize]) {
+                    yardsNeeded = this.config.sizing.yardageMatrix[packageStyle][suggestedSize];
+                }
             }
         }
 
-        const fabricPriceJMD = (basePriceJMD * (fabricMultiplier - 1)) + fabricFlatAddJMD; // Extra cost of fabric
+        const fabricPriceJMD = yardsNeeded * fabricPricePerYardJMD;
+        sizeSurchargeJMD = 0; // Integrated into the yardage cost natively now
 
         // 3. Construction
         if (constructionType && this.config.construction[constructionType]) {
-            constructionPriceJMD = this.config.construction[constructionType].priceJMD;
+            constructionPriceJMD = this.config.construction[constructionType].priceJMD || 0;
         }
 
         // 4. Options
         if (options && Array.isArray(options)) {
             options.forEach(optId => {
                 if (this.config.options[optId]) {
-                    optionsPriceJMD += this.config.options[optId].priceJMD;
+                    optionsPriceJMD += this.config.options[optId].priceJMD || 0;
                 }
             });
         }
 
-        // 5. Size Surcharge
-        let suggestedSize = 'M';
-        if (measurements && measurements.chest) {
-            suggestedSize = this._computeSuggestedSize(measurements);
+        // 6. Tier Adjustment
+        let tierAdjustmentJMD = 0;
+        if (this.config.tiers && this.config.tiers[tierId]) {
+            tierAdjustmentJMD = this.config.tiers[tierId].baseAdjustmentJMD || 0;
         }
 
-        const sizeTier = this.config.sizing.tiers[suggestedSize];
-        if (sizeTier) {
-            const extraMeters = Math.max(0, sizeTier.metersNeeded - this.config.sizing.baselineMeters);
-            const extraFabricCost = extraMeters * fabricCostPerMeterJMD;
-            const wasteAdd = extraFabricCost * this.config.sizing.wasteFactor;
-            sizeSurchargeJMD = Math.round(extraFabricCost + wasteAdd + sizeTier.laborScalerJMD);
-        }
-
-        let subtotalJMD = basePriceJMD + fabricPriceJMD + constructionPriceJMD + optionsPriceJMD + sizeSurchargeJMD;
-
-        // Hard cap ALL custom suits to 65,000 JMD as per client request
-        if (subtotalJMD > 65000) {
-            subtotalJMD = 65000;
-        }
+        let subtotalJMD = basePriceJMD + fabricPriceJMD + constructionPriceJMD + optionsPriceJMD + sizeSurchargeJMD + tierAdjustmentJMD;
 
         let quantity = selection.quantity || 1;
         subtotalJMD = subtotalJMD * quantity;
@@ -165,9 +134,14 @@ const PricingEngine = {
         let regionAdjustedSubtotalJMD = subtotalJMD;
 
         try {
-            if (!window.Region.isJamaica()) {
-                regionAdjustedSubtotalJMD = Math.round(subtotalJMD * this.config.internationalMarkupMultiplier);
-                appliedMarkupPercent = (this.config.internationalMarkupMultiplier - 1) * 100;
+            const regionCode = window.Pricing ? window.Pricing.getRegionCode() : (window.Region && window.Region.isJamaica() ? 'JM' : 'INTL');
+            if (regionCode === 'INTL') {
+                let multiplier = this.config.internationalMarkupMultiplier;
+                if (this.config.styles[packageStyle] && this.config.styles[packageStyle].intlMultiplier) {
+                    multiplier = this.config.styles[packageStyle].intlMultiplier;
+                }
+                regionAdjustedSubtotalJMD = Math.round(subtotalJMD * multiplier);
+                appliedMarkupPercent = (multiplier - 1) * 100;
             }
         } catch (e) { }
 
@@ -177,11 +151,14 @@ const PricingEngine = {
             constructionPriceJMD,
             optionsPriceJMD,
             sizeSurchargeJMD,
+            tierAdjustmentJMD,
             subtotalJMD,
             regionAdjustedSubtotalJMD,
             suggestedSize,
             appliedMarkupPercent,
-            finalDisplay: window.CurrencyManager ? window.CurrencyManager.format(regionAdjustedSubtotalJMD) : `J$ ${regionAdjustedSubtotalJMD}`
+            fabricPricePerYardJMD,
+            yardsNeeded,
+            finalDisplay: window.Pricing && typeof window.Pricing.formatJMD === 'function' ? window.Pricing.formatJMD(subtotalJMD) : (window.CurrencyManager ? window.CurrencyManager.format(regionAdjustedSubtotalJMD) : `J$ ${regionAdjustedSubtotalJMD}`)
         };
     },
 

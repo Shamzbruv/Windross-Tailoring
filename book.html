@@ -98,30 +98,11 @@
         }
 
         /* --- NAVIGATION (Shared) --- */
-        nav {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 1200px;
-            z-index: 1000;
-            background: rgba(15, 15, 15, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            border-radius: 100px;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        
 
         /* Fix for mobile nav overlap */
         @media (max-width: 768px) {
-            nav {
-                padding: 12px 20px;
-            }
+            
         }
 
         .logo {
@@ -133,29 +114,13 @@
             text-decoration: none;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+        
 
-        .mobile-toggle {
-            display: none;
-        }
+        
 
-        .nav-links a {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            font-weight: 500;
-            text-decoration: none;
-            transition: 0.3s;
-        }
+        
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--gold-primary);
-        }
+        
 
         .icon-btn {
             background: transparent;
@@ -196,87 +161,30 @@
         }
 
         /* --- MOBILE MENU (Shared) --- */
-        .mobile-toggle {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            z-index: 2000;
-        }
+        
 
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 5, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1500;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.5s var(--ease-lux);
-        }
+        
 
-        .mobile-menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
+        
 
-        .mobile-link {
-            font-size: 2rem;
-            font-family: 'Playfair Display', serif;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.5s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(1) {
-            transition-delay: 0.1s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(2) {
-            transition-delay: 0.2s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(3) {
-            transition-delay: 0.3s;
-        }
+        
 
-        .mobile-socials {
-            display: flex;
-            gap: 30px;
-            margin-top: 40px;
-            opacity: 0;
-            transition: 0.5s 0.4s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-socials {
-            opacity: 1;
-        }
+        
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
+            
 
-            .mobile-toggle {
-                display: block;
-            }
+            
         }
 
         .measure-head h1 {
@@ -515,87 +423,30 @@
         }
 
         /* --- MOBILE MENU (Shared) --- */
-        .mobile-toggle {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            z-index: 2000;
-        }
+        
 
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 5, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1500;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.5s var(--ease-lux);
-        }
+        
 
-        .mobile-menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
+        
 
-        .mobile-link {
-            font-size: 2rem;
-            font-family: 'Playfair Display', serif;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.5s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(1) {
-            transition-delay: 0.1s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(2) {
-            transition-delay: 0.2s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-link:nth-child(3) {
-            transition-delay: 0.3s;
-        }
+        
 
-        .mobile-socials {
-            display: flex;
-            gap: 30px;
-            margin-top: 40px;
-            opacity: 0;
-            transition: 0.5s 0.4s;
-        }
+        
 
-        .mobile-menu-overlay.active .mobile-socials {
-            opacity: 1;
-        }
+        
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
+            
 
-            .mobile-toggle {
-                display: block;
-            }
+            
         }
 
         /* --- CALENDAR & BOOKING UI --- */
@@ -715,44 +566,45 @@
         }
     </style>
     <script src="js/region-manager.js"></script>
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+        <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body>
-
-    <nav class="glass-nav" role="navigation" aria-label="Primary">
-        <div class="logo" role="banner" aria-label="Windross">
-            <a href="index.html" style="color:white; text-decoration:none;">WINDROSS</a>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link active">Book</a>
         </div>
-
-        <div class="nav-links" role="menubar" aria-label="Site sections">
-            <a href="customize.html">Customize</a>
-            <a href="ready-to-wear.html">Made to Measure</a>
-            <a href="submit-style.html">Submit Design</a>
-            <a href="gallery.html">Gallery</a>
-            <a href="index.html#faq">FAQ</a>
-            <a href="book.html" class="active">Book</a>
-        </div>
-
-        <button class="mobile-toggle" aria-label="Toggle Menu">
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
             <i data-lucide="menu" width="28" height="28"></i>
         </button>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay">
-        <a href="customize.html" class="mobile-link">Customize</a>
-        <a href="ready-to-wear.html" class="mobile-link">Made to Measure</a>
-        <a href="submit-style.html" class="mobile-link">Submit Design</a>
-        <a href="gallery.html" class="mobile-link">Gallery</a>
-        <a href="index.html#faq" class="mobile-link" onclick="toggleMenu()">FAQ</a>
-        <a href="book.html" class="mobile-link">Book</a>
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link active">Book</a>
+    </div>
 
-        <div class="mobile-socials">
-            <a href="https://www.instagram.com/windrosstailoring/?hl=en" target="_blank" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-            <a href="https://www.facebook.com/david.windross/" target="_blank" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-            <a href="https://www.threads.com/@windrosstailoring?xmt=AQF07-30tq9WyQ6nE2j_7cWgzcmnp3m4TdxJeA4svP-Uyrk" target="_blank" aria-label="Threads"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 192 192" fill="currentColor"><path d="M141.537 88.988a66.667 66.667 0 0 0-2.518-1.143c-1.482-27.307-16.403-42.94-41.457-43.1h-.34c-14.986 0-27.449 6.396-35.12 18.035l13.78 9.452c5.73-8.695 14.724-10.548 21.348-10.548h.229c8.249.053 14.474 2.452 18.503 7.129 2.932 3.405 4.893 8.111 5.864 14.05-7.314-1.243-15.224-1.626-23.68-1.14-23.82 1.371-39.134 15.264-38.105 34.568.522 9.792 5.4 18.216 13.735 23.719 7.047 4.652 16.124 6.927 25.557 6.412 12.458-.683 22.231-5.436 29.049-14.127 5.178-6.6 8.453-15.153 9.899-25.93 5.937 3.583 10.337 8.298 12.767 13.966 4.132 9.635 4.373 25.468-8.546 38.376-11.319 11.308-24.925 16.2-45.488 16.35-22.809-.169-40.06-7.484-51.275-21.742-10.535-13.389-15.998-32.79-16.23-57.654.232-24.865 5.695-44.266 16.23-57.655 11.215-14.258 28.466-21.573 51.275-21.742 22.976.17 40.443 7.516 51.92 21.843 5.619 7.008 9.864 15.817 12.692 26.192l16.147-4.308c-3.44-12.68-8.853-23.606-16.182-32.611C150.522 20.652 129.037 11.6 96.24 11.42h-.48C62.8 11.6 41.446 20.68 28.36 38.943 16.83 55.088 10.863 78.02 10.65 96.04v.12c.213 18.02 6.18 40.95 17.71 57.093 13.086 18.265 34.44 27.343 67.4 27.523h.48c29.6-.16 50.386-7.943 67.433-25.007 22.236-22.234 21.637-50.985 14.285-68.411-5.03-11.726-14.663-20.591-26.42-26.37zm-49.143 46.374c-10.435.57-21.256-4.096-21.82-14.189-.396-7.44 5.277-15.743 22.725-16.739 1.986-.114 3.942-.169 5.874-.169 6.183 0 11.975.606 17.271 1.789-1.964 24.376-13.826 28.665-24.05 29.308z"/></svg></a>
-            <a href="https://www.tiktok.com/@tailor8765986434?_r=1&_t=ZS-947S8ChaepB" target="_blank" aria-label="TikTok"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg></a>
-        </div>
+
+    
+
+    
     </div>
 
     <main id="book-app" class="page container">
@@ -780,7 +632,7 @@
                     </div>
                 </button>
 
-                <button class="measure-card" onclick="showView('view-instore')">
+                <button id="card-instore" class="measure-card" onclick="openBooking('instore')">
                     <div style="z-index: 2;">
                         <div class="measure-icon"><i data-lucide="store"></i></div>
                         <div style="display:flex; align-items:center; margin-bottom:5px;">
@@ -792,6 +644,20 @@
                     </div>
                     <div class="measure-cta" style="z-index: 2;">
                         <span>Book Appointment</span><i data-lucide="arrow-right"></i>
+                    </div>
+                </button>
+
+                <button id="card-virtual" class="measure-card" onclick="openBooking('virtual')">
+                    <div style="z-index: 2;">
+                        <div class="measure-icon"><i data-lucide="video"></i></div>
+                        <div style="display:flex; align-items:center; margin-bottom:5px;">
+                            <h3>Virtual Consultation</h3>
+                            <span class="badge" style="background:rgba(66, 133, 244, 0.2); color:#4285F4; border:1px solid #4285F4;">Google Meet</span>
+                        </div>
+                        <p>Book a 30-minute virtual session with our master tailor via Google Meets. (Not available same-day)</p>
+                    </div>
+                    <div class="measure-cta" style="z-index: 2;">
+                        <span>Book Virtual</span><i data-lucide="arrow-right"></i>
                     </div>
                 </button>
             </div>
@@ -867,7 +733,7 @@
             </form>
         </div>
 
-        <div id="view-instore" style="display:none; max-width:600px; margin:0 auto; animation: fadeUp 0.5s ease;">
+        <div id="view-booking" style="display:none; max-width:600px; margin:0 auto; animation: fadeUp 0.5s ease;">
             <div class="warning-banner" id="instore-warning-banner">
                 <i data-lucide="info"></i>
                 <div><strong>Note:</strong> In-person consultations may attract a service fee depending on your
@@ -875,12 +741,12 @@
             </div>
 
             <div style="text-align: center; margin-bottom: 40px;">
-                <span class="eyebrow">Mobile Tailoring</span>
-                <h2>Request Appointment</h2>
-                <p style="color: var(--text-muted);">Select a date and time to secure your slot. Same-day bookings are not available, so please choose tomorrow or later.</p>
+                <span class="eyebrow" id="booking-eyebrow">Mobile Tailoring</span>
+                <h2 id="booking-title">Request Appointment</h2>
+                <p style="color: var(--text-muted);" id="booking-desc">Select a date and time to secure your slot. Same-day bookings are not available, so please choose tomorrow or later.</p>
             </div>
 
-            <form class="booking-form" onsubmit="window.handleInStoreBooking(event)">
+            <form class="booking-form" onsubmit="window.handleBookingSubmit(event)">
 
                 <div class="form-section" id="booking-step-1">
                     <h3><i data-lucide="calendar"></i> 1. Select Date & Time</h3>
@@ -918,6 +784,10 @@
                             <label>Email Address</label>
                             <input name="email" type="email" required placeholder="john@example.com">
                         </div>
+                        <div class="form-group" id="gmail-group" style="display: none;">
+                            <label>Gmail Address (for Google Meet)</label>
+                            <input name="gmail" type="email" placeholder="Required for virtual calls">
+                        </div>
                         <div class="form-group">
                             <label>Phone Number</label>
                             <input name="phone" type="tel" required placeholder="(876) 555-0123">
@@ -930,18 +800,31 @@
                 </div>
 
                 <div style="display:flex; flex-direction: column; gap: 15px;">
-                    <button type="submit" class="btn-primary"
-                        style="width: 100%; justify-content: center; display: flex; align-items: center;"
-                        id="submit-booking-btn">
+                    <button type="submit" class="btn-primary btn-full btn-flex" id="submit-booking-btn">
                         Confirm Booking <i data-lucide="send" style="margin-left: 8px; width: 18px;"></i>
                     </button>
 
-                    <button type="button" class="btn-secondary"
-                        style="width: 100%; border:none; color: var(--text-muted);" onclick="showView('view-choice')">
+                    <button type="button" class="btn-ghost btn-full" onclick="showView('view-choice')">
                         Back
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div id="view-intl" style="display:none; max-width:600px; margin: 40px auto; text-align:center; padding:40px; background:var(--bg-surface); border-radius:12px; border:1px solid var(--border-gold); animation: fadeUp 0.5s ease;">
+            <i data-lucide="globe" width="48" height="48" style="color:var(--gold-primary); margin-bottom:20px;"></i>
+            <h2 style="font-family:'Playfair Display', serif; color:var(--gold-primary); margin-bottom:15px; font-size:2rem;">International Clients</h2>
+            <p style="color:var(--text-muted); font-size:1rem; margin-bottom:30px; line-height:1.6;">
+                In-person appointments are currently available in Jamaica only. If you are outside Jamaica, you can still request guidance through WhatsApp or submit your measurements online.
+            </p>
+            <div class="checkout-action-row" style="flex-direction:column; gap:15px;">
+                <button type="button" class="btn-primary btn-full" onclick="openBooking('virtual')" style="background: linear-gradient(135deg, #4285F4 0%, #68a0ff 100%); color: white !important; border-color: #4285F4; box-shadow: 0 10px 28px rgba(66, 133, 244, 0.16);">
+                    Book Virtual Consultation (Google Meet)
+                </button>
+                <a href="customize.html" class="btn-primary btn-full" style="text-align:center;">Design With a Tailor</a>
+                <a href="javascript:void(0)" class="btn-whatsapp btn-full" style="text-align:center;" onclick="if(window.handleGlobalWhatsAppClick) { handleGlobalWhatsAppClick('Hello Windross, I am an international client and would like some guidance on creating a custom suit.', 'booking_intl_whatsapp_handoff', 'booking_intl_fallback'); } else { window.open('https://wa.me/18765986434?text=Hello%20Windross', '_blank'); }">Message Windross on WhatsApp</a>
+                <button type="button" class="btn-ghost btn-full" onclick="showView('view-choice')">Back</button>
+            </div>
         </div>
 
     </main>
@@ -949,32 +832,43 @@
     <script>
         lucide.createIcons();
 
-        // Mobile Menu Logic
-        const mobileToggle = document.querySelector('.mobile-toggle');
-        const mobileOverlay = document.querySelector('.mobile-menu-overlay');
-        let isMenuOpen = false;
 
-        function toggleMenu() {
-            isMenuOpen = !isMenuOpen;
-            mobileOverlay.classList.toggle('active');
-
-            // Switch Icon
-            if (isMenuOpen) {
-                mobileToggle.innerHTML = '<i data-lucide="x" width="28" height="28"></i>';
-            } else {
-                mobileToggle.innerHTML = '<i data-lucide="menu" width="28" height="28"></i>';
-            }
-            lucide.createIcons();
-        }
-
-        if (mobileToggle) {
-            mobileToggle.addEventListener('click', toggleMenu);
-        }
 
         function showView(id) {
             document.querySelectorAll('main > div').forEach(div => div.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             window.scrollTo(0, 0);
+        }
+        window.showView = showView;
+
+        window.currentBookingType = 'instore';
+
+        function openBooking(type) {
+            window.currentBookingType = type;
+            const isJM = window.Region.isJamaica();
+            
+            if (type === 'instore' && !isJM) {
+                showView('view-intl');
+                return;
+            }
+
+            if (type === 'virtual') {
+                document.getElementById('booking-eyebrow').innerText = 'Online Booking';
+                document.getElementById('booking-title').innerText = 'Virtual Consultation';
+                document.getElementById('booking-desc').innerText = 'Book a 30-minute virtual session via Google Meets. Please ensure your Gmail is provided.';
+                document.getElementById('instore-warning-banner').style.display = 'none';
+                document.getElementById('gmail-group').style.display = 'block';
+                document.querySelector('input[name="gmail"]').required = true;
+            } else {
+                document.getElementById('booking-eyebrow').innerText = 'Mobile Tailoring';
+                document.getElementById('booking-title').innerText = 'Request Appointment';
+                document.getElementById('booking-desc').innerText = 'Select a date and time to secure your slot. Same-day bookings are not available, so please choose tomorrow or later.';
+                document.getElementById('instore-warning-banner').style.display = 'flex';
+                document.getElementById('gmail-group').style.display = 'none';
+                document.querySelector('input[name="gmail"]').required = false;
+            }
+
+            showView('view-booking');
         }
 
         let currentDate = new Date();
@@ -1176,39 +1070,18 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await renderCalendar();
 
-            // Central Region Validation
             const isJM = window.Region.isJamaica();
-            const instoreCardBtn = Array.from(document.querySelectorAll('.measure-card')).find(el => el.textContent.includes('In-Person Consultation'));
+            const instoreCard = document.getElementById('card-instore');
+            const virtualCard = document.getElementById('card-virtual');
 
-            if (!isJM) {
-                if (instoreCardBtn) {
-                    instoreCardBtn.style.opacity = '0.5';
-                    instoreCardBtn.style.cursor = 'not-allowed';
-                    instoreCardBtn.onclick = (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        alert("In-person appointments are available in Jamaica only. Please submit measurements online.");
-                    };
-                    const p = instoreCardBtn.querySelector('p');
-                    if (p) p.innerHTML = '<span style="color:#ff4d4d">In-person appointments are available in Jamaica only. Please use the Digital Profile.</span>';
-                }
+            if (isJM) {
+                if (virtualCard) virtualCard.style.display = 'none';
             } else {
-                // If it IS Jamaica, ensure the card works normally and clicking it routes to book.html
-                if (instoreCardBtn) {
-                    instoreCardBtn.style.opacity = '1';
-                    instoreCardBtn.style.cursor = 'pointer';
-                    instoreCardBtn.onclick = () => {
-                        showView('view-instore');
-                    };
-                    const p = instoreCardBtn.querySelector('p');
-                    if (p && p.innerHTML.includes('color:#ff4d4d')) {
-                        p.innerHTML = 'Our tailor will visit your location for personal measurement and fabric selection.';
-                    }
-                }
+                if (instoreCard) instoreCard.style.display = 'none';
             }
         });
 
-        window.handleInStoreBooking = async (event) => {
+        window.handleBookingSubmit = async (event) => {
             event.preventDefault();
             const form = event.target;
             const errorMsg = document.getElementById('booking-error-msg');
@@ -1221,8 +1094,14 @@
             const time = form.elements['time'].value;
             const notes = form.elements['notes'] ? form.elements['notes'].value : '';
 
-            // Using Central Region Validation
-            const region = window.Region.isJamaica() ? 'Jamaica' : 'INTL';
+            const isVirtual = window.currentBookingType === 'virtual';
+            const region = isVirtual ? 'Virtual' : (window.Region.isJamaica() ? 'Jamaica' : 'INTL');
+            const gmail = form.elements['gmail'] ? form.elements['gmail'].value : '';
+            
+            let finalNotes = notes;
+            if (isVirtual) {
+                finalNotes = `[VIRTUAL GOOGLE MEET - GMAIL: ${gmail}] ` + finalNotes;
+            }
 
             if (!date || !time) {
                 errorMsg.textContent = 'Please select an available date and time slot first.';
@@ -1230,7 +1109,7 @@
                 return;
             }
 
-            const payload = { name, email, phone: clientPhone, date, time, notes, region };
+            const payload = { name, email, phone: clientPhone, date, time, notes: finalNotes, region };
             const btn = document.getElementById('submit-booking-btn');
             const originalText = btn.innerHTML;
             btn.disabled = true;
@@ -1268,7 +1147,11 @@
                     btn.style.border = '1px solid #2ed573';
                     lucide.createIcons();
 
-                    const message = `*Windross Tailoring — Appointment Confirmed*\nBooking ID: WT-${data.bookingId}\n\n*CLIENT DETAILS*\nName: ${name}\nEmail: ${email}\nPhone: ${clientPhone}\n\n*CONFIRMED SLOT*\nDate: ${date}\nTime: ${niceTime}\n\nNotes: ${notes || 'None'}\n\nThis slot is now reserved.`;
+                    let message = `*Windross Tailoring — Appointment Confirmed*\nBooking ID: WT-${data.bookingId}\n\n*CLIENT DETAILS*\nName: ${name}\nEmail: ${email}\nPhone: ${clientPhone}\n`;
+                    if (isVirtual) message += `Gmail (Meet): ${gmail}\n`;
+                    message += `\n*CONFIRMED SLOT*\nDate: ${date}\nTime: ${niceTime}\n\nNotes: ${notes || 'None'}\n`;
+                    if (isVirtual) message += `\n*Type:* 30 Min Virtual Session (Google Meet)\n`;
+                    message += `\nThis slot is now reserved.`;
 
                     // Tell user they are redirecting
                     const redirectMsg = document.createElement('div');
@@ -1279,7 +1162,7 @@
                     
                     redirectMsg.innerHTML = `
                         <p style="color:var(--gold-primary);margin-bottom:15px;">Your slot is secured. <br> Opening WhatsApp to send your details to your tailor...</p>
-                        <button type="button" class="action-btn" onclick="window.open('${waUrl}', '_blank')" style="background-color: #25D366; color: white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">
+                        <button type="button" class="btn-whatsapp btn-full" onclick="if(window.handleGlobalWhatsAppClick) { handleGlobalWhatsAppClick(\`${message.replace(/`/g, '\\`')}\`, 'booking_request', 'booking_page'); } else { window.open('${waUrl}', '_blank'); }">
                             Confirm on WhatsApp
                         </button>
                     `;
@@ -1337,19 +1220,22 @@ Rise: ${getVal('rise')} inches`;
         });
     </script>
     <script src="js/back-to-top.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const isJM = window.Region && window.Region.isJamaica();
-            document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-                if (!isJM) {
-                    link.style.display = "none";
-                }
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            const region = window.Region ? window.Region.getRegion() : 'INTL';
+            console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: region });
+            
+            if (region === 'JA') {
+                const virtualCard = document.getElementById('card-virtual');
+                if (virtualCard) virtualCard.style.display = 'none';
+            } else {
+                const instoreCard = document.getElementById('card-instore');
+                if (instoreCard) instoreCard.style.display = 'none';
+            }
         });
     </script>
-    <script>
-        console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: window.Region.getRegion() });
-    </script>
+    <script src="js/site-nav.js?v=4.4"></script>
 </body>
 
 </html>

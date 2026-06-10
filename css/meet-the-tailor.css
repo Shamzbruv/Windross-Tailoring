@@ -1,0 +1,258 @@
+/* 
+ * css/meet-the-tailor.css
+ * Premium luxury styling for the Meet the Tailor bio page.
+ */
+
+/* === HERO SECTION === */
+.bio-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 140px 24px 80px;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+    position: relative;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.bio-hero-content {
+    max-width: 800px;
+    z-index: 2;
+}
+
+.bio-hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    margin-bottom: 24px;
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+}
+
+.bio-hero-subtext {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    line-height: 1.6;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 300;
+}
+
+.bio-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* === SECTION STRUCTURE === */
+.bio-section {
+    padding: 100px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.bio-section.alt {
+    background: var(--bg-secondary);
+}
+
+.bio-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.bio-section-title {
+    font-size: 2.2rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    margin-bottom: 32px;
+    text-align: center;
+    color: #fff;
+}
+
+.bio-section-title.left {
+    text-align: left;
+}
+
+.bio-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+
+.bio-text.left {
+    text-align: left;
+    margin-left: 0;
+}
+
+/* === FOUNDER SECTION === */
+.founder-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .founder-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .founder-grid .bio-section-title.left,
+    .founder-grid .bio-text.left {
+        text-align: center;
+        margin: 0 auto 30px;
+    }
+}
+
+.founder-image-wrapper {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-subtle);
+}
+
+.founder-placeholder {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background-image: linear-gradient(45deg, #0a0a0a 25%, #111 25%, #111 50%, #0a0a0a 50%, #0a0a0a 75%, #111 75%, #111 100%);
+    background-size: 20px 20px;
+}
+
+/* === CARDS GRID (Philosophy & Client Types) === */
+.bio-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.bio-card {
+    background: var(--bg-tertiary);
+    padding: 40px 30px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    text-align: left;
+}
+
+.bio-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.bio-card h3 {
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 16px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+}
+
+.bio-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* === PROCESS LIST === */
+.process-list {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    list-style: none;
+    counter-reset: process-counter;
+}
+
+.process-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 30px;
+}
+
+.process-item::before {
+    counter-increment: process-counter;
+    content: "0" counter(process-counter);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    color: var(--text-secondary);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    opacity: 0.5;
+}
+
+.process-item h3 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* === TRUST POINTS === */
+.trust-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.trust-item svg {
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+/* === CTA SECTION === */
+.bio-cta-section {
+    text-align: center;
+    padding: 100px 24px;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+}
+
+.bio-cta-section h2 {
+    font-size: 2.5rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+/* Helper Buttons */
+.btn-gold {
+    background: #d4af37;
+    color: #000;
+    border: none;
+}
+.btn-gold:hover {
+    background: #e5c158;
+    transform: scale(1.02);
+}
+
+

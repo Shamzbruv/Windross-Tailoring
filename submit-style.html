@@ -64,20 +64,7 @@
         }
 
         /* --- NAVIGATION --- */
-        nav {
-            height: 80px;
-            background: rgba(15, 15, 15, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--bg-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
+        
 
         .logo {
             font-family: 'Playfair Display', serif;
@@ -89,12 +76,7 @@
             text-transform: uppercase;
         }
 
-        .nav-center {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
-            color: var(--gold-primary);
-            letter-spacing: 1px;
-        }
+        
 
         .action-btn {
             background: transparent;
@@ -244,9 +226,7 @@
                 padding: 25px;
             }
 
-            .nav-center {
-                display: none;
-            }
+            
         }
 
         /* --- CALENDAR UI --- */
@@ -583,15 +563,44 @@
         }
     </style>
 <script src="js/region-manager.js"></script>
+<script src="js/pricing.js"></script>
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+        <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
 </head>
 
 <body>
-
-    <nav>
-        <a href="index.html" class="logo">Windross</a>
-        <div class="nav-center">Submit Your Design</div>
-        <button class="action-btn" onclick="window.location.href='index.html'">Top</button>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link active">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link">Book</a>
+        </div>
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
+            <i data-lucide="menu" width="28" height="28"></i>
+        </button>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link active">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link">Book</a>
+    </div>
+
+
+    
 
     <div class="container">
         <div class="header-section">
@@ -726,8 +735,7 @@
                             <input type="text" id="ship-zip" placeholder="10001">
                         </div>
                     </div>
-                    <button type="button" class="action-btn" id="calc-shipping-btn" onclick="calculateIntlShipping()"
-                        style="width:100%;margin-top:4px;padding:14px;font-size:0.85rem;letter-spacing:1.5px;">
+                    <button type="button" class="action-btn btn-full" id="calc-shipping-btn" onclick="calculateIntlShipping()">
                         Calculate Shipping Cost
                     </button>
                     <div class="shipping-calc-status" id="shipping-status"></div>
@@ -741,7 +749,7 @@
                     </div>
                     <div class="summary-row">
                         <span>Bespoke Design &amp; Tailoring</span>
-                        <span style="color:white;">$750.99 USD</span>
+                        <span style="color:white;" id="summary-base-val">Loading...</span>
                     </div>
                     <div class="summary-row">
                         <span>DHL Express Shipping</span>
@@ -751,6 +759,11 @@
                         <span>Total Due Today</span>
                         <span class="summary-val-gold" id="summary-total-val">—</span>
                     </div>
+                </div>
+
+                <!-- WiPay Conversion Note -->
+                <div id="wipay-conversion-note" style="display:none; margin-top:15px; padding:15px; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.2); border-radius:8px; font-size:0.9rem; color:var(--text-muted); line-height:1.5;">
+                    <!-- Content updated by JS -->
                 </div>
             </div>
 
@@ -762,25 +775,24 @@
                     </div>
                     <div>
                         <div class="deposit-notice-title">Reservation Deposit Required</div>
-                        <div class="deposit-amount">J$30,000</div>
+                        <div class="deposit-amount" id="deposit-amount">Loading...</div>
                     </div>
                 </div>
                 <div class="deposit-notice-body">
-                    <strong>Why is this required?</strong> We take bespoke tailoring seriously — and so should you.
-                    Each custom design submission reserves dedicated time with our master tailor for your fitting appointment,
-                    plus time spent sourcing fabrics and preparing detailed patterns tailored to your measurements.
+                    <strong>Your Custom Suit Journey Begins Here</strong>
                     <br><br>
-                    Unfortunately, we have experienced instances where clients submit a design and <strong>do not show up</strong>
-                    for their scheduled appointment — leaving booked time and prepared materials wasted.
-                    The <strong>J$30,000 deposit</strong> ensures that only committed clients proceed, and it goes
-                    <strong>directly toward the cost of your garment</strong> — it is not an extra charge.
-                    Please note that this deposit is <strong>non-refundable</strong> in the event of a cancellation or no-show.
+                    A bespoke suit requires dedicated craftsmanship and personal attention from the very start. 
+                    To secure your fitting and initiate the design process with our master tailor, we ask for a reservation deposit.
+                    <br><br>
+                    This <strong id="deposit-body-amount">deposit</strong> reserves your dedicated time and goes 
+                    <strong>directly toward your final garment cost</strong> — it is simply the first step of your purchase.
+                    Please note that to honor our tailor's schedule, this reservation deposit is non-refundable.
                 </div>
                 <hr class="deposit-divider">
                 <label class="deposit-acknowledge">
                     <input type="checkbox" id="deposit-confirm" onchange="toggleSubmitBtn()">
                     <span class="deposit-acknowledge-label">
-                        I understand that a <strong>J$30,000 deposit</strong> is required before my design can be processed.
+                        I understand that a <strong id="deposit-confirm-amount">deposit</strong> is required before my design can be processed.
                         I agree to submit this payment upon confirmation and acknowledge that it will be applied to my final garment cost.
                         I also understand that this deposit is <strong>non-refundable</strong>.
                     </span>
@@ -790,6 +802,15 @@
             <button class="btn-submit" id="submit-btn" onclick="submitDesign()" disabled>
                 Submit Design to Tailor <i data-lucide="send" style="vertical-align: middle; margin-left: 8px;" width="18"></i>
             </button>
+
+            <div style="margin-top: 15px; display:flex; gap:10px; justify-content:center;">
+                <button class="btn-secondary" id="submit-wa-btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="submitDesignWhatsApp()" disabled>
+                    <i data-lucide="message-circle"></i> WhatsApp
+                </button>
+                <button class="btn-secondary" id="submit-email-btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="submitDesignEmail()" disabled>
+                    <i data-lucide="mail"></i> Email
+                </button>
+            </div>
         </div>
     </div>
 
@@ -798,7 +819,9 @@
 
         function toggleSubmitBtn() {
             const checked = document.getElementById('deposit-confirm').checked;
-            document.getElementById('submit-btn').disabled = !checked;
+            document.getElementById('submit-btn').disabled = !checked || !designPricingReady;
+            document.getElementById('submit-wa-btn').disabled = !checked || !designPricingReady;
+            document.getElementById('submit-email-btn').disabled = !checked || !designPricingReady;
         }
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -959,10 +982,48 @@
         // -------------------------------------------------------
         // Region setup — show Jamaica or INTL sections
         // -------------------------------------------------------
-        const DESIGN_BASE_USD   = 750.99;
+        let DESIGN_BASE_USD     = 0;
+        let JAMAICA_DEPOSIT_JMD = 0;
+        let JAMAICA_DEPOSIT_DISPLAY = 'deposit';
         let   intlShippingJMD   = 0;
         let   intlShippingUSD   = 0;
         let   shippingConfirmed = false;
+        let   designPricingReady = false;
+
+        async function loadDesignPricingConfig() {
+            try {
+                const config = window.Pricing ? await window.Pricing.loadConfig() : null;
+                DESIGN_BASE_USD = Number(config && config.designSubmission && config.designSubmission.intlBaseUSD);
+                JAMAICA_DEPOSIT_JMD = Number(config && config.designSubmission && config.designSubmission.jamaicaDepositJMD);
+                if (!Number.isFinite(DESIGN_BASE_USD) || !Number.isFinite(JAMAICA_DEPOSIT_JMD)) {
+                    throw new Error('Design pricing config is missing.');
+                }
+                designPricingReady = true;
+            } catch (err) {
+                console.warn('Failed to load design pricing config.', err);
+                designPricingReady = false;
+                const baseEl = document.getElementById('summary-base-val');
+                const depositEl = document.getElementById('deposit-amount');
+                const depositConfirmEl = document.getElementById('deposit-confirm-amount');
+                if (baseEl) baseEl.textContent = 'Pricing unavailable';
+                if (depositEl) depositEl.textContent = 'Pricing unavailable';
+                if (depositConfirmEl) depositConfirmEl.textContent = 'deposit';
+                document.getElementById('submit-btn').disabled = true;
+                return;
+            }
+
+            const baseEl = document.getElementById('summary-base-val');
+            if (baseEl) baseEl.textContent = `$${DESIGN_BASE_USD.toFixed(2)} USD`;
+
+            const depositFormatted = `J$${JAMAICA_DEPOSIT_JMD.toLocaleString('en-JM')}`;
+            JAMAICA_DEPOSIT_DISPLAY = `${depositFormatted} deposit`;
+            const depositEl = document.getElementById('deposit-amount');
+            const depositConfirmEl = document.getElementById('deposit-confirm-amount');
+            const depositBodyEl = document.getElementById('deposit-body-amount');
+            if (depositEl) depositEl.textContent = depositFormatted;
+            if (depositConfirmEl) depositConfirmEl.textContent = JAMAICA_DEPOSIT_DISPLAY;
+            if (depositBodyEl) depositBodyEl.textContent = JAMAICA_DEPOSIT_DISPLAY;
+        }
 
         function setupForRegion(isJamaica) {
             document.querySelectorAll('.section-jamaica').forEach(el => el.style.display = isJamaica ? 'block' : 'none');
@@ -1063,6 +1124,7 @@
             // Reset shipping confirmation if country changes
             shippingConfirmed = false;
             document.getElementById('intl-payment-summary').style.display = 'none';
+            if (document.getElementById('wipay-conversion-note')) document.getElementById('wipay-conversion-note').style.display = 'none';
             document.getElementById('submit-btn').disabled = true;
             document.getElementById('shipping-status').textContent = '';
         }
@@ -1097,14 +1159,28 @@
 
                 if (!res.ok || !data.cost) throw new Error(data.error || 'Could not get shipping rate.');
 
-                // data.cost is in JMD — convert to USD (approx 157 JMD/USD)
+                // data.cost is in JMD; display USD using the configured business rate.
+                const exchangeRate = window.Pricing.getExchangeRate(window.BACKEND_PRICING_CONFIG);
                 intlShippingJMD = data.cost;
-                intlShippingUSD = parseFloat((data.cost / 157.05).toFixed(2));
+                intlShippingUSD = parseFloat((data.cost / exchangeRate).toFixed(2));
                 const totalUSD  = parseFloat((DESIGN_BASE_USD + intlShippingUSD).toFixed(2));
 
                 document.getElementById('summary-shipping-val').textContent = `$${intlShippingUSD.toFixed(2)} USD`;
                 document.getElementById('summary-total-val').textContent    = `$${totalUSD.toFixed(2)} USD`;
                 document.getElementById('intl-payment-summary').style.display = 'block';
+
+                // Display WiPay Conversion Note
+                const noteEl = document.getElementById('wipay-conversion-note');
+                if (noteEl) {
+                    const totalJMD = (DESIGN_BASE_USD * exchangeRate) + data.cost;
+                    const jmdTotalStr = new Intl.NumberFormat('en-JM', { style: 'currency', currency: 'JMD', minimumFractionDigits: 0 }).format(totalJMD);
+                    noteEl.innerHTML = `Your order total is shown in USD for convenience. Since payments are processed through our Jamaica payment provider, WiPay, your final payment will be charged in Jamaican Dollars using the exchange rate shown below.<br><br>
+                    <strong>Order Total:</strong> $${totalUSD.toFixed(2)} USD<br>
+                    <strong>Exchange Rate:</strong> 1 USD = J$${exchangeRate.toFixed(0)}<br>
+                    <strong>WiPay Payment Total:</strong> ${jmdTotalStr}`;
+                    noteEl.style.display = 'block';
+                }
+
                 document.getElementById('shipping-status').textContent = `✓ Shipping rate confirmed via DHL Express (${data.service || 'Express'}).`;
                 shippingConfirmed = true;
                 document.getElementById('submit-btn').disabled = false;
@@ -1122,7 +1198,9 @@
         // -------------------------------------------------------
         // On page load
         // -------------------------------------------------------
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDesignPricingConfig();
+
             const urlParams   = new URLSearchParams(window.location.search);
             const wipayStatus = urlParams.get('status');
             const orderId     = urlParams.get('order_id');
@@ -1151,6 +1229,11 @@
         // Submit — branches on region
         // -------------------------------------------------------
         async function submitDesign() {
+            if (!designPricingReady) {
+                alert('Pricing is unavailable right now. Please refresh and try again.');
+                return;
+            }
+
             const isJamaica = window.Region && window.Region.isJamaica();
             if (isJamaica) {
                 await submitJamaicaDeposit();
@@ -1223,7 +1306,45 @@
             }
         }
 
-        // ---- International: $750.99 + shipping full payment ----
+        function submitDesignWhatsApp() {
+            const customerName  = document.getElementById('customer-name').value.trim();
+            const customerEmail = document.getElementById('customer-email').value.trim();
+            const customerPhone = document.getElementById('customer-phone').value.trim();
+            const total = document.getElementById('summary-total-val').textContent;
+
+            let msg = `Hi, I would like to submit my custom suit design.\n\n`;
+            msg += `Design: ${designName}\n`;
+            msg += `Total: ${total}\n`;
+            msg += `Name: ${customerName}\n`;
+            msg += `Email: ${customerEmail}\n`;
+            msg += `Phone: ${customerPhone}\n`;
+            
+            if(window.handleGlobalWhatsAppClick) {
+                handleGlobalWhatsAppClick(msg, 'submit_style', 'whatsapp_submit');
+            } else {
+                window.open(`https://wa.me/18768045952?text=${encodeURIComponent(msg)}`, '_blank');
+            }
+            if (window.wtTrack) window.wtTrack('Lead', { method: 'whatsapp' });
+        }
+
+        function submitDesignEmail() {
+            const customerName  = document.getElementById('customer-name').value.trim();
+            const customerEmail = document.getElementById('customer-email').value.trim();
+            const customerPhone = document.getElementById('customer-phone').value.trim();
+            const total = document.getElementById('summary-total-val').textContent;
+
+            let msg = `Hi, I would like to submit my custom suit design.\n\n`;
+            msg += `Design: ${designName}\n`;
+            msg += `Total: ${total}\n`;
+            msg += `Name: ${customerName}\n`;
+            msg += `Email: ${customerEmail}\n`;
+            msg += `Phone: ${customerPhone}\n`;
+            
+            window.open(`mailto:info@windrosstailoring.com?subject=${encodeURIComponent("Custom Suit Design Submission")}&body=${encodeURIComponent(msg)}`, '_blank');
+            if (window.wtTrack) window.wtTrack('Lead', { method: 'email' });
+        }
+
+        // ---- International: configured design base + shipping full payment ----
         async function submitIntlFullPayment() {
             const customerName  = document.getElementById('customer-name').value.trim();
             const customerEmail = document.getElementById('customer-email').value.trim();
@@ -1279,6 +1400,7 @@
                     designName, gender, fabric, targetDate,
                     description: desc, photoBase64, photoName,
                     measurements, shipping,
+                    shippingCostJMD: intlShippingJMD,
                     shippingCostUSD: intlShippingUSD,
                     totalUSD
                 };
@@ -1288,13 +1410,18 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         customerName, customerEmail, customerPhone,
-                        designData: designPayload,
-                        total: totalUSD,
-                        currency: 'USD'
+                        designData: designPayload
                     })
                 });
                 const data = await res.json();
                 if (!res.ok || !data.actionUrl) throw new Error(data.error || 'Failed to initiate payment.');
+
+                if (data.totalUSD) {
+                    designPayload.totalUSD = Number(data.totalUSD);
+                    designPayload.shippingCostUSD = Number(data.shippingUSD || designPayload.shippingCostUSD);
+                    designPayload.shippingCostJMD = Number(data.shippingJMD || designPayload.shippingCostJMD);
+                    sessionStorage.setItem('windross_design_pending', JSON.stringify(designPayload));
+                }
 
                 submitToWipay(data.actionUrl, data.params);
             } catch (error) {
@@ -1364,12 +1491,20 @@
                 sessionStorage.removeItem('windross_design_pending');
                 window.history.replaceState({}, document.title, window.location.pathname);
 
+                if (window.wtTrack) {
+                    window.wtTrack('Purchase', { 
+                        value: window.DESIGN_BASE_JMD || 30000, 
+                        currency: 'JMD',
+                        suitId: payload.designName 
+                    });
+                }
+
                 const [h, m] = payload.bookingTime.split(':').map(Number);
                 const niceTime = `${h > 12 ? h-12 : (h===0?12:h)}:${m.toString().padStart(2,'0')} ${h>=12?'PM':'AM'}`;
 
                 const niceDate = payload.bookingDate;
                 const supportPhone = "18765986434";
-                const waMessage = `*Deposit Confirmed & Fitting Appointment Set*\n\n*CLIENT DETAILS*\nName: ${payload.customerName}\nEmail: ${payload.customerEmail}\nPhone: ${payload.customerPhone}\n\n*APPOINTMENT*\nDate: ${niceDate}\nTime: ${niceTime}\n\nDeposit Paid: J$30,000\nDesign: ${payload.designName}`;
+                const waMessage = `*Deposit Confirmed & Fitting Appointment Set*\n\n*CLIENT DETAILS*\nName: ${payload.customerName}\nEmail: ${payload.customerEmail}\nPhone: ${payload.customerPhone}\n\n*APPOINTMENT*\nDate: ${niceDate}\nTime: ${niceTime}\n\nDeposit Paid: ${JAMAICA_DEPOSIT_DISPLAY}\nDesign: ${payload.designName}`;
                 const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(waMessage)}`;
 
                 formEl.innerHTML = `
@@ -1377,7 +1512,7 @@
                         <i data-lucide="check-circle" color="var(--gold-primary)" width="64" height="64" style="margin-bottom:20px;"></i>
                         <h2 style="font-family:'Playfair Display',serif;color:var(--gold-primary);font-size:2.5rem;margin-bottom:10px;">Design &amp; Booking Confirmed</h2>
                         <p style="color:var(--text-muted);font-size:1.1rem;line-height:1.6;">
-                            Your <strong style="color:var(--gold-primary);">J$30,000 deposit</strong> has been received. Our master tailor will review your bespoke requirements and contact you shortly.
+                            Your <strong style="color:var(--gold-primary);">${JAMAICA_DEPOSIT_DISPLAY}</strong> has been received. Our master tailor will review your bespoke requirements and contact you shortly.
                         </p>
                         <p style="color:white;font-size:1rem;line-height:1.6;margin-top:20px;border-top:1px solid var(--bg-border);padding-top:20px;">
                             Appointment set for <strong>${niceDate}</strong> at <strong>${niceTime}</strong>
@@ -1386,13 +1521,13 @@
                             Opening WhatsApp to confirm details with your tailor...
                         </p>
                         <div style="display:flex; justify-content:center; gap: 15px; margin-top:30px; flex-wrap: wrap;">
-                            <button class="action-btn" onclick="window.open('${waUrl}', '_blank')" style="background-color: #25D366; color: white;">Confirm on WhatsApp</button>
-                            <button class="action-btn" onclick="window.location.href='index.html'" style="background: transparent; border: 1px solid var(--border-glass);">Return to Home</button>
+                            <button class="btn-whatsapp btn-full" onclick="if(window.handleGlobalWhatsAppClick) { handleGlobalWhatsAppClick(\`${waMessage.replace(/`/g, '\\`')}\`, 'submit_style_booking', 'submit_style_success'); } else { window.open('${waUrl}', '_blank'); }">Confirm on WhatsApp</button>
+                            <button class="btn-secondary btn-full" onclick="window.location.href='index.html'">Return to Home</button>
                         </div>
                     </div>`;
 
                 setTimeout(() => {
-                    window.open(waUrl, '_blank');
+                    if(window.handleGlobalWhatsAppClick) { handleGlobalWhatsAppClick(waMessage, 'submit_style_booking', 'submit_style_success'); } else { window.open(waUrl, '_blank'); }
                 }, 2500);
                 lucide.createIcons();
             } catch (err) { showFailureState(err.message); }
@@ -1431,18 +1566,28 @@
                 sessionStorage.removeItem('windross_design_pending');
                 window.history.replaceState({}, document.title, window.location.pathname);
 
+                if (window.wtTrack) {
+                    window.wtTrack('Purchase', { 
+                        value: payload.totalUSD, 
+                        currency: 'USD',
+                        suitId: payload.designName 
+                    });
+                }
+
                 formEl.innerHTML = `
                     <div style="text-align:center;padding:40px 0;">
                         <i data-lucide="check-circle" color="var(--gold-primary)" width="64" height="64" style="margin-bottom:20px;"></i>
                         <h2 style="font-family:'Playfair Display',serif;color:var(--gold-primary);font-size:2.5rem;margin-bottom:10px;">Order Confirmed</h2>
                         <p style="color:var(--text-muted);font-size:1.1rem;line-height:1.6;">
-                            Your payment of <strong style="color:var(--gold-primary);">$${payload.totalUSD ? payload.totalUSD.toFixed(2) : '750.99'} USD</strong> has been received.
+                            Your payment of <strong style="color:var(--gold-primary);">${payload.totalUSD ? `$${payload.totalUSD.toFixed(2)} USD` : 'your full balance'}</strong> has been received.
                             Your design details and measurements are now with our master tailor.
                         </p>
                         <p style="color:white;font-size:1rem;line-height:1.6;margin-top:20px;border-top:1px solid var(--bg-border);padding-top:20px;">
                             Your garment will ship to <strong>${payload.shipping ? payload.shipping.city + ', ' + payload.shipping.country : 'your address'}</strong> via DHL Express once complete.
                         </p>
-                        <button class="action-btn" onclick="window.location.href='index.html'" style="margin-top:30px;">Return to Home</button>
+                        <div style="margin-top:30px;">
+                            <button class="btn-secondary btn-full" onclick="window.location.href='index.html'">Return to Home</button>
+                        </div>
                     </div>`;
                 lucide.createIcons();
             } catch (err) { showFailureState(err.message); }
@@ -1458,21 +1603,15 @@
                     <p style="color:var(--text-muted);font-size:1rem;line-height:1.6;max-width:500px;margin:0 auto;">
                         ${msg || 'Your payment was not completed. Please try again or contact us directly.'}
                     </p>
-                    <button class="action-btn" onclick="window.location.href='submit-style.html'" style="margin-top:30px;">Try Again</button>
+                    <div style="margin-top:30px;">
+                        <button class="btn-primary btn-full" onclick="window.location.href='submit-style.html'">Try Again</button>
+                    </div>
                 </div>`;
             lucide.createIcons();
         }
     </script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const isJM = window.Region && window.Region.isJamaica();
-        document.querySelectorAll("a[href=\"book.html\"]").forEach(link => {
-            if (!isJM) {
-                link.style.display = "none";
-            }
-        });
-    });
-</script>
+
+    <script src="js/site-nav.js?v=4.4"></script>
 </body>
 
 </html>

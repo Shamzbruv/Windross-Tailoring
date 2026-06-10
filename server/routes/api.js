@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const firebaseSync = require('../services/firebase-sync');
+const { firebaseSync, admin } = require('../services/firebase-sync');
+const pricingService = require('../services/pricing-service');
+const shippingService = require('../services/shipping-service');
+const jwt = require('jsonwebtoken');
 const { generateOrderPDF } = require('../services/pdf-generator');
 const { generateCustomInvoicePDF, formatCurrency } = require('../services/invoice-generator');
 const {
     sendOrderConfirmation,
     sendBookingConfirmation,
     sendBookingCancellationEmail,
-    sendCustomInvoiceEmail
+    sendCustomInvoiceEmail,
+    sendLeadNotificationEmail
 } = require('../services/email');
 const fs = require('fs');
 const path = require('path');
@@ -72,6 +76,76 @@ function queueDataBackup(reason) {
     firebaseSync.syncAll(db, reason).catch((error) => {
         console.error(`Firebase sync failed after ${reason}:`, error.message || error);
     });
+}
+
+function parseJsonObject(value) {
+    if (!value || typeof value !== 'string') return {};
+
+    try {
+        const parsed = JSON.parse(value);
+        return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (err) {
+        return {};
+    }
+}
+
+function getPricingAmountFromItem(item) {
+    const measurements = parseJsonObject(item.measurements);
+    const pricing = measurements._pricing;
+    const amount = Number(pricing && pricing.regionAdjustedSubtotalJMD);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+        return null;
+    }
+
+    return {
+        amountJMD: amount,
+        pricing,
+        suitName: item.suit_name
+    };
+}
+
+async function getAuthoritativePayable(sessionId, clientShippingJMD = 0) {
+    const order = await db.getAsync(`SELECT * FROM orders WHERE session_id = ?`, [sessionId]);
+    if (!order) {
+        const err = new Error('Order not found');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    const items = await db.allAsync(`SELECT * FROM order_items WHERE order_id=?`, [order.id]);
+    const pricedItems = items.map(getPricingAmountFromItem).filter(Boolean);
+
+    if (!pricedItems.length) {
+        const err = new Error('Order is missing authoritative pricing. Please restart checkout.');
+        err.statusCode = 409;
+        throw err;
+    }
+
+    const subtotalJMD = pricedItems.reduce((sum, item) => sum + item.amountJMD, 0);
+    let shippingJMD = Number(order.shipping_amount_jmd || 0);
+    const fallbackShipping = Number(clientShippingJMD || 0);
+
+    if (!shippingJMD && fallbackShipping > 0 && process.env.NODE_ENV !== 'production') {
+        shippingJMD = fallbackShipping;
+    }
+
+    if (!shippingJMD && order.country && order.country !== 'Jamaica' && process.env.NODE_ENV === 'production') {
+        const err = new Error('Shipping has not been confirmed for this order.');
+        err.statusCode = 409;
+        throw err;
+    }
+
+    const totalJMD = roundMoney(subtotalJMD + shippingJMD);
+    const snapshot = {
+        pricingVersion: pricedItems[0]?.pricing?.pricingVersion || null,
+        items: pricedItems,
+        subtotalJMD: roundMoney(subtotalJMD),
+        shippingJMD: roundMoney(shippingJMD),
+        totalJMD
+    };
+
+    return { order, items, subtotalJMD, shippingJMD, totalJMD, snapshot };
 }
 
 function sanitizeDate(value) {
@@ -348,69 +422,234 @@ function broadcastBookingCreated(booking) {
     }
 }
 
-// 0. Expose Pricing Configuration
-router.get('/config/pricing', (req, res) => {
+// --- Authentication & Availability ---
+
+const ALLOWED_ADMIN_EMAILS = [
+    'admin@windrosstailoring.com',
+    'windross2019@gmail.com', // Usually the default email used
+    '8fedora@gmail.com',
+    process.env.FIREBASE_CLIENT_EMAIL || ''
+];
+
+router.post('/auth/login', async (req, res) => {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ error: 'Missing ID Token' });
+
     try {
-        const configPath = path.join(__dirname, '../data/pricing_config.json');
-        const configData = fs.readFileSync(configPath, 'utf8');
-        res.json(JSON.parse(configData));
+        if (!admin.apps.length) {
+            return res.status(500).json({ error: 'Firebase Admin not configured on server.' });
+        }
+
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const email = decodedToken.email;
+
+        if (!email) {
+            return res.status(401).json({ error: 'Token missing email payload.' });
+        }
+
+        // Validate email against whitelist
+        // If ALLOWED_ADMIN_EMAILS has actual entries and they don't match, reject.
+        // As a fallback for this dynamic setup, we'll allow it if process.env.ADMIN_EMAILS is set, or just warn in logs.
+        const adminEmailsConfig = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : ALLOWED_ADMIN_EMAILS;
+        const isAllowed = adminEmailsConfig.some(e => e.trim().toLowerCase() === email.toLowerCase());
+
+        if (!isAllowed) {
+            console.warn(`Unauthorized Firebase login attempt from: ${email}`);
+            return res.status(403).json({ error: 'Email not authorized for admin access.' });
+        }
+
+        const sessionSecret = process.env.SESSION_SECRET;
+        if (!sessionSecret) {
+            console.error('CRITICAL: SESSION_SECRET is missing from environment variables.');
+            return res.status(500).json({ error: 'Server misconfiguration.' });
+        }
+
+        const jwtToken = jwt.sign(
+            { email, role: 'admin' },
+            sessionSecret,
+            { expiresIn: '24h' }
+        );
+
+        res.cookie('admin_token', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+
+        res.json({ success: true, message: 'Logged in successfully', email });
+    } catch (error) {
+        console.error('Firebase Auth Verification Error:', error);
+        res.status(401).json({ error: 'Invalid or expired authentication token' });
+    }
+});
+
+router.post('/auth/logout', (req, res) => {
+    res.clearCookie('admin_token');
+    res.json({ success: true });
+});
+
+const requireAdmin = (req, res, next) => {
+    // Exclude availability endpoint from auth
+    if (req.path === '/bookings/availability' || req.path === '/bookings/availability/') {
+        return next();
+    }
+    const token = req.cookies.admin_token;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. Please login.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+        if (decoded && decoded.role === 'admin') {
+            req.admin = decoded;
+            return next();
+        }
     } catch (err) {
-        console.error("Error loading pricing config:", err);
+        return res.status(401).json({ error: 'Invalid or expired session. Please login again.' });
+    }
+    return res.status(401).json({ error: 'Unauthorized. Please login.' });
+};
+
+router.use('/admin', requireAdmin);
+
+// 0. Expose Public Safe Pricing Configuration
+router.get('/pricing', (req, res) => {
+    try {
+        const fullConfig = pricingService.loadConfig();
+        // Return only safe public catalog data
+        const safeData = {
+            version: fullConfig.version,
+            baseCurrency: fullConfig.baseCurrency,
+            internationalMarkupMultiplier: fullConfig.internationalMarkupMultiplier,
+            exchangeRate_USD_to_JMD: fullConfig.exchangeRate_USD_to_JMD,
+            shippingRates: fullConfig.shippingRates,
+            designSubmission: { jamaicaDepositJMD: fullConfig.designSubmission?.jamaicaDepositJMD },
+            tiers: fullConfig.tiers,
+            styles: fullConfig.styles,
+            fabricGrades: fullConfig.fabricGrades,
+            construction: fullConfig.construction,
+            options: fullConfig.options,
+            catalog: fullConfig.catalog
+        };
+        res.json(safeData);
+    } catch (err) {
+        console.error("Error loading public pricing config:", err);
         res.status(500).json({ error: 'Failed to load pricing configuration' });
     }
 });
 
+router.get('/pricing/catalog/:sku', (req, res) => {
+    try {
+        const quote = pricingService.getCatalogQuote(req.params.sku, req.query.region, req.query.size || 'M');
+        res.json(quote);
+    } catch (err) {
+        res.status(err.statusCode || 500).json({ error: err.message || 'Failed to quote catalog item' });
+    }
+});
+
+router.post('/pricing/quote', (req, res) => {
+    try {
+        const quote = pricingService.quoteCustomSuit(req.body.selection, req.body.region);
+        res.json(quote);
+    } catch (err) {
+        res.status(err.statusCode || 500).json({ error: err.message || 'Failed to calculate quote' });
+    }
+});
+
 // 1. Create Draft Order (Measurements Step)
-router.post('/orders/draft', (req, res) => {
-    const { suitId, gender, measurements, region, pricingEngineSelection } = req.body;
+router.post('/orders/draft', async (req, res) => {
+    const { suitId, gender, measurements, measurementMethod, measurementStatus, region, pricingEngineSelection } = req.body;
     const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const regionCode = pricingService.normalizeRegion(region);
+    const measurementsData = measurements || {};
 
     // Authoritative Pricing Calculation
     let authPricing = null;
-    if (pricingEngineSelection) {
-        const PricingEngine = require('../services/PricingEngine');
-        authPricing = PricingEngine.calculatePrice(pricingEngineSelection, region);
-
-        // Embed the authoritative calculation into the order payload
-        if (measurements) {
-            measurements._pricing = authPricing;
+    try {
+        if (pricingEngineSelection) {
+            authPricing = pricingService.quoteCustomSuit(pricingEngineSelection, regionCode);
+            measurementsData._pricingSelection = pricingEngineSelection;
+        } else {
+            authPricing = pricingService.getCatalogQuote(suitId, regionCode, measurementsData.suggestedSize || 'M');
         }
+    } catch (err) {
+        console.error('Authoritative pricing failed:', err.message || err);
+        return res.status(err.statusCode || 400).json({ error: err.message || 'Failed to calculate authoritative pricing' });
     }
 
-    db.run(
-        `INSERT INTO orders (session_id, status) VALUES (?, ?)`,
-        [sessionId, 'draft'],
-        function (err) {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Failed to create session' });
-            }
-            const orderId = this.lastID;
+    if (!authPricing || !Number.isFinite(Number(authPricing.regionAdjustedSubtotalJMD))) {
+        return res.status(400).json({ error: 'Failed to calculate authoritative pricing' });
+    }
 
-            // Store items
-            db.run(
-                `INSERT INTO order_items (order_id, suit_name, gender, measurements) VALUES (?, ?, ?, ?)`,
-                [orderId, suitId, gender, JSON.stringify(measurements)],
-                (err) => {
-                    if (err) console.error(err);
-                    queueDataBackup('order_draft_created');
-                    res.json({ sessionId, orderId });
-                }
-            );
-        }
-    );
+    // Determine initial order status based on measurement preferences
+    let initialStatus = 'draft';
+    if (measurementStatus === 'provided') {
+        initialStatus = 'draft';
+    } else if (measurementMethod === 'in_person') {
+        initialStatus = 'fitting_required';
+    } else if (measurementMethod === 'whatsapp_later') {
+        initialStatus = 'whatsapp_followup_required';
+    } else if (measurementMethod === 'after_checkout') {
+        initialStatus = 'measurement_pending';
+    } else if (measurementMethod === 'guide_me') {
+        initialStatus = 'measurement_guide_required';
+    } else if (measurementStatus === 'pending_entry') {
+        initialStatus = 'measurement_entry_required';
+    }
+
+    // Attach preferences to measurements JSON so they aren't lost
+    measurementsData._pricing = authPricing;
+    measurementsData._preference = {
+        method: measurementMethod || 'pending',
+        status: measurementStatus || 'pending'
+    };
+
+    const snapshot = {
+        pricingVersion: authPricing.pricingVersion,
+        items: [{ suitName: authPricing.productName || suitId, pricing: authPricing }],
+        subtotalJMD: authPricing.regionAdjustedSubtotalJMD
+    };
+
+    try {
+        const insertResult = await db.runAsync(
+            `INSERT INTO orders (session_id, status, currency, region_code, pricing_version, pricing_snapshot)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [sessionId, initialStatus, 'JMD', regionCode, authPricing.pricingVersion || null, JSON.stringify(snapshot)]
+        );
+        const orderId = insertResult.lastID;
+
+        await db.runAsync(
+            `INSERT INTO order_items (order_id, suit_name, gender, measurements, price) VALUES (?, ?, ?, ?, ?)`,
+            [
+                orderId,
+                authPricing.productName || suitId,
+                authPricing.gender || gender,
+                JSON.stringify(measurementsData),
+                authPricing.regionAdjustedSubtotalJMD
+            ]
+        );
+
+        queueDataBackup('order_draft_created');
+        res.json({ sessionId, orderId, status: initialStatus, pricing: authPricing });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create session' });
+    }
 });
 
 // 2. Update Draft with Shipping Info
 router.post('/orders/shipping', (req, res) => {
     const { sessionId, shipping } = req.body;
-    const { name, email, phone, address, city, country } = shipping;
+    const { name, email, phone, address, city, country } = shipping || {};
 
     console.log("Updating shipping for session:", sessionId);
 
     db.run(
-        `UPDATE orders SET customer_name=?, customer_email=?, customer_phone=?, shipping_address=?, city=?, country=? WHERE session_id=?`,
-        [name, email, phone, address, city, country, sessionId],
+        `UPDATE orders
+         SET customer_name=?, customer_email=?, customer_phone=?, shipping_address=?, city=?, country=?, shipping_details=?
+         WHERE session_id=?`,
+        [name, email, phone, address, city, country, JSON.stringify(shipping || {}), sessionId],
         function (err) {
             if (err) {
                 console.error(err);
@@ -424,147 +663,50 @@ router.post('/orders/shipping', (req, res) => {
 
 // 3. Calculate Shipping via DHL API
 router.post('/shipping/calculate', async (req, res) => {
-    const { country, city, zip } = req.body;
-
-    const apiKey = process.env.DHL_API_KEY;
-    const apiSecret = process.env.DHL_API_SECRET;
-    const accountNumber = process.env.DHL_ACCOUNT_NUMBER;
-
-    if (!apiKey || !apiSecret || !accountNumber) {
-        console.error("DHL credentials missing in environment variables.");
-        return res.status(500).json({ error: 'DHL credentials missing. Cannot calculate live shipping rate.' });
-    }
-
-    // Map Frontend Country to ISO 2-letter Country Code
-    const countryMap = {
-        'Jamaica': 'JM',
-        'USA': 'US',
-        'UK': 'GB',
-        'Canada': 'CA'
-    };
-    const destCountryCode = countryMap[country] || 'GB';
-
-    // DHL Package Configuration
-    const dhlPackages = {
-        'Box 3': { dimensions: { length: 33, width: 30, height: 10 }, maxWeight: 2 },
-        'Box 4': { dimensions: { length: 33, width: 32, height: 18 }, maxWeight: 5 },
-        'Box 5': { dimensions: { length: 33, width: 32, height: 34 }, maxWeight: 10 },
-        'Box 6': { dimensions: { length: 41, width: 35, height: 36 }, maxWeight: 15 },
-        'Box 7': { dimensions: { length: 48, width: 40, height: 38 }, maxWeight: 20 },
-        'Box 8': { dimensions: { length: 54, width: 44, height: 4 }, maxWeight: 25 },
-        'Box 2 Shoe': { dimensions: { length: 33, width: 18, height: 10 }, maxWeight: 1 },
-        'Tube Large': { dimensions: { length: 97, width: 17, height: 15 }, maxWeight: 5 },
-        'Envelopes': { dimensions: { length: 35, width: 27, height: 1 }, maxWeight: 0.5 },
-        'Flyer Standard': { dimensions: { length: 40, width: 30, height: 1 }, maxWeight: 2 },
-        'Flyer Large': { dimensions: { length: 47, width: 38, height: 1 }, maxWeight: 4 }
-    };
-
-    // Determine Package Type and Weight
-    const shipmentType = req.body.shipmentType || 'large';
-    
-    // Parse raw weight from frontend, defaulting to 1.05kg for a general suit, or 0.35kg for small items
-    const rawWeight = parseFloat(req.body.weight) || (shipmentType === 'small' ? 0.35 : 1.05);
-    
-    // Per Requirements: "Every weight that you see right here should be round up to the nearest whole number"
-    const finalWeight = Math.ceil(rawWeight);
-
-    let selectedPackage = 'Box 3';
-
-    if (shipmentType === 'small') {
-        selectedPackage = finalWeight <= 2 ? 'Flyer Standard' : 'Flyer Large';
-    } else {
-        // Box 3 is standard for 1 suit (up to 2kg rounded)
-        // Box 4 is used for > 1 suit (3kg to 5kg rounded)
-        if (finalWeight <= 2) {
-            selectedPackage = 'Box 3';
-        } else if (finalWeight <= 5) {
-            selectedPackage = 'Box 4';
-        } else if (finalWeight <= 10) {
-            selectedPackage = 'Box 5';
-        } else {
-            selectedPackage = 'Box 6';
-        }
-    }
-
-    const packageInfo = dhlPackages[selectedPackage];
+    const { country, city, zip, sessionId } = req.body;
 
     try {
-        const axios = require('axios');
-        const today = new Date().toISOString().split('T')[0];
-
-        const params = new URLSearchParams({
-            accountNumber: accountNumber,
-            originCountryCode: process.env.DHL_ORIGIN_COUNTRY_CODE || 'JM',
-            originCityName: process.env.DHL_ORIGIN_CITY_NAME || 'Kingston',
-            destinationCountryCode: destCountryCode,
-            destinationCityName: city || 'Unknown',
-            weight: finalWeight,
-            length: packageInfo.dimensions.length,
-            width: packageInfo.dimensions.width,
-            height: packageInfo.dimensions.height,
-            plannedShippingDate: today,
-            isCustomsDeclarable: 'true',
-            unitOfMeasurement: 'metric'
+        const quote = await shippingService.calculateDhlQuote({
+            country,
+            city,
+            zip,
+            shipmentType: req.body.shipmentType || 'large',
+            weight: req.body.weight
         });
 
-        if (zip && zip.trim() !== '') {
-            params.append('destinationPostalCode', zip.trim());
+        if (sessionId) {
+            await db.runAsync(
+                `UPDATE orders SET shipping_amount_jmd=?, shipping_service=? WHERE session_id=?`,
+                [roundMoney(quote.cost), quote.service || 'DHL Express', sessionId]
+            );
         }
 
-        const dhlEnv = process.env.DHL_ENVIRONMENT || 'sandbox';
-        const dhlBaseUrl = dhlEnv === 'production' 
-            ? 'https://express.api.dhl.com/mydhlapi/rates' 
-            : 'https://express.api.dhl.com/mydhlapi/test/rates';
-
-        const response = await axios.get(`${dhlBaseUrl}?${params.toString()}`, {
-            headers: {
-                'Authorization': `Basic ${Buffer.from(apiKey + ':' + apiSecret).toString('base64')}`
-            }
+        return res.json({
+            cost: quote.cost,
+            currency: quote.currency,
+            service: quote.service
         });
-
-        const products = response.data?.products || [];
-        if (products.length === 0) throw new Error("No shipping products found for this route");
-
-        // Strictly target DHL Express Worldwide (Product Code 'P') to avoid expensive medical/specialty rates
-        const product = products.find(p => p.productCode === 'P' || p.productCode === 'D') || products.find(p => p.productName?.toUpperCase().includes('EXPRESS WORLDWIDE')) || products[0];
-        // Use DHL's exact recommendation to securely fetch native Billing Currency
-        const totalPriceInfo = product.totalPrice?.find(p => p.currencyType === "BILLC") || product.totalPrice?.[0];
-
-        if (totalPriceInfo && totalPriceInfo.price) {
-            let rawCost = parseFloat(totalPriceInfo.price);
-            let currency = totalPriceInfo.priceCurrency;
-
-            // Normalize EVERYTHING strictly to JMD before sending to the frontend to avoid double-conversion issues
-            if (currency === 'USD') {
-                rawCost = rawCost * 157.05; // DHL's exact internal USD to JMD exchange rate
-                currency = 'JMD';
-            } else if (currency === 'GBP') {
-                rawCost = rawCost * 200; 
-                currency = 'JMD';
-            }
-
-            return res.json({
-                cost: rawCost,
-                currency: currency,
-                service: product.productName || 'DHL Express'
-            });
-        } else {
-            throw new Error("Price missing in DHL response");
-        }
-
     } catch (err) {
         console.error("DHL API Error:", err.response?.data?.detail || err.message);
-        return res.status(502).json({ error: 'Failed to retrieve rates from DHL API: ' + (err.response?.data?.detail || err.message) });
+        return res.status(err.statusCode || 502).json({ error: 'Failed to retrieve rates from DHL API: ' + (err.response?.data?.detail || err.message) });
     }
 });
 
 // 4. Initiate Payment (Live WiPay Integration) - Bypass for Bank Transfer
-router.post('/payment/wipay/create', (req, res) => {
-    const { sessionId, total, currency, returnUrl } = req.body;
+router.post('/payment/wipay/create', async (req, res) => {
+    const { sessionId, returnUrl, shippingJMD } = req.body;
 
-    // Update total in DB
-    db.run(`UPDATE orders SET total_amount=?, currency=? WHERE session_id=?`, [total, currency, sessionId], function(err) {
-        if (err) return res.status(500).json({ error: 'DB error updating order' });
+    if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID required' });
+    }
+
+    try {
+        const payable = await getAuthoritativePayable(sessionId, shippingJMD);
+
+        await db.runAsync(
+            `UPDATE orders SET total_amount=?, currency=?, pricing_snapshot=? WHERE session_id=?`,
+            [payable.totalJMD, 'JMD', JSON.stringify(payable.snapshot), sessionId]
+        );
         queueDataBackup('order_payment_prepared');
 
         const wipayAccountNumber = process.env.WIPAY_ACCOUNT_NUMBER || '1234567890';
@@ -575,50 +717,61 @@ router.post('/payment/wipay/create', (req, res) => {
         const responseUrl = returnUrl ? `${baseUrl}/${returnUrl}` : `${baseUrl}/purchase-flow.html`;
 
         res.json({
-            actionUrl: wipayEnvironment === 'live' 
-                ? 'https://jm.wipayfinancial.com/plugins/payments/request' 
+            actionUrl: wipayEnvironment === 'live'
+                ? 'https://jm.wipayfinancial.com/plugins/payments/request'
                 : 'https://jm.wipayfinancial.com/plugins/payments/request', // JM endpoint is same for sandbox, account number triggers it
             params: {
                 account_number: wipayAccountNumber,
                 country_code: 'JM',
-                currency: currency,
+                currency: 'JMD',
                 environment: wipayEnvironment,
                 fee_structure: 'customer_pay',
                 method: 'credit_card',
                 order_id: sessionId, // WiPay will return this to us precisely
                 origin: 'Windross_Tailoring',
                 response_url: responseUrl,
-                total: parseFloat(total).toFixed(2) // WiPay explicitly requires two decimal formatting
+                total: payable.totalJMD.toFixed(2) // WiPay explicitly requires two decimal formatting
             }
         });
-    });
+    } catch (err) {
+        console.error('Payment preparation failed:', err.message || err);
+        res.status(err.statusCode || 500).json({ error: err.message || 'Failed to prepare payment' });
+    }
 });
 
 // 4.5. Initiate Bank Transfer
-router.post('/payment/bank-transfer', (req, res) => {
-    const { sessionId, total, currency } = req.body;
+router.post('/payment/bank-transfer', async (req, res) => {
+    const { sessionId, shippingJMD } = req.body;
 
-    // Update total in DB and mark pending
-    db.run(`UPDATE orders SET total_amount=?, currency=?, status='pending_transfer' WHERE session_id=?`, [total, currency, sessionId], function(err) {
-        if (err) return res.status(500).json({ error: 'DB error updating order' });
+    if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID required' });
+    }
+
+    try {
+        const payable = await getAuthoritativePayable(sessionId, shippingJMD);
+
+        await db.runAsync(
+            `UPDATE orders SET total_amount=?, currency=?, pricing_snapshot=?, status='pending_transfer' WHERE session_id=?`,
+            [payable.totalJMD, 'JMD', JSON.stringify(payable.snapshot), sessionId]
+        );
         queueDataBackup('bank_transfer_marked_pending');
 
-        db.get(`SELECT * FROM orders WHERE session_id = ?`, [sessionId], (err, order) => {
-            if (err || !order) return res.status(404).json({ error: 'Order not found' });
-            
-            db.all(`SELECT * FROM order_items WHERE order_id=?`, [order.id], (err, items) => {
-                // Ensure front-end is not blocked or crashed by PDF generation
-                try {
-                    generateOrderPDF(order, items, (pdfPath) => {
-                        sendOrderConfirmation(order, items, pdfPath).catch(console.error);
-                    });
-                } catch (pdfErr) {
-                    console.error("PDF generation error skipped:", pdfErr);
-                }
+        const order = await db.getAsync(`SELECT * FROM orders WHERE session_id = ?`, [sessionId]);
+        const items = await db.allAsync(`SELECT * FROM order_items WHERE order_id=?`, [order.id]);
+
+        try {
+            generateOrderPDF(order, items, (pdfPath) => {
+                sendOrderConfirmation(order, items, pdfPath).catch(console.error);
             });
-            res.json({ success: true, orderId: order.id });
-        });
-    });
+        } catch (pdfErr) {
+            console.error("PDF generation error skipped:", pdfErr);
+        }
+
+        res.json({ success: true, orderId: order.id });
+    } catch (err) {
+        console.error('Bank transfer preparation failed:', err.message || err);
+        res.status(err.statusCode || 500).json({ error: err.message || 'Failed to prepare bank transfer' });
+    }
 });
 
 // 5. Payment Callback / Verification
@@ -867,7 +1020,7 @@ router.get('/admin/bookings/availability', (req, res) => {
 router.post('/bookings/create', async (req, res) => {
     const { name, email, phone, date, time, notes, region } = req.body;
 
-    if (region !== 'Jamaica') {
+    if (region !== 'Jamaica' && region !== 'Virtual') {
         return res.status(403).json({ error: 'In-person appointments are available for Jamaica only.' });
     }
 
@@ -994,7 +1147,7 @@ router.get('/bookings/list', (req, res) => {
     });
 });
 
-// 7a. Initiate Design Deposit Payment (dedicated WiPay route, J$30,000)
+// 7a. Initiate Design Deposit Payment (configured fixed JMD deposit)
 router.post('/payment/deposit/create', (req, res) => {
     const { customerName, customerEmail, customerPhone, designData } = req.body;
 
@@ -1003,7 +1156,10 @@ router.post('/payment/deposit/create', (req, res) => {
     }
 
     const depositId = `dep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const amount = 30000; // J$30,000 fixed deposit
+    const amount = Number(pricingService.loadConfig().designSubmission?.jamaicaDepositJMD);
+    if (!Number.isFinite(amount) || amount <= 0) {
+        return res.status(500).json({ error: 'Deposit pricing configuration is missing.' });
+    }
     const currency = 'JMD';
 
     db.run(
@@ -1100,21 +1256,58 @@ router.post('/payment/deposit/verify', (req, res) => {
     });
 });
 
-// 7c. International Full Design Payment ($750.99 USD + shipping)
-router.post('/payment/design-full/create', (req, res) => {
-    const { customerName, customerEmail, customerPhone, designData, total, currency } = req.body;
+// 7c. International Full Design Payment (configured base USD + server-calculated shipping)
+router.post('/payment/design-full/create', async (req, res) => {
+    const { customerName, customerEmail, customerPhone, designData } = req.body;
 
-    if (!customerName || !customerEmail || !total) {
-        return res.status(400).json({ error: 'Customer name, email, and total are required.' });
+    if (!customerName || !customerEmail) {
+        return res.status(400).json({ error: 'Customer name and email are required.' });
     }
 
     const depositId = `dsn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const finalCurrency = currency || 'USD';
+    const config = pricingService.loadConfig();
+    const baseUSD = Number(config.designSubmission?.intlBaseUSD);
+    if (!Number.isFinite(baseUSD) || baseUSD <= 0) {
+        return res.status(500).json({ error: 'Design pricing configuration is missing.' });
+    }
+    const exchangeRate = pricingService.getExchangeRate(config);
+    let shippingQuote;
+    let totalUSD;
+
+    try {
+        const shipping = designData?.shipping || {};
+        shippingQuote = await shippingService.calculateDhlQuote({
+            country: shipping.country,
+            city: shipping.city,
+            zip: shipping.zip,
+            shipmentType: 'large'
+        });
+        const shippingUSD = Number(shippingQuote.cost || 0) / exchangeRate;
+        totalUSD = roundMoney(baseUSD + shippingUSD);
+    } catch (err) {
+        console.error('Design full payment shipping calculation failed:', err.response?.data?.detail || err.message);
+        return res.status(err.statusCode || 502).json({ error: 'Failed to calculate authoritative shipping for design payment.' });
+    }
+
+    const paymentData = {
+        ...(designData || {}),
+        authoritativePricing: {
+            baseUSD,
+            shippingJMD: roundMoney(shippingQuote.cost),
+            shippingUSD: roundMoney(Number(shippingQuote.cost || 0) / exchangeRate),
+            totalUSD,
+            exchangeRateUSDToJMD: exchangeRate,
+            shippingService: shippingQuote.service || 'DHL Express',
+            pricingVersion: config.version
+        }
+    };
+
+    const totalJMD = roundMoney(totalUSD * exchangeRate);
 
     db.run(
         `INSERT INTO deposit_sessions (deposit_id, customer_name, customer_email, customer_phone, design_data, amount, currency)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [depositId, customerName, customerEmail, customerPhone || '', JSON.stringify(designData || {}), parseFloat(total), finalCurrency],
+        [depositId, customerName, customerEmail, customerPhone || '', JSON.stringify(paymentData), totalJMD, 'JMD'],
         function (err) {
             if (err) {
                 console.error('Design full payment session error:', err);
@@ -1129,18 +1322,21 @@ router.post('/payment/design-full/create', (req, res) => {
 
             res.json({
                 depositId,
+                totalUSD,
+                shippingUSD: paymentData.authoritativePricing.shippingUSD,
+                shippingJMD: paymentData.authoritativePricing.shippingJMD,
                 actionUrl: 'https://jm.wipayfinancial.com/plugins/payments/request',
                 params: {
                     account_number: wipayAccountNumber,
                     country_code: 'JM',
-                    currency: finalCurrency,
+                    currency: 'JMD',
                     environment: wipayEnvironment,
                     fee_structure: 'customer_pay',
                     method: 'credit_card',
                     order_id: depositId,
                     origin: 'Windross_Tailoring_Design',
                     response_url: responseUrl,
-                    total: parseFloat(total).toFixed(2)
+                    total: totalJMD.toFixed(2)
                 }
             });
         }
@@ -1609,6 +1805,164 @@ router.get('/admin/summary', (req, res) => {
             });
         });
     });
+});
+
+// POST /api/leads
+router.post('/leads', (req, res) => {
+    const {
+        fullName,
+        email,
+        phone,
+        location,
+        occasion,
+        eventDate,
+        budgetRange,
+        interestedService,
+        message,
+        sourcePage,
+        sourceSection,
+        leadType,
+        whatsappMessage,
+        preferredContactMethod
+    } = req.body;
+
+    if (!fullName) {
+        return res.status(400).json({ error: 'Full name is required.' });
+    }
+
+    const safeEmail = sanitizeEmail(email);
+    const safePhone = sanitizePhone(phone);
+
+    const query = `
+        INSERT INTO leads (
+            full_name, email, phone, location, occasion, event_date, budget_range,
+            interested_service, message, source_page, source_section, lead_type,
+            whatsapp_message, preferred_contact_method
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const params = [
+        sanitizeText(fullName), safeEmail, safePhone, sanitizeText(location),
+        sanitizeText(occasion), sanitizeText(eventDate), sanitizeText(budgetRange),
+        sanitizeText(interestedService), sanitizeText(message, 1000),
+        sanitizeText(sourcePage), sanitizeText(sourceSection), sanitizeText(leadType),
+        sanitizeText(whatsappMessage, 500), sanitizeText(preferredContactMethod)
+    ];
+
+    db.run(query, params, function(err) {
+        if (err) {
+            console.error('Failed to save lead:', err);
+            return res.status(500).json({ error: 'Failed to submit lead.' });
+        }
+
+        const leadData = {
+            id: this.lastID,
+            full_name: sanitizeText(fullName),
+            email: safeEmail,
+            phone: safePhone,
+            location: sanitizeText(location),
+            occasion: sanitizeText(occasion),
+            event_date: sanitizeText(eventDate),
+            budget_range: sanitizeText(budgetRange),
+            interested_service: sanitizeText(interestedService),
+            message: sanitizeText(message, 1000),
+            source_page: sanitizeText(sourcePage),
+            source_section: sanitizeText(sourceSection),
+            lead_type: sanitizeText(leadType),
+            whatsapp_message: sanitizeText(whatsappMessage, 500),
+            preferred_contact_method: sanitizeText(preferredContactMethod)
+        };
+
+        try {
+            sendLeadNotificationEmail(leadData);
+        } catch (emailErr) {
+            console.error('Failed to send lead email:', emailErr);
+        }
+
+        res.json({ success: true, leadId: this.lastID });
+    });
+});
+
+// GET /api/leads/export
+router.get('/leads/export', (req, res) => {
+    const exportKey = process.env.ADMIN_EXPORT_KEY;
+
+    if (!exportKey) {
+        return res.status(503).json({
+            error: 'Lead export is not configured.'
+        });
+    }
+
+    const providedKey = req.query.key || req.headers['x-admin-key'];
+
+    if (!providedKey || providedKey !== exportKey) {
+        return res.status(403).json({
+            error: 'Unauthorized.'
+        });
+    }
+
+    db.all(`SELECT * FROM leads ORDER BY created_at DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch leads.' });
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ error: 'No leads found.' });
+        }
+
+        const headers = Object.keys(rows[0]).join(',');
+        const csv = [headers];
+
+        rows.forEach(row => {
+            const rowValues = Object.values(row).map(value => {
+                if (value === null || value === undefined) return '';
+                const stringValue = String(value);
+                return stringValue.includes(',') || stringValue.includes('\\n') || stringValue.includes('"') 
+                    ? '"' + stringValue.replace(/"/g, '""') + '"' 
+                    : stringValue;
+            });
+            csv.push(rowValues.join(','));
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=windross-leads.csv');
+        res.send(csv.join('\\n'));
+    });
+});
+
+// GET /api/testimonials
+router.get('/testimonials', (req, res) => {
+    db.all(`SELECT id, name, location, comment, rating, created_at FROM testimonials WHERE is_approved = 1 ORDER BY created_at DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Failed to fetch testimonials.' });
+        res.json({ success: true, testimonials: rows || [] });
+    });
+});
+
+// POST /api/testimonials
+router.post('/testimonials', (req, res) => {
+    const { name, location, comment, rating } = req.body;
+    
+    if (!name || !comment) {
+        return res.status(400).json({ error: 'Name and comment are required.' });
+    }
+
+    const safeName = sanitizeText(name, 100);
+    const safeLocation = sanitizeText(location, 100);
+    const safeComment = sanitizeText(comment, 1000);
+    const safeRating = Number.isInteger(rating) && rating >= 1 && rating <= 5 ? rating : 5;
+
+    if (!safeName || !safeComment) {
+        return res.status(400).json({ error: 'Invalid name or comment.' });
+    }
+
+    db.run(
+        `INSERT INTO testimonials (name, location, comment, rating, is_approved) VALUES (?, ?, ?, ?, 1)`,
+        [safeName, safeLocation, safeComment, safeRating],
+        function(err) {
+            if (err) return res.status(500).json({ error: 'Failed to save testimonial.' });
+            
+            queueDataBackup('new_testimonial');
+            res.json({ success: true, testimonialId: this.lastID });
+        }
+    );
 });
 
 module.exports = router;

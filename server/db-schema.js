@@ -10,7 +10,13 @@ const SQLITE_SCHEMA = [
         country TEXT,
         status TEXT DEFAULT 'draft',
         total_amount REAL,
-        currency TEXT DEFAULT 'GBP',
+        currency TEXT DEFAULT 'JMD',
+        region_code TEXT DEFAULT 'INTL',
+        pricing_version TEXT,
+        pricing_snapshot TEXT,
+        shipping_details TEXT,
+        shipping_amount_jmd REAL DEFAULT 0,
+        shipping_service TEXT,
         payment_ref TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -43,7 +49,7 @@ const SQLITE_SCHEMA = [
         customer_email TEXT,
         customer_phone TEXT,
         design_data TEXT,
-        amount REAL DEFAULT 30000,
+        amount REAL DEFAULT 0,
         currency TEXT DEFAULT 'JMD',
         status TEXT DEFAULT 'pending',
         payment_ref TEXT,
@@ -107,7 +113,34 @@ const SQLITE_SCHEMA = [
     `CREATE INDEX IF NOT EXISTS idx_deposit_sessions_status_created_at ON deposit_sessions (status, created_at)`,
     `CREATE INDEX IF NOT EXISTS idx_unavailable_slots_date ON unavailable_slots (block_date)`,
     `CREATE INDEX IF NOT EXISTS idx_design_inquiries_status_created_at ON design_inquiries (status, created_at)`,
-    `CREATE INDEX IF NOT EXISTS idx_custom_invoices_created_at ON custom_invoices (created_at)`
+    `CREATE INDEX IF NOT EXISTS idx_custom_invoices_created_at ON custom_invoices (created_at)`,
+    `CREATE TABLE IF NOT EXISTS leads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        full_name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        location TEXT,
+        occasion TEXT,
+        event_date TEXT,
+        budget_range TEXT,
+        interested_service TEXT,
+        message TEXT,
+        source_page TEXT,
+        source_section TEXT,
+        lead_type TEXT,
+        whatsapp_message TEXT,
+        preferred_contact_method TEXT DEFAULT 'whatsapp',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS testimonials (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        location TEXT,
+        comment TEXT NOT NULL,
+        rating INTEGER DEFAULT 5,
+        is_approved INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`
 ];
 
 const POSTGRES_SCHEMA = [
@@ -122,7 +155,13 @@ const POSTGRES_SCHEMA = [
         country TEXT,
         status TEXT DEFAULT 'draft',
         total_amount DOUBLE PRECISION,
-        currency TEXT DEFAULT 'GBP',
+        currency TEXT DEFAULT 'JMD',
+        region_code TEXT DEFAULT 'INTL',
+        pricing_version TEXT,
+        pricing_snapshot TEXT,
+        shipping_details TEXT,
+        shipping_amount_jmd DOUBLE PRECISION DEFAULT 0,
+        shipping_service TEXT,
         payment_ref TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -154,7 +193,7 @@ const POSTGRES_SCHEMA = [
         customer_email TEXT,
         customer_phone TEXT,
         design_data TEXT,
-        amount DOUBLE PRECISION DEFAULT 30000,
+        amount DOUBLE PRECISION DEFAULT 0,
         currency TEXT DEFAULT 'JMD',
         status TEXT DEFAULT 'pending',
         payment_ref TEXT,
@@ -218,7 +257,34 @@ const POSTGRES_SCHEMA = [
     `CREATE INDEX IF NOT EXISTS idx_deposit_sessions_status_created_at ON deposit_sessions (status, created_at)`,
     `CREATE INDEX IF NOT EXISTS idx_unavailable_slots_date ON unavailable_slots (block_date)`,
     `CREATE INDEX IF NOT EXISTS idx_design_inquiries_status_created_at ON design_inquiries (status, created_at)`,
-    `CREATE INDEX IF NOT EXISTS idx_custom_invoices_created_at ON custom_invoices (created_at)`
+    `CREATE INDEX IF NOT EXISTS idx_custom_invoices_created_at ON custom_invoices (created_at)`,
+    `CREATE TABLE IF NOT EXISTS leads (
+        id SERIAL PRIMARY KEY,
+        full_name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        location TEXT,
+        occasion TEXT,
+        event_date TEXT,
+        budget_range TEXT,
+        interested_service TEXT,
+        message TEXT,
+        source_page TEXT,
+        source_section TEXT,
+        lead_type TEXT,
+        whatsapp_message TEXT,
+        preferred_contact_method TEXT DEFAULT 'whatsapp',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS testimonials (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        location TEXT,
+        comment TEXT NOT NULL,
+        rating INTEGER DEFAULT 5,
+        is_approved INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`
 ];
 
 module.exports = {

@@ -2,9 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const db = require('./database');
-const firebaseSync = require('./services/firebase-sync');
+const { firebaseSync } = require('./services/firebase-sync');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +18,35 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(cookieParser());
+
+// Protect Admin HTML pages
+app.use((req, res, next) => {
+    if (req.path.startsWith('/admin-') && req.path.endsWith('.html') && req.path !== '/admin-login.html') {
+        const token = req.cookies.admin_token;
+        if (!token) {
+            return res.redirect('/admin-login.html');
+        }
+        
+        try {
+            // First try to verify as JWT (the new secure method)
+            const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+            if (decoded && decoded.role === 'admin') {
+                return next();
+            }
+        } catch (err) {
+            // Fallback for transition phase: allow legacy static passwords
+            const adminPassword = process.env.ADMIN_PASSWORD || 'windross2026';
+            if (token === adminPassword || token === 'admin_authorized') {
+                return next();
+            }
+            return res.redirect('/admin-login.html');
+        }
+        
+        return res.redirect('/admin-login.html');
+    }
+    next();
+});
 
 // Serve Static Files (Frontend)
 app.use(express.static(path.join(__dirname, '../')));

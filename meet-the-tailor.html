@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80SK805QHL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-80SK805QHL');
+    </script>
+    
+    <script src="js/region.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet the Tailor Behind Windross | Windross Tailoring</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Meet the tailor behind Windross Tailoring and discover the craftsmanship, guidance, and personal approach behind custom suits made for weddings, business, church, graduations, and formal occasions.">
+    <meta name="keywords" content="meet the tailor, windross tailoring founder, bespoke tailoring, premium suits jamaica, custom suit process, luxury tailoring">
+    <meta name="author" content="Windross Tailoring">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://windrosstailoringanddesign.com/meet-the-tailor.html">
+    <meta property="og:title" content="Meet the Tailor Behind Windross | Windross Tailoring">
+    <meta property="og:description" content="Discover the craftsmanship, guidance, and personal approach behind Windross custom suits.">
+    <meta property="og:image" content="https://windrosstailoringanddesign.com/images/logo.png">
+    
+    <!-- JSON-LD LocalBusiness Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Windross Tailoring",
+      "image": "https://windrosstailoringanddesign.com/images/logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "68 Hagley Park Road / MANCARE Plaza",
+        "addressLocality": "Kingston",
+        "addressRegion": "St. Andrew",
+        "addressCountry": "JM"
+      },
+      "url": "https://windrosstailoringanddesign.com",
+      "telephone": "+18765986434"
+    }
+    </script>
+
+    <!-- JSON-LD Person Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "David Windross",
+      "jobTitle": "Founder and Lead Tailor",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Windross Tailoring"
+      },
+      "image": "https://windrosstailoringanddesign.com/images/david-windross.jpg"
+    }
+    </script>
+    
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://windrosstailoringanddesign.com/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Meet the Tailor",
+        "item": "https://windrosstailoringanddesign.com/meet-the-tailor.html"
+      }]
+    }
+    </script>
+
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Core Styles (from index) -->
+    <style>
+        :root {
+            --bg-primary: #000;
+            --bg-body: #050505;
+            --bg-surface: #0a0a0a;
+            --bg-secondary: #0f0f10;
+            --bg-tertiary: #1c1c1e;
+            --text-primary: #ffffff;
+            --text-secondary: #86868b;
+            --border-subtle: rgba(255, 255, 255, 0.12);
+            --gold-primary: #D4AF37;
+            --ease-lux: cubic-bezier(0.25, 1, 0.5, 1);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.6);
+            --radius-lg: 24px;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; }
+
+        /* Navigation now handled by site-nav.css */
+
+        
+
+        
+
+        /* Buttons */
+        .btn-base {
+            padding: 14px 28px;
+            border-radius: 100px;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-gold {
+            background: var(--gold-primary);
+            color: #000;
+            border: none;
+        }
+
+        .btn-gold:hover {
+            transform: scale(1.02);
+            background: #e5c158;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-ghost:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Footer */
+        .site-footer {
+            padding: 80px 24px 40px;
+            background: #000;
+            border-top: 1px solid var(--border-subtle);
+            text-align: center;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            text-align: left;
+        }
+
+        .footer-col h4 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-col li {
+            margin-bottom: 12px;
+        }
+
+        .footer-col a {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-subtle);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+    </style>
+    
+    <link rel="stylesheet" href="css/meet-the-tailor.css">
+
+    <link rel="stylesheet" href="css/site-nav.css?v=4.4">
+    <script src="js/tracking.js?v=5.1"></script>
+    <script src="js/whatsapp-helper.js?v=5.1"></script>
+    <link rel="stylesheet" href="css/site-buttons.css?v=4.8">
+</head>
+
+<body>
+    <!-- Standard Site Nav -->
+    <nav class="site-nav">
+        <a href="index.html" class="site-logo">WINDROSS</a>
+        <div class="site-nav-links">
+            <a href="customize.html" class="site-nav-link">Design With a Tailor</a>
+            <a href="ready-to-wear.html" class="site-nav-link">Made to Measure</a>
+            <a href="meet-the-tailor.html" class="site-nav-link active">Meet the Tailor</a>
+            <a href="submit-style.html" class="site-nav-link">Submit Design</a>
+            <a href="gallery.html" class="site-nav-link">Gallery</a>
+            <a href="index.html#faq" class="site-nav-link">FAQ</a>
+            <a href="book.html" class="site-nav-link">Book</a>
+        </div>
+        <button class="site-mobile-toggle" aria-label="Toggle Menu">
+            <i data-lucide="menu" width="28" height="28"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="site-mobile-overlay">
+        <a href="customize.html" class="site-mobile-link">Design With a Tailor</a>
+        <a href="ready-to-wear.html" class="site-mobile-link">Made to Measure</a>
+        <a href="meet-the-tailor.html" class="site-mobile-link active">Meet the Tailor</a>
+        <a href="submit-style.html" class="site-mobile-link">Submit Design</a>
+        <a href="gallery.html" class="site-mobile-link">Gallery</a>
+        <a href="index.html#faq" class="site-mobile-link">FAQ</a>
+        <a href="book.html" class="site-mobile-link">Book</a>
+    </div>
+
+
+    <!-- NAVIGATION -->
+    
+
+    
+
+    <!-- 1. HERO SECTION -->
+    <section class="bio-hero">
+        <div class="bio-hero-content">
+            <h1>Tailoring that begins with the person, not just the pattern.</h1>
+            <p class="bio-hero-subtext">
+                Windross Tailoring was built for clients who want more than clothing. They want presence, precision, confidence, and guidance. Every garment begins with a conversation and is shaped around the person, the occasion, and the impression they want to make.
+            </p>
+            <div class="bio-actions">
+                <a href="book.html" class="btn-base btn-gold" onclick="trackEvent('wt_bio_consultation_click')">Book a Style Consultation</a>
+                <a href="customize.html" class="btn-base btn-ghost" onclick="trackEvent('wt_bio_design_click')">Design With a Tailor</a>
+                <a href="javascript:void(0)" onclick="handleGlobalWhatsAppClick('Hello Windross, I just viewed the Meet the Tailor page and I would like guidance on creating a custom suit.')" class="btn-base btn-ghost">
+                    Message Windross on WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. FOUNDER INTRODUCTION -->
+    <section class="bio-section">
+        <div class="bio-container founder-grid">
+            <div class="founder-image-wrapper">
+                <!-- Replace this placeholder with the founder/tailor’s official portrait. -->
+                <img src="images/david-windross.jpg" alt="David Windross - Founder and Lead Tailor" style="width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block;">
+            </div>
+            <div class="founder-content">
+                <h2 class="bio-section-title left">Meet David Windross</h2>
+                <p class="bio-text left">
+                    David Windross has been immersed in the tailoring business since he was 16 years old, beginning his career as the lead designer for a major tailoring firm. Even then, he possessed an unwavering passion to build his own brand. After 20 years of honing his craft and working under someone else's name, he decided it was time to step out and launch Windross Tailoring and Designs.
+                </p>
+                <p class="bio-text left" style="margin-top: 15px;">
+                    With decades of high-level experience, David doesn't just cut a suit or style it for the business of it—he does it for the pure passion of the work. Every garment is crafted to help the wearer look prepared, confident, and unforgettable.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. BRAND STORY -->
+    <section class="bio-section alt">
+        <div class="bio-container">
+            <h2 class="bio-section-title">Built on Craft, Detail, and Personal Service</h2>
+            <p class="bio-text">
+                Windross Tailoring exists for clients who do not want a generic fit or a rushed experience. Some clients arrive knowing exactly what they want. Others need help choosing the right fabric, colour, fit, and finish. Both are welcome. The Windross process is designed to guide each client from idea to fitting to final garment with care.
+            </p>
+        </div>
+    </section>
+
+    <!-- 4. PHILOSOPHY -->
+    <section class="bio-section">
+        <div class="bio-container">
+            <h2 class="bio-section-title">Our Tailoring Philosophy</h2>
+            <div class="bio-cards-grid">
+                <div class="bio-card">
+                    <h3>Listen First</h3>
+                    <p>Every suit begins with understanding the client, the occasion, the timeline, and the impression they want to create.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>Fit With Purpose</h3>
+                    <p>The goal is not just to make the suit fit the body, but to make the client feel confident wearing it.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>Finish With Excellence</h3>
+                    <p>Details matter — fabric, colour, lapels, trouser style, proportions, and final presentation all work together.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. PROCESS -->
+    <section class="bio-section alt">
+        <div class="bio-container">
+            <h2 class="bio-section-title">How the Windross Experience Works</h2>
+            <ol class="process-list">
+                <li class="process-item">
+                    <h3>Style Conversation</h3>
+                    <p class="bio-text left" style="margin-bottom:0;">Discussing your needs, vision, and the specific event.</p>
+                </li>
+                <li class="process-item">
+                    <h3>Fabric and Design Direction</h3>
+                    <p class="bio-text left" style="margin-bottom:0;">Selecting the right textures, colors, and cuts.</p>
+                </li>
+                <li class="process-item">
+                    <h3>Measurements or Fitting</h3>
+                    <p class="bio-text left" style="margin-bottom:0;">Precision measuring either in-person or guided online.</p>
+                </li>
+                <li class="process-item">
+                    <h3>Tailoring and Refinement</h3>
+                    <p class="bio-text left" style="margin-bottom:0;">Crafting the suit with care and making necessary adjustments.</p>
+                </li>
+                <li class="process-item">
+                    <h3>Final Presentation</h3>
+                    <p class="bio-text left" style="margin-bottom:0;">Delivery of a suit that fits perfectly and feels incredible.</p>
+                </li>
+            </ol>
+            <div style="text-align: center;">
+                <a href="customize.html" class="btn-base btn-gold" onclick="trackEvent('wt_bio_design_click')">Start With Guidance</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. TRUST SECTION -->
+    <section class="bio-section">
+        <div class="bio-container">
+            <h2 class="bio-section-title">Why Clients Choose Windross</h2>
+            <div class="trust-list">
+                <div class="trust-item"><i data-lucide="check-circle"></i> Personal guidance before final decisions</div>
+                <div class="trust-item"><i data-lucide="check-circle"></i> Custom suit direction based on the occasion</div>
+                <div class="trust-item"><i data-lucide="check-circle"></i> In-person and assisted measurement options</div>
+                <div class="trust-item"><i data-lucide="check-circle"></i> Premium styling for milestone moments</div>
+                <div class="trust-item"><i data-lucide="check-circle"></i> Support through WhatsApp and consultation</div>
+                <div class="trust-item"><i data-lucide="check-circle"></i> Local Jamaican tailoring presence</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CLIENT TYPES -->
+    <section class="bio-section alt">
+        <div class="bio-container">
+            <h2 class="bio-section-title">Made for the Moments That Matter</h2>
+            <div class="bio-cards-grid">
+                <div class="bio-card">
+                    <h3>Grooms and Groomsmen</h3>
+                    <p>For weddings where the suit should feel personal, intentional, and remembered.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>Business and Executive Clients</h3>
+                    <p>For professionals who want their appearance to communicate confidence before they say a word.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>Church and Formal Clients</h3>
+                    <p>For clients who value elegance, modest strength, and polished presentation.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>Graduation Clients</h3>
+                    <p>For milestone moments where effort, achievement, and style meet.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>Dinner, Gala, and Photoshoot Clients</h3>
+                    <p>For occasions where ordinary clothing will not create the right impression.</p>
+                </div>
+                <div class="bio-card">
+                    <h3>International Clients</h3>
+                    <p>For clients outside Jamaica who still want guided suit design and support.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. PREMIUM PRICING REASSURANCE -->
+    <section class="bio-section">
+        <div class="bio-container">
+            <h2 class="bio-section-title">Why a Windross Suit Costs More</h2>
+            <p class="bio-text">
+                A Windross suit is not simply selected from a rack. It is shaped around the person, the occasion, the fabric, the fit, and the final impression. The investment reflects the time, guidance, and detail required to create a garment that feels personal and looks intentional.
+            </p>
+            <div style="text-align: center;">
+                <a href="customize.html" class="btn-base btn-ghost" onclick="trackEvent('wt_bio_design_click')">Design With a Tailor</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. FINAL CTA SECTION -->
+    <section class="bio-cta-section">
+        <div class="bio-container">
+            <h2>Not sure where to start? That is exactly why Windross guides you.</h2>
+            <p class="bio-text" style="color: #fff; opacity: 0.8;">
+                Start with a conversation, explore the guided builder, or send Windross a message before making a final decision.
+            </p>
+            <div class="bio-actions">
+                <a href="customize.html" class="btn-base btn-gold" onclick="trackEvent('wt_bio_design_click')">Start Guided Suit Builder</a>
+                <a href="book.html" class="btn-base btn-ghost" onclick="trackEvent('wt_bio_consultation_click')">Book a Consultation</a>
+                <a href="javascript:void(0)" onclick="handleGlobalWhatsAppClick('Hello Windross, I just viewed the Meet the Tailor page and I would like guidance on creating a custom suit.')" class="btn-base btn-ghost">WhatsApp Windross</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Windross Tailoring</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+                    Premium bespoke suits and luxury tailoring originating in Kingston, Jamaica, serving local and international clients through guided tailoring support.
+                </p>
+                <ul>
+                    <li><a href="meet-the-tailor.html">Meet the Tailor</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Collections</h4>
+                <ul>
+                    <li><a href="customize.html">Design With a Tailor</a></li>
+                    <li><a href="ready-to-wear.html">Made to Measure</a></li>
+                    <li><a href="book.html">Book a Consultation</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="javascript:void(0)" onclick="handleGlobalWhatsAppClick('Hello Windross!')">WhatsApp: +1 876-598-6434</a></li>
+                    <li><a href="mailto:info@windrosstailoringanddesign.com">info@windrosstailoringanddesign.com</a></li>
+                    <li style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">68 Hagley Park Road<br>MANCARE Plaza<br>Kingston, Jamaica</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; <script>document.write(new Date().getFullYear())</script> Windross Tailoring. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- TRACKING SCRIPT -->
+    <script>
+        </script>
+    <script src="js/site-nav.js?v=4.4"></script>
+</body>
+</html>
