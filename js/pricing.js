@@ -103,7 +103,7 @@
         const region = getRegionCode();
         const exchangeRate = getExchangeRate(config);
         
-        // Priority Fix 2 & 5: Derive base JMD from the local restored table, NOT priceUSD.
+        // Priority Fix 2 & 5: Derive base JMD from the local restored table.
         let baseAmountJMD = window.calculateSuitPriceBase ? window.calculateSuitPriceBase(item.productName, size) : null;
         if (!baseAmountJMD) {
             throw new Error(`Unknown base price for SKU: ${identifier}`);
@@ -111,7 +111,15 @@
 
         const isIntl = region === REGION_INTL;
         const multiplier = Number(config.internationalMarkupMultiplier || 1.85);
-        const overseasBaseJMD = Math.round(baseAmountJMD * multiplier);
+        
+        let overseasBaseJMD;
+        if (item.priceUSD && !isNaN(Number(item.priceUSD))) {
+            // Ensure overseas customers get the EXACT configured USD price
+            overseasBaseJMD = Math.round(Number(item.priceUSD) * exchangeRate);
+        } else {
+            // Fallback for custom suits without configured USD price
+            overseasBaseJMD = Math.round(baseAmountJMD * multiplier);
+        }
 
         const display = isIntl
             ? buildDisplay(overseasBaseJMD / exchangeRate, 'USD')
@@ -189,10 +197,9 @@
         const exchangeRate = getExchangeRate(config);
         const currency = region === REGION_JM ? 'JMD' : 'USD';
         
-        // For overseas, ensure we apply markup before formatting JMD to USD
-        const multiplier = Number(config.internationalMarkupMultiplier || 1.85);
+        // Assume amountJMD already has regional markups applied by the Pricing Engine or calculateDisplayPrice
         const base = Number(amountJMD || 0);
-        const finalAmount = currency === 'JMD' ? base : (base * multiplier) / exchangeRate;
+        const finalAmount = currency === 'JMD' ? base : base / exchangeRate;
 
         if (currency === 'JMD') {
             return `J$${finalAmount.toLocaleString('en-JM', { minimumFractionDigits: showCents ? 2 : 0, maximumFractionDigits: showCents ? 2 : 0 })}`;

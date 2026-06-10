@@ -430,6 +430,21 @@ function nextStep() {
             pricingEngineSelection = suits[state.suitId].pricingEngineSelection;
         } else if (isCatalog) {
             baseJMD = getCatalogBasePriceJMD(state.suggestedSize) || getCatalogBasePriceJMD('M');
+            
+            // Priority Fix 2: Ensure the JMD equivalent for overseas customers matches the displayed USD
+            if (getRegionCode() === 'INTL') {
+                const sku = window.Pricing ? window.Pricing.normalizeSku(state.suitId) : state.suitId;
+                const config = window.BACKEND_PRICING_CONFIG || {};
+                const item = config.catalog ? config.catalog[sku] : null;
+                const exchangeRate = window.Pricing ? window.Pricing.getExchangeRate(config) : 155;
+                
+                if (item && item.priceUSD && !isNaN(Number(item.priceUSD))) {
+                    baseJMD = Math.round(Number(item.priceUSD) * exchangeRate);
+                } else {
+                    const multiplier = Number(config.internationalMarkupMultiplier || 1.85);
+                    baseJMD = Math.round(baseJMD * multiplier);
+                }
+            }
         } else {
             alert(`Price unavailable for ${state.suitId}. Please return to the collection and select the design again.`);
             return;
@@ -440,7 +455,8 @@ function nextStep() {
             return;
         }
 
-        const finalJMD = isCatalog ? baseJMD : (window.calculateDisplayPrice ? window.calculateDisplayPrice(baseJMD) : baseJMD);
+        // Custom suits already had calculateDisplayPrice applied to them, so we only use baseJMD here since catalog is now pre-adjusted
+        const finalJMD = baseJMD;
         const regionCode = getRegionCode();
 
         fetch('/api/orders/draft', {
@@ -772,7 +788,7 @@ function submitViaWhatsAppCustom() {
     if(window.handleGlobalWhatsAppClick) {
         handleGlobalWhatsAppClick(msg, 'custom_checkout', 'whatsapp_submit');
     } else {
-        window.open(`https://wa.me/18768045952?text=${encodeURIComponent(msg)}`, '_blank');
+        window.open(`https://wa.me/18765986434?text=${encodeURIComponent(msg)}`, '_blank');
     }
 }
 

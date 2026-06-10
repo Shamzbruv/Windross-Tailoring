@@ -778,7 +778,8 @@
                 }
 
                 // Inject description and CTAs
-                const itemData = catalogData[suitName];
+                const sku = window.Pricing ? window.Pricing.normalizeSku(suitName) : suitName;
+                const itemData = catalogData[sku];
                 if (itemData && !card.dataset.upgraded) {
                     card.dataset.upgraded = "true";
 
@@ -824,7 +825,7 @@
                     whatsappBtn.onclick = (e) => {
                         e.preventDefault();
                         if (window.WhatsAppHelper) {
-                            window.WhatsAppHelper.openChat('18768097063', `Hi Windross, I'm interested in the ${suitNameRaw} ready-to-wear suit. Can you provide more details?`);
+                            window.WhatsAppHelper.openChat('18765986434', `Hi Windross, I'm interested in the ${suitNameRaw} ready-to-wear suit. Can you provide more details?`);
                         }
                     };
 

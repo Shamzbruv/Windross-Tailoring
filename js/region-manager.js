@@ -52,10 +52,10 @@ const RegionManager = {
             }
         } catch (e) { }
 
-        // OVERRIDE: If we are on index.html, AND the user just refreshed the page, ALWAYS show the overlay.
-        const forceShow = isIndexPage && (!savedRegion || isRefresh);
+        // OVERRIDE: We no longer force show on index.html refresh. Only show if no saved region.
+        const forceShow = !savedRegion;
 
-        if (savedRegion && !forceShow) {
+        if (!forceShow) {
             console.log("REGION MANAGER: Silently loading", savedRegion);
             this.setRegion(savedRegion, false); // Initialize silently
             this.enforceRegionalCapabilities();

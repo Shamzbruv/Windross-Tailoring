@@ -36,15 +36,33 @@ app.use((req, res, next) => {
                 return next();
             }
         } catch (err) {
-            // Fallback for transition phase: allow legacy static passwords
-            const adminPassword = process.env.ADMIN_PASSWORD || 'windross2026';
-            if (token === adminPassword || token === 'admin_authorized') {
-                return next();
-            }
             return res.redirect('/admin-login.html');
         }
         
         return res.redirect('/admin-login.html');
+    }
+    next();
+});
+
+// Block access to sensitive files and directories before serving static files
+app.use((req, res, next) => {
+    const sensitivePatterns = [
+        /^\/server\//i,
+        /^\/scripts\//i,
+        /^\/\.env/i,
+        /\.db$/i,
+        /\.sqlite/i,
+        /package\.json/i,
+        /package-lock\.json/i,
+        /\.sh$/i,
+        /\.pdf$/i,
+        /\.zip$/i,
+        /^\/\.git\//i,
+        /^\/\.vscode\//i
+    ];
+    
+    if (sensitivePatterns.some(pattern => pattern.test(req.path))) {
+        return res.status(403).send('Forbidden');
     }
     next();
 });

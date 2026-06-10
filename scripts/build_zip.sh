@@ -29,8 +29,14 @@ zip -r "$ZIP_NAME" . \
     -x "server/db/*.sqlite-journal" \
     -x "server/db/*.sqlite-wal" \
     -x "server/db/*.sqlite-shm" \
+    -x "server/*.db" \
+    -x "server/*.sqlite" \
+    -x "server/*.sqlite-journal" \
+    -x "server/*.sqlite-wal" \
+    -x "server/*.sqlite-shm" \
     -x "scripts/test*" \
     -x "*.pdf" \
+    -x "*.zip" \
     -x "$ZIP_NAME"
 
 echo "========================================="
