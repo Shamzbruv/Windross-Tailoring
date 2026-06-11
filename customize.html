@@ -1655,8 +1655,15 @@
         window.addEventListener('region-change', render);
         window.addEventListener('pricing-engine-ready', render);
     </script>
-    <script src="js/back-to-top.js"></script>
+    
+    <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px; position: relative; z-index: 10;">
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+            &copy; 2026 Windross Tailoring. All rights reserved.<br>
+            <a href="#" id="change-region-btn" class="change-region-btn" style="color: var(--text-muted); text-decoration: underline; display: inline-block; margin-top: 10px; cursor: pointer; transition: color 0.3s;" onmouseover="this.style.color='var(--gold-primary)'" onmouseout="this.style.color='var(--text-muted)'">Change Shipping Region</a>
+        </p>
+    </footer>
 
+    <script src="js/back-to-top.js"></script>
     <!-- Native Checkout Code -->
     <div id="native-checkout-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; backdrop-filter:blur(5px); justify-content:center; align-items:center;">
         <div style="background:var(--bg-panel); border:1px solid var(--gold-primary); max-width:600px; width:90%; border-radius:10px; padding:40px; text-align:center;">
