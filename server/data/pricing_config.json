@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "baseCurrency": "JMD",
-    "internationalMarkupMultiplier": 1.85,
+    "internationalMarkupMultiplier": 1,
     "exchangeRate_USD_to_JMD": 155,
     "shippingRates": {
         "dhlUsdToJmd": 157.05,
@@ -32,31 +32,31 @@
             "name": "2-Piece Suit",
             "basePriceJMD": 46000,
             "description": "Standard jacket and trousers",
-            "intlMultiplier": 1.803371
+            "intlMultiplier": 1
         },
         "suit_3_piece": {
             "name": "3-Piece Suit",
             "basePriceJMD": 55000,
             "description": "Jacket, trousers, and waistcoat",
-            "intlMultiplier": 1.803371
+            "intlMultiplier": 1
         },
         "tuxedo": {
             "name": "Tuxedo",
             "basePriceJMD": 52000,
             "description": "Formal tuxedo styling",
-            "intlMultiplier": 1.803371
+            "intlMultiplier": 1
         },
         "jacket_only": {
             "name": "Jacket Only",
             "basePriceJMD": 27000,
             "description": "Custom jacket",
-            "intlMultiplier": 1.840836
+            "intlMultiplier": 1
         },
         "pants_only": {
             "name": "Pants Only",
             "basePriceJMD": 19500,
             "description": "Custom trousers",
-            "intlMultiplier": 1.687451
+            "intlMultiplier": 1
         }
     },
     "fabricGrades": {
