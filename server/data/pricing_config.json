@@ -192,7 +192,7 @@
         "the-kensington": {
             "name": "The Kensington",
             "priceJMD": 38000,
-            "priceUSD": 1250,
+            "priceUSD": 455,
             "description": "A refined look for the modern professional.",
             "occasion": "Business",
             "fit": "Slim Fit",
@@ -208,7 +208,7 @@
         "the-windsor": {
             "name": "The Windsor",
             "priceJMD": 54000,
-            "priceUSD": 1450,
+            "priceUSD": 645,
             "description": "A strong executive suit designed for men who want a clean, commanding look without being too loud.",
             "occasion": "Business, Weddings",
             "fit": "Classic Fit",
@@ -226,7 +226,7 @@
         "the-mayfair": {
             "name": "The Mayfair",
             "priceJMD": 42000,
-            "priceUSD": 1250,
+            "priceUSD": 500,
             "description": "Elegance meets comfort. Perfect for long days.",
             "occasion": "Business Casual",
             "fit": "Tailored Fit",
@@ -243,7 +243,7 @@
         "the-bond": {
             "name": "The Bond",
             "priceJMD": 58000,
-            "priceUSD": 1550,
+            "priceUSD": 690,
             "description": "Sharp, sophisticated, and undeniable. For the man who leads.",
             "occasion": "Formal, Evening",
             "fit": "Slim Fit",
@@ -261,7 +261,7 @@
         "the-chelsea": {
             "name": "The Chelsea",
             "priceJMD": 44000,
-            "priceUSD": 1350,
+            "priceUSD": 525,
             "description": "Contemporary style with timeless appeal.",
             "occasion": "Events",
             "fit": "Modern Fit",
@@ -277,7 +277,7 @@
         "the-ascott": {
             "name": "The Ascott",
             "priceJMD": 56000,
-            "priceUSD": 1450,
+            "priceUSD": 670,
             "description": "A quintessential British look with modern flair.",
             "occasion": "Weddings",
             "fit": "Tailored Fit",
@@ -293,7 +293,7 @@
         "the-victoria": {
             "name": "The Victoria",
             "priceJMD": 38000,
-            "priceUSD": 1250,
+            "priceUSD": 455,
             "description": "Graceful lines and superior fabric for formal wear.",
             "occasion": "Formal",
             "fit": "Classic Fit",
@@ -310,7 +310,7 @@
         "the-oxford": {
             "name": "The Oxford",
             "priceJMD": 62000,
-            "priceUSD": 1400,
+            "priceUSD": 740,
             "description": "Academic prestige transformed into sartorial excellence.",
             "occasion": "Business",
             "fit": "Classic Fit",
@@ -328,7 +328,7 @@
         "the-belgravia": {
             "name": "The Belgravia",
             "priceJMD": 48000,
-            "priceUSD": 1350,
+            "priceUSD": 575,
             "description": "Luxury in every stitch, designed to turn heads.",
             "occasion": "Evening",
             "fit": "Slim Fit",
@@ -344,7 +344,7 @@
         "the-cambridge": {
             "name": "The Cambridge",
             "priceJMD": 58000,
-            "priceUSD": 1400,
+            "priceUSD": 690,
             "description": "Tradition meets contemporary styling.",
             "occasion": "Events",
             "fit": "Tailored Fit",
@@ -362,7 +362,7 @@
         "the-sovereign": {
             "name": "The Sovereign",
             "priceJMD": 29000,
-            "priceUSD": 1500,
+            "priceUSD": 345,
             "description": "Commanding presence with a soft touch.",
             "occasion": "Business",
             "fit": "Modern Fit",
@@ -379,7 +379,7 @@
         "the-regent": {
             "name": "The Regent",
             "priceJMD": 38000,
-            "priceUSD": 1600,
+            "priceUSD": 455,
             "description": "A royal look for the most important days of your life.",
             "occasion": "Weddings",
             "fit": "Slim Fit",
@@ -396,7 +396,7 @@
         "the-grosvenor": {
             "name": "The Grosvenor",
             "priceJMD": 46000,
-            "priceUSD": 1300,
+            "priceUSD": 550,
             "description": "Effortless elegance for every formal setting.",
             "occasion": "Formal",
             "fit": "Classic Fit",
@@ -413,7 +413,7 @@
         "the-savile": {
             "name": "The Savile",
             "priceJMD": 58000,
-            "priceUSD": 1800,
+            "priceUSD": 690,
             "description": "The peak of bespoke. Uncompromising quality.",
             "occasion": "Black Tie",
             "fit": "Tailored Fit",
@@ -431,7 +431,7 @@
         "the-westminster": {
             "name": "The Westminster",
             "priceJMD": 29000,
-            "priceUSD": 1350,
+            "priceUSD": 345,
             "description": "A classic piece that never goes out of style.",
             "occasion": "Business",
             "fit": "Classic Fit",
@@ -447,7 +447,7 @@
         "the-knightsbridge": {
             "name": "The Knightsbridge",
             "priceJMD": 48000,
-            "priceUSD": 1650,
+            "priceUSD": 575,
             "description": "Bold, structured, and designed for impact.",
             "occasion": "Events",
             "fit": "Modern Fit",
@@ -464,7 +464,7 @@
         "the-piccadilly": {
             "name": "The Piccadilly",
             "priceJMD": 42000,
-            "priceUSD": 1300,
+            "priceUSD": 500,
             "description": "Vibrant style with a perfect tailored finish.",
             "occasion": "Events",
             "fit": "Tailored Fit",
@@ -480,7 +480,7 @@
         "the-st-james": {
             "name": "The St. James",
             "priceJMD": 52000,
-            "priceUSD": 1700,
+            "priceUSD": 620,
             "description": "Exclusive design for the modern gentleman.",
             "occasion": "Formal",
             "fit": "Slim Fit",
