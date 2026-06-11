@@ -46,11 +46,7 @@ async function generateOrderPDF(order, items, callback) {
                 });
             }
 
-            // Set authoritative total if available
-            if (measures._pricing) {
-                const p = measures._pricing;
-                order._authTotalJMD = (order._authTotalJMD || 0) + p.regionAdjustedSubtotalJMD;
-            }
+            // Set authoritative total if available (fallback handled below)
         } catch (e) {
             console.error("PDF Parsing error:", e);
         }
@@ -68,20 +64,40 @@ async function generateOrderPDF(order, items, callback) {
         `;
     });
 
+    // Parse pricing snapshot if available
+    let snapshot = null;
+    try {
+        if (order.pricing_snapshot) snapshot = JSON.parse(order.pricing_snapshot);
+    } catch (e) {}
+
+    const currencyStr = order.currency || 'JMD';
+    const symbol = currencyStr === 'GBP' ? '£' : (currencyStr === 'JMD' ? 'J$ ' : '$');
+
+    let authSubtotal = 0;
+    if (snapshot && snapshot.subtotalDisplay) {
+        authSubtotal = snapshot.subtotalDisplay;
+    } else {
+        // Fallback
+        items.forEach(item => {
+            try {
+                const measures = JSON.parse(item.measurements);
+                if (measures._pricing) authSubtotal += measures._pricing.regionAdjustedSubtotalJMD;
+            } catch (e) {}
+        });
+    }
+
     // Subtotal HTML if applicable
     let subtotalsHtml = '';
-    if (order._authTotalJMD) {
+    if (authSubtotal) {
         subtotalsHtml = `
             <tr>
                 <td>Auth Garments Subtotal:</td>
-                <td>$${order._authTotalJMD} JMD</td>
+                <td>${symbol}${authSubtotal} ${currencyStr}</td>
             </tr>
         `;
     }
 
     // Format currency symbol
-    const currencyStr = order.currency || 'JMD';
-    const symbol = currencyStr === 'GBP' ? '£' : (currencyStr === 'JMD' ? 'J$ ' : '$');
     const totalAmountStr = `${symbol}${order.total_amount} ${currencyStr}`;
 
     const printDate = new Date().toLocaleDateString('en-GB', { 

@@ -653,6 +653,21 @@ function getActivePriceJMD() {
     if (catalogItem) {
         const sizeToUse = (state.suggestedSize && !state.sizeError) ? state.suggestedSize : 'M';
         price = getCatalogBasePriceJMD(sizeToUse) || getCatalogBasePriceJMD('M');
+        
+        // Ensure the JMD equivalent for overseas customers matches the displayed USD
+        if (getRegionCode() === 'INTL') {
+            const sku = window.Pricing ? window.Pricing.normalizeSku(state.suitId) : state.suitId;
+            const config = window.BACKEND_PRICING_CONFIG || {};
+            const item = config.catalog ? config.catalog[sku] : null;
+            const exchangeRate = window.Pricing ? window.Pricing.getExchangeRate(config) : 155;
+            
+            if (item && item.priceUSD && !isNaN(Number(item.priceUSD))) {
+                price = Math.round(Number(item.priceUSD) * exchangeRate);
+            } else {
+                const multiplier = Number(config.internationalMarkupMultiplier || 1.85);
+                price = Math.round(price * multiplier);
+            }
+        }
     }
 
     if (!price && catalogItem && window.SUIT_PRICING_JMD && window.SUIT_PRICING_JMD[state.suitId]) {

@@ -137,15 +137,33 @@ async function getAuthoritativePayable(sessionId, clientShippingJMD = 0) {
     }
 
     const totalJMD = roundMoney(subtotalJMD + shippingJMD);
+    
+    let currency = order.currency || 'JMD';
+    let subtotalDisplay = subtotalJMD;
+    let shippingDisplay = shippingJMD;
+    let totalDisplay = totalJMD;
+    
+    if (order.region_code === 'INTL') {
+        currency = 'USD';
+        const exchangeRate = pricedItems[0]?.pricing?.exchangeRateUSDToJMD || 155;
+        subtotalDisplay = roundMoney(subtotalJMD / exchangeRate);
+        shippingDisplay = roundMoney(shippingJMD / exchangeRate);
+        totalDisplay = roundMoney(totalJMD / exchangeRate);
+    }
+    
     const snapshot = {
         pricingVersion: pricedItems[0]?.pricing?.pricingVersion || null,
         items: pricedItems,
         subtotalJMD: roundMoney(subtotalJMD),
         shippingJMD: roundMoney(shippingJMD),
-        totalJMD
+        totalJMD,
+        currency,
+        subtotalDisplay,
+        shippingDisplay,
+        totalDisplay
     };
 
-    return { order, items, subtotalJMD, shippingJMD, totalJMD, snapshot };
+    return { order, items, subtotalJMD, shippingJMD, totalJMD, currency, totalDisplay, snapshot };
 }
 
 function sanitizeDate(value) {
@@ -611,7 +629,7 @@ router.post('/orders/draft', async (req, res) => {
         const insertResult = await db.runAsync(
             `INSERT INTO orders (session_id, status, currency, region_code, pricing_version, pricing_snapshot)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [sessionId, initialStatus, 'JMD', regionCode, authPricing.pricingVersion || null, JSON.stringify(snapshot)]
+            [sessionId, initialStatus, regionCode === 'INTL' ? 'USD' : 'JMD', regionCode, authPricing.pricingVersion || null, JSON.stringify(snapshot)]
         );
         const orderId = insertResult.lastID;
 
@@ -701,7 +719,7 @@ router.post('/payment/wipay/create', async (req, res) => {
 
         await db.runAsync(
             `UPDATE orders SET total_amount=?, currency=?, pricing_snapshot=? WHERE session_id=?`,
-            [payable.totalJMD, 'JMD', JSON.stringify(payable.snapshot), sessionId]
+            [payable.totalDisplay, payable.currency, JSON.stringify(payable.snapshot), sessionId]
         );
         queueDataBackup('order_payment_prepared');
 
@@ -748,7 +766,7 @@ router.post('/payment/bank-transfer', async (req, res) => {
 
         await db.runAsync(
             `UPDATE orders SET total_amount=?, currency=?, pricing_snapshot=?, status='pending_transfer' WHERE session_id=?`,
-            [payable.totalJMD, 'JMD', JSON.stringify(payable.snapshot), sessionId]
+            [payable.totalDisplay, payable.currency, JSON.stringify(payable.snapshot), sessionId]
         );
         queueDataBackup('bank_transfer_marked_pending');
 
