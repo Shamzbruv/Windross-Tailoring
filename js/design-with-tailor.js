@@ -124,12 +124,18 @@ function initDWT() {
     }
 }
 
+function safeTrack(eventName, data = {}) {
+    if (window.wtTrack) {
+        window.wtTrack(eventName, data);
+    }
+}
+
 function startPath(pathName) {
     dwtState.path = pathName;
-    window.wtTrack('wt_entry_path_selected', { path: pathName });
+    safeTrack('wt_entry_path_selected', { path: pathName });
     
     if (pathName === 'whatsapp') {
-        window.wtTrack('wt_whatsapp_click', { source: 'landing_path' });
+        safeTrack('wt_whatsapp_click', { source: 'landing_path' });
         
         if (window.TrackingSystem && window.WhatsAppHelper) {
             window.TrackingSystem.showLeadModal('Speak With Windross', (lead) => {
@@ -157,9 +163,9 @@ function startPath(pathName) {
     
     if (pathName === 'guide' || pathName === 'advanced') {
         if (pathName === 'guide') {
-            window.wtTrack('wt_guided_customizer_started', {});
+            safeTrack('wt_guided_customizer_started', {});
         } else {
-            window.wtTrack('wt_advanced_customizer_started', {});
+            safeTrack('wt_advanced_customizer_started', {});
         }
         renderGuideStep(0);
     }
@@ -234,15 +240,26 @@ function renderGuideStep(stepIndex) {
 
 function handleGuideOption(stepId, optionId, optionLabel) {
     if (stepId === 'date' && !optionId) {
-        alert("Please select a date.");
+        let errDiv = document.getElementById('guide-date-error');
+        if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.id = 'guide-date-error';
+            errDiv.style.cssText = 'background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); border-radius:6px; padding:12px; margin-top:15px; color:#ff6b6b; font-size:0.9rem; text-align:center; animation: slideUp 0.3s ease; width:100%; max-width:400px;';
+            const container = document.querySelector('.gm-date-input').parentNode;
+            container.appendChild(errDiv);
+        }
+        errDiv.innerHTML = "<strong>Please select your event date to continue.</strong>";
         return;
     }
+    
+    const errDiv = document.getElementById('guide-date-error');
+    if (errDiv) errDiv.remove();
     
     dwtState.answers[stepId] = optionId;
     
     // Tracking
     if (stepId === 'gender') {
-        window.wtTrack('wt_gender_selected', { gender: optionId });
+        safeTrack('wt_gender_selected', { gender: optionId });
         // If advanced path, we only needed gender.
         if (dwtState.path === 'advanced') {
             document.getElementById('dwt-wizard-container').style.display = 'none';
@@ -253,11 +270,11 @@ function handleGuideOption(stepId, optionId, optionLabel) {
             return;
         }
     } else if (stepId === 'occasion') {
-        window.wtTrack('wt_occasion_selected', { occasion: optionId });
+        safeTrack('wt_occasion_selected', { occasion: optionId });
     } else if (stepId === 'tier') {
-        window.wtTrack('wt_tier_selected', { tier: optionId });
+        safeTrack('wt_tier_selected', { tier: optionId });
     } else if (stepId === 'measurements_pref') {
-        window.wtTrack('wt_measurement_method_selected', { method: optionId });
+        safeTrack('wt_measurement_method_selected', { method: optionId });
         
         // Pass this to the global selections so the checkout system knows
         if (window.selections) {
@@ -269,7 +286,7 @@ function handleGuideOption(stepId, optionId, optionLabel) {
             }
         }
     } else {
-        window.wtTrack('wt_guided_question_answered', { step: stepId, answer: optionId });
+        safeTrack('wt_guided_question_answered', { step: stepId, answer: optionId });
     }
     
     saveDWTState();
@@ -312,7 +329,7 @@ function applyGuidedSelectionsToCustomizer() {
 }
 
 async function showRecommendation() {
-    window.wtTrack('wt_recommendation_shown', dwtState.answers);
+    safeTrack('wt_recommendation_shown', dwtState.answers);
     const container = document.getElementById('dwt-wizard-container');
     
     let formattedEstimate = 'Calculating...';

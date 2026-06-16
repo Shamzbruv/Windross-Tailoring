@@ -1378,8 +1378,20 @@
 
         function saveSizeRange(size) {
             selections.sizeRange = size;
+
+            selections['size_range'] = {
+                id: size,
+                name: size,
+                title: size,
+                price: 0
+            };
+
             if (!selections.measurements) selections.measurements = {};
             selections.measurements.size_estimate = size;
+
+            const errDiv = document.getElementById('step-selection-error');
+            if (errDiv) errDiv.remove();
+
             render();
         }
 
