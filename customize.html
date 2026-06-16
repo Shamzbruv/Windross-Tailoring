@@ -727,9 +727,9 @@
                 title: 'Garment Package',
                 desc: 'Choose what pieces you want to customize.',
                 items: [
-                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, icon: 'layers', img: 'images/package-full-suit.jpg' },
-                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, icon: 'shirt', img: 'images/package-jacket.jpg' },
-                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'Custom tailored pants.', price: 0, icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
+                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: '2-piece starts at J$47,000. 3-piece starts at J$52,000.', price: 0, icon: 'layers', img: 'images/package-full-suit.jpg' },
+                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'From J$31,500', price: 0, icon: 'shirt', img: 'images/package-jacket.jpg' },
+                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'From J$15,500', price: 0, icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
                 ]
             },
             {
@@ -786,8 +786,14 @@
                 desc: 'Optional 3rd piece for formality.',
                 items: [
                     { id: 'v-none', name: 'No Vest (2-Piece)', desc: 'Standard suit configuration.', price: 0, icon: 'x-circle', img: 'https://i.postimg.cc/Fzn3Drn3/Chat-GPT-Image-Feb-21-2026-06-01-04-PM.png' },
-                    { id: 'v-add', name: 'Add Vest (3-Piece)', desc: 'Includes matching waistcoat.', price: 0, icon: 'plus-circle', img: 'https://i.postimg.cc/nVwm8L0S/Chat-GPT-Image-Feb-21-2026-06-02-50-PM.png' }
+                    { id: 'v-add', name: 'Add Vest (3-Piece)', desc: 'Add Vest — from J$7,000', price: 0, icon: 'plus-circle', img: 'https://i.postimg.cc/nVwm8L0S/Chat-GPT-Image-Feb-21-2026-06-02-50-PM.png' }
                 ]
+            },
+            {
+                id: 'size_range',
+                title: 'Rough Size Estimate',
+                desc: 'Choose the closest size range for an estimate. Your final fit will be confirmed through measurements.',
+                type: 'size_range'
             },
             {
                 id: 'measurements',
@@ -900,9 +906,11 @@
                     </div>
                     <h1>${step.title}</h1>
                     <p>${step.desc}</p>
+                    ${currentStepIndex === 0 ? `
                     <div style="margin-top: 15px; background: rgba(212,175,55,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2); font-size: 0.85rem; color: var(--gold-primary);">
-                        <strong>Prices shown are base estimates.</strong> Larger sizes, special cuts, premium fabrics, or complex styling may adjust the final quote after measurements are reviewed.
+                        <strong>Prices shown are base estimates.</strong> Starting prices are based on standard suit designs and regular construction. Special designs, premium fabrics, complex styling, larger sizing, rush timelines, or unique details may increase the final quote.
                     </div>
+                    ` : ''}
                 </div>
             `;
 
@@ -957,6 +965,25 @@
                 });
                 contentHtml += '</div>';
             }
+            // TYPE: SIZE RANGE
+            else if (step.type === 'size_range') {
+                const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+                contentHtml += '<div class="options-grid">';
+                sizes.forEach(size => {
+                    const isSelected = selections.sizeRange === size;
+                    const isCustomNote = (size === 'XXL' || size === 'XXXL');
+                    contentHtml += `
+                        <div class="option-card ${isSelected ? 'selected' : ''}" onclick="saveSizeRange('${size}')">
+                            <div class="card-header">
+                                <div class="card-title" style="font-size: 1.5rem;">${size}</div>
+                            </div>
+                            <div class="card-desc">Choose the closest range. Windross will confirm your final fit through your measurements.</div>
+                            ${isCustomNote ? '<div style="margin-top: 10px; font-size: 0.8rem; color: var(--gold-primary); font-weight: bold;">Custom fit estimate</div>' : ''}
+                        </div>
+                    `;
+                });
+                contentHtml += '</div>';
+            }
             // TYPE: MEASUREMENTS
             else if (step.type === 'measurements') {
                 const pref = selections.measurementMethod || 'pending';
@@ -992,23 +1019,6 @@
                 `;
 
                 if (pref === 'self_known') {
-                    contentHtml += `
-                        <div class="measurement-group" style="animation: slideUp 0.3s ease; margin-bottom: 25px; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2);">
-                            <label style="color: var(--gold-primary);">Rough Size Estimate</label>
-                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Select an approximate size to help us build your estimate before measurements.</p>
-                            <select id="m-size_estimate" onchange="saveMeasurement('size_estimate', this.value)" style="width:100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); color: white; border-radius: 4px;">
-                                <option value="">Select an approximate size...</option>
-                                <option value="XS" ${selections.measurements.size_estimate === 'XS' ? 'selected' : ''}>XS</option>
-                                <option value="S" ${selections.measurements.size_estimate === 'S' ? 'selected' : ''}>S</option>
-                                <option value="M" ${selections.measurements.size_estimate === 'M' ? 'selected' : ''}>M</option>
-                                <option value="L" ${selections.measurements.size_estimate === 'L' ? 'selected' : ''}>L</option>
-                                <option value="XL" ${selections.measurements.size_estimate === 'XL' ? 'selected' : ''}>XL</option>
-                                <option value="XXL" ${selections.measurements.size_estimate === 'XXL' ? 'selected' : ''}>XXL</option>
-                                <option value="XXXL" ${selections.measurements.size_estimate === 'XXXL' ? 'selected' : ''}>XXXL</option>
-                            </select>
-                        </div>
-                    `;
-
                     step.sections.forEach(section => {
                         const pkg = selections['package'] ? selections['package'].id : 'pkg-full';
                         if (pkg === 'pkg-jacket' && section.title.includes('Pants')) return;
@@ -1317,6 +1327,13 @@
             render();
         }
 
+        function saveSizeRange(size) {
+            selections.sizeRange = size;
+            if (!selections.measurements) selections.measurements = {};
+            selections.measurements.size_estimate = size;
+            render();
+        }
+
         function saveMeasurement(fieldId, value) {
             if (!selections.measurements) selections.measurements = {};
             selections.measurements[fieldId] = value;
@@ -1452,7 +1469,11 @@
                 if (hasReachedStep('jacket') && selections.jacket?.id) gatedOptions.push(selections.jacket.id);
                 if (hasReachedStep('lapels') && selections.lapels?.id) gatedOptions.push(selections.lapels.id);
                 if (hasReachedStep('pants') && selections.pants?.id) gatedOptions.push(selections.pants.id);
-                if (hasReachedStep('vest') && selections.vest?.id) gatedOptions.push(selections.vest.id);
+                if (hasReachedStep('vest') && selections.vest?.id) {
+                    if (styleId !== 'suit_3_piece' || selections.vest.id !== 'v-add') {
+                        gatedOptions.push(selections.vest.id);
+                    }
+                }
                 
                 configSelection.options = gatedOptions;
 
@@ -1568,6 +1589,11 @@
             }
 
             // 1. Prepare Configuration Data
+            let styleId = 'suit_2_piece';
+            if (selections['package'] && selections['package'].id === 'pkg-jacket') styleId = 'jacket_only';
+            else if (selections['package'] && selections['package'].id === 'pkg-pants') styleId = 'pants_only';
+            else if (selections.vest && selections.vest.id === 'v-add') styleId = 'suit_3_piece';
+
             const config = {};
             const optionIds = [];
             const orderKeys = ['texture', 'color', 'jacket', 'lapels', 'pants', 'vest', 'buttons', 'lining'];
@@ -1578,7 +1604,13 @@
                         priceJMD: selections[key].priceJMD || 0,
                         img: selections[key].img || selections[key].image || null
                     };
-                    if (selections[key].id) optionIds.push(selections[key].id);
+                    if (selections[key].id) {
+                        if (styleId === 'suit_3_piece' && selections[key].id === 'v-add') {
+                            // Do not add v-add as an option if the base style is already 3-piece
+                        } else {
+                            optionIds.push(selections[key].id);
+                        }
+                    }
                 }
             });
 
@@ -1597,9 +1629,7 @@
                 details: selections.details || {},
                 // Pricing Engine Output
                 pricingEngineSelection: {
-                    styleId: (selections['package'] && selections['package'].id === 'pkg-jacket') ? 'jacket_only' :
-                             (selections['package'] && selections['package'].id === 'pkg-pants') ? 'pants_only' :
-                             (selections.vest && selections.vest.id === 'v-add') ? 'suit_3_piece' : 'suit_2_piece',
+                    styleId: styleId,
                     tierId: selections.tier || 'mtm',
                     quantity: selections.quantity || 1,
                     fabricId: selections.texture ? selections.texture.id : null,
