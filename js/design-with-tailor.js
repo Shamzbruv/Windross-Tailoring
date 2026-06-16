@@ -119,14 +119,16 @@ function initDWT() {
     loadDWTState();
 
     // Initialize tracking safely
-    if (window.wtTrack) {
-        window.wtTrack('wt_page_view', { page: 'design_with_tailor' });
-    }
+    safeTrack('wt_page_view', { page: 'design_with_tailor' });
 }
 
 function safeTrack(eventName, data = {}) {
     if (window.wtTrack) {
-        window.wtTrack(eventName, data);
+        try {
+            window.wtTrack(eventName, data);
+        } catch (err) {
+            console.warn('[DWT Tracking skipped]', eventName, err);
+        }
     }
 }
 
@@ -440,7 +442,7 @@ function formatMeasurementMethod(val) {
 }
 
 function refineInCustomizer() {
-    window.wtTrack('wt_advanced_customizer_started', { source: 'guide_me_refine' });
+    safeTrack('wt_advanced_customizer_started', { source: 'guide_me_refine' });
     document.getElementById('dwt-wizard-container').style.display = 'none';
     if (window.selectGender) {
         window.selectGender(dwtState.answers.gender);
@@ -448,7 +450,7 @@ function refineInCustomizer() {
 }
 
 function continueToCheckout() {
-    window.wtTrack('begin_checkout', { source: 'guide_me' });
+    safeTrack('begin_checkout', { source: 'guide_me' });
     
     document.getElementById('dwt-wizard-container').style.display = 'none';
     if (window.selectGender) window.selectGender(dwtState.answers.gender);
