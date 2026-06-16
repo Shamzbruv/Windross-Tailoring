@@ -110,9 +110,13 @@
                     
                     <!-- Skip Measurements & Help -->
                     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--bg-border);">
-                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: var(--text-main);">
-                            <input type="checkbox" id="skip-measurements" onchange="toggleMeasurementBypass()" style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold-primary);">
-                            <span style="font-size: 0.95rem;">I don't have my measurements right now. Let me secure my order, and I'll provide them later.</span>
+                        <label class="checkbox-container" style="margin-top: 15px;">
+                            <input type="checkbox" id="skip-measurements" onchange="toggleMeasurementBypass()">
+                            <span class="checkmark"></span>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.95rem;">I’ll provide my exact measurements later.</span>
+                                <span style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">You can continue with a rough size estimate today. Windross will confirm your final measurements before production.</span>
+                            </div>
                         </label>
                         <div id="skip-measurements-warning" style="display: none; margin-top: 15px; padding: 15px; background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-gold); border-radius: 8px; color: var(--gold-primary); font-size: 0.85rem; line-height: 1.5;">
                             <i data-lucide="info" width="16" height="16" style="display: inline-block; vertical-align: middle; margin-right: 5px;"></i>

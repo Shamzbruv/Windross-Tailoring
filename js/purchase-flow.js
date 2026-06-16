@@ -404,8 +404,9 @@ function nextStep() {
         // Validate measurements
         const skipMeasurementsCheckbox = document.getElementById('skip-measurements');
         const skipMeasurements = skipMeasurementsCheckbox ? skipMeasurementsCheckbox.checked : false;
+        const hasRoughSize = !!state.measurements.size_estimate;
 
-        const inputs = document.querySelectorAll('#step-1 input:not(#skip-measurements)');
+        const inputs = document.querySelectorAll('#step-1 input[type="number"]');
         let valid = true;
         inputs.forEach(i => {
             if (!i.value) valid = false;
@@ -413,12 +414,23 @@ function nextStep() {
 
         if (!getRegionCode()) { alert("Please select your shopping region before proceeding."); return; }
 
-        if (!skipMeasurements && !valid) {
-            alert("Please fill in all measurements.");
+        if (!skipMeasurements && !hasRoughSize && !valid) {
+            let errDiv = document.getElementById('purchase-measurement-error');
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'purchase-measurement-error';
+                errDiv.style.cssText = 'background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); border-radius:6px; padding:12px; margin-bottom:15px; color:#ff6b6b; font-size:0.9rem; text-align:center; animation: slideUp 0.3s ease;';
+                const nextBtn = document.getElementById('btn-next');
+                nextBtn.parentNode.insertBefore(errDiv, nextBtn);
+            }
+            errDiv.innerHTML = "<strong>Please choose an approximate size, enter your measurements, or select the option to provide measurements later.</strong>";
             return;
         }
+        
+        const errDiv = document.getElementById('purchase-measurement-error');
+        if (errDiv) errDiv.remove();
 
-        if (!skipMeasurements && state.sizeError && state.suitId !== 'Custom' && state.suitId !== 'Custom Bespoke Suit') {
+        if (!skipMeasurements && state.sizeError && state.suitId !== 'Custom' && state.suitId !== 'Custom Bespoke Suit' && !hasRoughSize) {
             alert("Size could not be determined or style is unavailable in your size. Please re-check measurements.");
             return;
         }
@@ -433,6 +445,10 @@ function nextStep() {
         if (skipMeasurements) {
             payloadMeasurements._skipMeasurements = true;
             state.suggestedSize = 'TBD';
+        } else if (hasRoughSize && !valid) {
+            payloadMeasurements._roughSizeOnly = true;
+            payloadMeasurements._measurementStatus = 'rough_size_selected';
+            payloadMeasurements._measurementFollowupRequired = true;
         }
 
         payloadMeasurements.suggestedSize = state.suggestedSize || 'N/A';
@@ -964,6 +980,9 @@ function updateSuggestedSizeUI() {
             confLabel.textContent = `Fit Confidence: ${suggestion.confidence}%`;
         }
     } else if (state.measurements.size_estimate) {
+        state.suggestedSize = state.measurements.size_estimate;
+        state.suggestedConfidence = null;
+        state.sizeError = false;
         sizeLabel.innerHTML = `Selected rough size: ${state.measurements.size_estimate}`;
         sizeLabel.style.fontSize = '1.5rem';
         confLabel.textContent = 'Guide only. Final measurements will be confirmed.';
