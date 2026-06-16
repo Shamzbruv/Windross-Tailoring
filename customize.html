@@ -727,9 +727,9 @@
                 title: 'Garment Package',
                 desc: 'Choose what pieces you want to customize.',
                 items: [
-                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: '2-piece starts at J$47,000. 3-piece starts at J$52,000.', price: 0, icon: 'layers', img: 'images/package-full-suit.jpg' },
-                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'From J$31,500', price: 0, icon: 'shirt', img: 'images/package-jacket.jpg' },
-                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'From J$15,500', price: 0, icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
+                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, displayPrice: '2-piece from J$47,000<br>3-piece from J$52,000', icon: 'layers', img: 'images/package-full-suit.jpg' },
+                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, displayPrice: 'From J$31,500', icon: 'shirt', img: 'images/package-jacket.jpg' },
+                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'Custom tailored pants.', price: 0, displayPrice: 'From J$15,500', icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
                 ]
             },
             {
@@ -786,7 +786,7 @@
                 desc: 'Optional 3rd piece for formality.',
                 items: [
                     { id: 'v-none', name: 'No Vest (2-Piece)', desc: 'Standard suit configuration.', price: 0, icon: 'x-circle', img: 'https://i.postimg.cc/Fzn3Drn3/Chat-GPT-Image-Feb-21-2026-06-01-04-PM.png' },
-                    { id: 'v-add', name: 'Add Vest (3-Piece)', desc: 'Add Vest — from J$7,000', price: 0, icon: 'plus-circle', img: 'https://i.postimg.cc/nVwm8L0S/Chat-GPT-Image-Feb-21-2026-06-02-50-PM.png' }
+                    { id: 'v-add', name: 'Add Vest (3-Piece)', desc: 'Includes matching waistcoat.', price: 0, displayPrice: 'Add Vest — from J$7,000', icon: 'plus-circle', img: 'https://i.postimg.cc/nVwm8L0S/Chat-GPT-Image-Feb-21-2026-06-02-50-PM.png' }
                 ]
             },
             {
@@ -906,7 +906,7 @@
                     </div>
                     <h1>${step.title}</h1>
                     <p>${step.desc}</p>
-                    ${currentStepIndex === 0 ? `
+                    ${(currentStepIndex === 0 || step.id === 'package') ? `
                     <div style="margin-top: 15px; background: rgba(212,175,55,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2); font-size: 0.85rem; color: var(--gold-primary);">
                         <strong>Prices shown are base estimates.</strong> Starting prices are based on standard suit designs and regular construction. Special designs, premium fabrics, complex styling, larger sizing, rush timelines, or unique details may increase the final quote.
                     </div>
@@ -1248,7 +1248,7 @@
                             <div class="card-header">
                                 <i data-lucide="${item.icon}" class="card-icon" width="24"></i>
                                 <div class="card-title">${item.name}</div>
-                                ${item.price > 0 ? `<div class="card-price">+${window.formatJMDWithRegion ? window.formatJMDWithRegion(item.priceJMD || item.price) : CurrencyManager.format(item.priceJMD || item.price)}</div>` : ''}
+                                ${item.displayPrice ? `<div class="card-price" style="font-size: 0.9rem;">${item.displayPrice}</div>` : (item.price > 0 ? `<div class="card-price">+${window.formatJMDWithRegion ? window.formatJMDWithRegion(item.priceJMD || item.price) : CurrencyManager.format(item.priceJMD || item.price)}</div>` : '')}
                             </div>
                             <div class="card-desc">${item.desc}</div>
                             ${inlineImgHtml}
