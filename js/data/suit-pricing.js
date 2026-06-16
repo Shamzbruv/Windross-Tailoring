@@ -63,18 +63,8 @@ window.calculateSuitPriceBase = function (suitName, size) {
     if (suit.priceJMD) return suit.priceJMD;
 
     // Fallback logic for legacy hardcoded window.SUIT_PRICING_JMD
-    const standardSize = SIZE_MAPPING[size] || 'M';
-    const allowed = suit.allowedSizes || DEFAULT_ALLOWED_SIZES;
-    const sizeIndex = allowed.indexOf(standardSize);
-
-    if (sizeIndex === -1) return null;
-    if (allowed.length === 1) return suit.min;
-
-    const steps = allowed.length - 1;
-    const range = suit.max - suit.min;
-    const stepSize = range / steps;
-
-    return Math.round(suit.min + (stepSize * sizeIndex));
+    // Base pricing only, surcharges handled by notes
+    return suit.min || 0;
 };
 
 window.calculateDisplayPrice = function (basePriceJMD) {

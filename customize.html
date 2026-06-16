@@ -900,6 +900,9 @@
                     </div>
                     <h1>${step.title}</h1>
                     <p>${step.desc}</p>
+                    <div style="margin-top: 15px; background: rgba(212,175,55,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2); font-size: 0.85rem; color: var(--gold-primary);">
+                        <strong>Prices shown are base estimates.</strong> Larger sizes, special cuts, premium fabrics, or complex styling may adjust the final quote after measurements are reviewed.
+                    </div>
                 </div>
             `;
 
@@ -989,6 +992,23 @@
                 `;
 
                 if (pref === 'self_known') {
+                    contentHtml += `
+                        <div class="measurement-group" style="animation: slideUp 0.3s ease; margin-bottom: 25px; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2);">
+                            <label style="color: var(--gold-primary);">Rough Size Estimate</label>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Select an approximate size to help us build your estimate before measurements.</p>
+                            <select id="m-size_estimate" onchange="saveMeasurement('size_estimate', this.value)" style="width:100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); color: white; border-radius: 4px;">
+                                <option value="">Select an approximate size...</option>
+                                <option value="XS" ${selections.measurements.size_estimate === 'XS' ? 'selected' : ''}>XS</option>
+                                <option value="S" ${selections.measurements.size_estimate === 'S' ? 'selected' : ''}>S</option>
+                                <option value="M" ${selections.measurements.size_estimate === 'M' ? 'selected' : ''}>M</option>
+                                <option value="L" ${selections.measurements.size_estimate === 'L' ? 'selected' : ''}>L</option>
+                                <option value="XL" ${selections.measurements.size_estimate === 'XL' ? 'selected' : ''}>XL</option>
+                                <option value="XXL" ${selections.measurements.size_estimate === 'XXL' ? 'selected' : ''}>XXL</option>
+                                <option value="XXXL" ${selections.measurements.size_estimate === 'XXXL' ? 'selected' : ''}>XXXL</option>
+                            </select>
+                        </div>
+                    `;
+
                     step.sections.forEach(section => {
                         const pkg = selections['package'] ? selections['package'].id : 'pkg-full';
                         if (pkg === 'pkg-jacket' && section.title.includes('Pants')) return;

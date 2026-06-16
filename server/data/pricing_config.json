@@ -30,13 +30,13 @@
     "styles": {
         "suit_2_piece": {
             "name": "2-Piece Suit",
-            "basePriceJMD": 46000,
+            "basePriceJMD": 47000,
             "description": "Standard jacket and trousers",
             "intlMultiplier": 1
         },
         "suit_3_piece": {
             "name": "3-Piece Suit",
-            "basePriceJMD": 55000,
+            "basePriceJMD": 52000,
             "description": "Jacket, trousers, and waistcoat",
             "intlMultiplier": 1
         },
@@ -48,13 +48,13 @@
         },
         "jacket_only": {
             "name": "Jacket Only",
-            "basePriceJMD": 27000,
+            "basePriceJMD": 31500,
             "description": "Custom jacket",
             "intlMultiplier": 1
         },
         "pants_only": {
             "name": "Pants Only",
-            "basePriceJMD": 19500,
+            "basePriceJMD": 15500,
             "description": "Custom trousers",
             "intlMultiplier": 1
         }
@@ -131,7 +131,7 @@
             "priceJMD": 0
         },
         "v-add": {
-            "priceJMD": 0
+            "priceJMD": 7000
         }
     },
     "sizing": {

@@ -12,14 +12,14 @@ const SIZE_CHART = {
         'XXXXL': { chest: [49.6, 53.1], waist: [44.5, 48.0], hips: [49.6, 53.1], shoulder: [21.7, 22.8], sleeve: [28.7, 29.5], neck: [19.3, 20.5], height: [72.8, 80.7], weight: [287, 331] }
     },
     female: {
-        'XS': { bust: [30.7, 32.7], waist: [23.6, 25.6], hips: [33.1, 35.0], shoulder: [14.2, 15.0], sleeve: [22.0, 22.8], neck: [11.8, 12.6], height: [59.1, 63.0], weight: [99, 121] },
-        'S': { bust: [33.1, 35.0], waist: [26.0, 28.0], hips: [35.4, 37.4], shoulder: [15.0, 15.7], sleeve: [22.8, 23.6], neck: [12.6, 13.4], height: [62.2, 65.0], weight: [121, 137] },
-        'M': { bust: [35.4, 37.4], waist: [28.3, 30.3], hips: [37.8, 39.8], shoulder: [15.7, 16.5], sleeve: [23.6, 24.4], neck: [13.4, 14.2], height: [65.0, 67.7], weight: [137, 159] },
-        'L': { bust: [37.8, 39.8], waist: [30.7, 32.7], hips: [40.2, 42.1], shoulder: [16.5, 17.3], sleeve: [24.4, 25.2], neck: [14.2, 15.0], height: [66.9, 70.1], weight: [159, 181] },
-        'XL': { bust: [40.2, 42.1], waist: [33.1, 35.0], hips: [42.5, 44.5], shoulder: [17.3, 18.1], sleeve: [25.2, 26.0], neck: [15.0, 15.7], height: [66.9, 70.9], weight: [181, 203] },
-        'XXL': { bust: [42.5, 45.3], waist: [35.4, 38.6], hips: [44.9, 47.2], shoulder: [18.1, 18.9], sleeve: [26.0, 26.8], neck: [15.7, 16.5], height: [66.9, 71.7], weight: [203, 231] },
-        'XXXL': { bust: [45.7, 48.4], waist: [39.0, 42.1], hips: [47.6, 50.4] },
-        'XXXXL': { bust: [48.8, 53.1], waist: [42.5, 46.5], hips: [50.8, 55.1] }
+        'XS': { bust: [30.7, 34.0], waist: [23.6, 25.6], hips: [33.1, 35.0], shoulder: [14.2, 15.0], sleeve: [22.0, 22.8], neck: [11.8, 12.6], height: [59.1, 63.0], weight: [99, 121] },
+        'S': { bust: [33.1, 36.5], waist: [26.0, 28.0], hips: [35.4, 37.4], shoulder: [15.0, 15.7], sleeve: [22.8, 23.6], neck: [12.6, 13.4], height: [62.2, 65.0], weight: [121, 137] },
+        'M': { bust: [35.4, 39.0], waist: [28.3, 30.3], hips: [37.8, 39.8], shoulder: [15.7, 16.5], sleeve: [23.6, 24.4], neck: [13.4, 14.2], height: [65.0, 67.7], weight: [137, 159] },
+        'L': { bust: [37.8, 41.5], waist: [30.7, 32.7], hips: [40.2, 42.1], shoulder: [16.5, 17.3], sleeve: [24.4, 25.2], neck: [14.2, 15.0], height: [66.9, 70.1], weight: [159, 181] },
+        'XL': { bust: [40.2, 44.0], waist: [33.1, 35.0], hips: [42.5, 44.5], shoulder: [17.3, 18.1], sleeve: [25.2, 26.0], neck: [15.0, 15.7], height: [66.9, 70.9], weight: [181, 203] },
+        'XXL': { bust: [42.5, 47.0], waist: [35.4, 38.6], hips: [44.9, 47.2], shoulder: [18.1, 18.9], sleeve: [26.0, 26.8], neck: [15.7, 16.5], height: [66.9, 71.7], weight: [203, 231] },
+        'XXXL': { bust: [45.7, 50.0], waist: [39.0, 42.1], hips: [47.6, 50.4], shoulder: [18.9, 19.7], sleeve: [26.8, 27.6], neck: [16.5, 17.3], height: [66.9, 71.7], weight: [231, 260] },
+        'XXXXL': { bust: [48.8, 54.0], waist: [42.5, 46.5], hips: [50.8, 55.1], shoulder: [19.7, 20.5], sleeve: [27.6, 28.4], neck: [17.3, 18.1], height: [66.9, 71.7], weight: [260, 290] }
     }
 };
 const state = {
@@ -355,7 +355,22 @@ function renderMeasurementFields() {
     }
 
     // Render
-    let html = '';
+    let html = `
+        <div class="form-group" style="margin-bottom: 25px; background: rgba(212,175,55,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2);">
+            <label style="color: var(--gold-primary);">Rough Size Estimate</label>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Select an approximate size to help us build your estimate before measurements.</p>
+            <select id="m-size_estimate" onchange="updateMeasurement('size_estimate', this.value)" style="width:100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); color: white; border-radius: 4px;">
+                <option value="">Select an approximate size...</option>
+                <option value="XS" ${state.measurements.size_estimate === 'XS' ? 'selected' : ''}>XS</option>
+                <option value="S" ${state.measurements.size_estimate === 'S' ? 'selected' : ''}>S</option>
+                <option value="M" ${state.measurements.size_estimate === 'M' ? 'selected' : ''}>M</option>
+                <option value="L" ${state.measurements.size_estimate === 'L' ? 'selected' : ''}>L</option>
+                <option value="XL" ${state.measurements.size_estimate === 'XL' ? 'selected' : ''}>XL</option>
+                <option value="XXL" ${state.measurements.size_estimate === 'XXL' ? 'selected' : ''}>XXL</option>
+                <option value="XXXL" ${state.measurements.size_estimate === 'XXXL' ? 'selected' : ''}>XXXL</option>
+            </select>
+        </div>
+    `;
     fields.forEach(f => {
         html += `
             <div class="form-group">
@@ -672,6 +687,22 @@ function updateSummaryPrices() {
     if (state.step < 3) {
         document.getElementById('summary-total').textContent = formattedPrice;
     }
+    
+    // Add currency note
+    const regionCode = getRegionCode();
+    const currencyNote = regionCode === 'INTL' ? 'Prices shown in US$ for overseas customers. WiPay may process the final charge in JMD.' : 'Prices shown in J$ for Jamaica.';
+    
+    let currencyNoteEl = document.getElementById('currency-clarity-note');
+    if (!currencyNoteEl) {
+        currencyNoteEl = document.createElement('div');
+        currencyNoteEl.id = 'currency-clarity-note';
+        currencyNoteEl.style.fontSize = '0.8rem';
+        currencyNoteEl.style.color = 'var(--gold-primary)';
+        currencyNoteEl.style.marginTop = '10px';
+        const summaryBox = document.querySelector('.summary-box');
+        if (summaryBox) summaryBox.appendChild(currencyNoteEl);
+    }
+    if (currencyNoteEl) currencyNoteEl.textContent = currencyNote;
 
     // Update image
     const imgEl = document.getElementById('summary-img');
@@ -922,35 +953,18 @@ function updateSuggestedSizeUI() {
     const confLabel = document.getElementById('suggested-size-confidence');
     const nextBtn = document.getElementById('btn-next');
 
-    // Reset button
+    // Always enable the next button - DO NOT block custom orders based on size
     if (nextBtn) nextBtn.disabled = false;
+    state.sizeError = false;
 
     if (suggestion.confidence < 50 || suggestion.size === 'CUSTOM / OUT OF RANGE') {
-        sizeLabel.textContent = 'CUSTOM / OUT OF RANGE';
+        sizeLabel.textContent = 'Custom Fit Required';
         sizeLabel.style.fontSize = '1.2rem';
-        confLabel.textContent = 'Confidence below 50%. Please re-check measurements or proceed for a custom fit.';
-        state.sizeError = true;
-        if (nextBtn) nextBtn.disabled = true;
+        confLabel.textContent = 'Custom fit available — final measurements will be confirmed by Windross.';
     } else {
-        // Check availability strictly
-        let available = true;
-        if (window.SUIT_PRICING_JMD && window.SUIT_PRICING_JMD[state.suitId]) {
-            const basePrice = window.calculateSuitPriceBase(state.suitId, suggestion.size);
-            if (basePrice === null) available = false;
-        }
-
-        if (!available) {
-            sizeLabel.innerHTML = `❌ Not available in your size (${suggestion.size})`;
-            sizeLabel.style.fontSize = '1.2rem';
-            confLabel.textContent = `Fit Confidence: ${suggestion.confidence}%. However, this suit style does not support your suggested size.`;
-            state.sizeError = true;
-            if (nextBtn) nextBtn.disabled = true;
-        } else {
-            sizeLabel.innerHTML = `✅ ${suggestion.size} (Available)`;
-            sizeLabel.style.fontSize = '2rem';
-            confLabel.textContent = `Fit Confidence: ${suggestion.confidence}%`;
-            state.sizeError = false;
-        }
+        sizeLabel.innerHTML = `Estimated starting size: ${suggestion.size}`;
+        sizeLabel.style.fontSize = '1.5rem';
+        confLabel.textContent = `Fit Confidence: ${suggestion.confidence}%`;
     }
 
     if (typeof updateSummaryPrices === 'function') updateSummaryPrices();
