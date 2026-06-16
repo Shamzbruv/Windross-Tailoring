@@ -1232,7 +1232,7 @@ Rise: ${getVal('rise')} inches`;
             const region = window.Region ? window.Region.getRegion() : 'INTL';
             console.log("[REGION]", { wt_region: localStorage.getItem("wt_region"), normalized: region });
             
-            if (region === 'JA') {
+            if (region === 'JM') {
                 const virtualCard = document.getElementById('card-virtual');
                 if (virtualCard) virtualCard.style.display = 'none';
             } else {
