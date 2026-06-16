@@ -987,7 +987,56 @@
             // TYPE: MEASUREMENTS
             else if (step.type === 'measurements') {
                 const pref = selections.measurementMethod || 'pending';
+                const roughSize = selections.sizeRange;
+                let sizeSummaryHtml = '';
+                
+                if (roughSize) {
+                    const isCustomNote = (roughSize === 'XXL' || roughSize === 'XXXL');
+                    const gender = selections.gender || 'male';
+                    let guideHtml = '';
+                    
+                    if (gender === 'male' || gender === 'masculine') {
+                        const guideData = {
+                            'XS': 'Chest: 34-36 in | Waist: 28-30 in | Hips: 34-36 in | Shoulder: 16-17 in | Sleeve: 24-25 in',
+                            'S': 'Chest: 36-38 in | Waist: 30-32 in | Hips: 36-38 in | Shoulder: 17-18 in | Sleeve: 24.5-25.5 in',
+                            'M': 'Chest: 38-40 in | Waist: 32-34 in | Hips: 38-40 in | Shoulder: 18-19 in | Sleeve: 25-26 in',
+                            'L': 'Chest: 40-42 in | Waist: 34-37 in | Hips: 40-42 in | Shoulder: 18-19 in | Sleeve: 25-26 in',
+                            'XL': 'Chest: 42-46 in | Waist: 37-41 in | Hips: 42-45 in | Shoulder: 19-20 in | Sleeve: 25.5-26.5 in',
+                            'XXL': 'Chest: 46-50 in | Waist: 41-45 in | Hips: 45-48 in | Shoulder: 20-21 in | Sleeve: 26-27 in',
+                            'XXXL': 'Chest: 50-54 in | Waist: 45-49 in | Hips: 48-51 in | Shoulder: 21-22 in | Sleeve: 26.5-27.5 in'
+                        };
+                        const guide = guideData[roughSize];
+                        if (guide) {
+                            guideHtml = `<div style="margin-top: 10px; font-size: 0.85rem; color: #ccc;"><strong>Approximate guide:</strong><br>${guide.replace(/ \\| /g, '<br>')}</div>`;
+                        }
+                    } else {
+                        const guideData = {
+                            'XS': 'Bust: 32-34 in | Waist: 24-26 in | Hips: 34-36 in | Shoulder: 14-15 in | Sleeve: 23-24 in',
+                            'S': 'Bust: 34-36 in | Waist: 26-28 in | Hips: 36-38 in | Shoulder: 15-16 in | Sleeve: 23.5-24.5 in',
+                            'M': 'Bust: 36-38 in | Waist: 28-30 in | Hips: 38-40 in | Shoulder: 16-17 in | Sleeve: 24-25 in',
+                            'L': 'Bust: 38-41 in | Waist: 30-33 in | Hips: 40-43 in | Shoulder: 16-17.5 in | Sleeve: 24.5-25.5 in',
+                            'XL': 'Bust: 41-44 in | Waist: 33-37 in | Hips: 43-46 in | Shoulder: 17-18.5 in | Sleeve: 25-26 in',
+                            'XXL': 'Bust: 44-48 in | Waist: 37-41 in | Hips: 46-50 in | Shoulder: 18-19.5 in | Sleeve: 25.5-26.5 in',
+                            'XXXL': 'Bust: 48-52 in | Waist: 41-45 in | Hips: 50-54 in | Shoulder: 19-20.5 in | Sleeve: 26-27 in'
+                        };
+                        const guide = guideData[roughSize];
+                        if (guide) {
+                            guideHtml = `<div style="margin-top: 10px; font-size: 0.85rem; color: #ccc;"><strong>Approximate guide:</strong><br>${guide.replace(/ \\| /g, '<br>')}</div>`;
+                        }
+                    }
+
+                    sizeSummaryHtml = `
+                        <div class="measurement-group" style="margin-bottom: 30px; animation: slideUp 0.3s ease; background: rgba(212,175,55,0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2);">
+                            <h3 style="color: var(--gold-primary); margin-bottom: 5px;">Selected rough size: ${roughSize}</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">This is only a guide. Your suit will still be tailored to your actual measurements.</p>
+                            ${guideHtml}
+                            ${isCustomNote ? '<div style="margin-top: 15px; font-size: 0.85rem; color: var(--gold-primary); font-weight: bold;">Custom fit estimate — final quote may adjust after measurements are reviewed.</div>' : ''}
+                        </div>
+                    `;
+                }
+
                 contentHtml += '<div class="measurement-form" style="padding-bottom:50px;">';
+                contentHtml += sizeSummaryHtml;
                 
                 contentHtml += `
                     <div class="measurement-group" style="margin-bottom: 40px; animation: slideUp 0.3s ease;">
@@ -1379,10 +1428,19 @@
             const activeSteps = getActiveSteps();
             const currentStep = activeSteps[currentStepIndex];
             
-            // Validate selection
             if (currentStep.type !== 'measurements' && currentStep.type !== 'details' && currentStep.type !== 'quantity') {
                 if (!selections[currentStep.id]) {
-                    alert("Please make a selection to continue.");
+                    const header = document.querySelector('.step-header');
+                    if (header) {
+                        let errDiv = document.getElementById('step-selection-error');
+                        if (!errDiv) {
+                            errDiv = document.createElement('div');
+                            errDiv.id = 'step-selection-error';
+                            errDiv.style.cssText = 'background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); border-radius:6px; padding:12px; margin-top:15px; color:#ff6b6b; font-size:0.9rem; text-align:center; animation: slideUp 0.3s ease; width:100%;';
+                            header.appendChild(errDiv);
+                        }
+                        errDiv.innerHTML = "<strong>Please choose an option to continue.</strong>";
+                    }
                     return;
                 }
             }

@@ -951,14 +951,26 @@ function updateSuggestedSizeUI() {
     if (nextBtn) nextBtn.disabled = false;
     state.sizeError = false;
 
-    if (suggestion.confidence < 50 || suggestion.size === 'CUSTOM / OUT OF RANGE') {
-        sizeLabel.textContent = 'Custom Fit Required';
-        sizeLabel.style.fontSize = '1.2rem';
-        confLabel.textContent = 'Custom fit available — final measurements will be confirmed by Windross.';
-    } else {
-        sizeLabel.innerHTML = `Estimated starting size: ${suggestion.size}`;
+    const hasDetailedMeasurements = Object.keys(state.measurements).some(k => k !== 'size_estimate' && k !== 'inputUnit' && state.measurements[k]);
+
+    if (hasDetailedMeasurements) {
+        if (suggestion.confidence < 50 || suggestion.size === 'CUSTOM / OUT OF RANGE') {
+            sizeLabel.textContent = 'Custom Fit Required';
+            sizeLabel.style.fontSize = '1.2rem';
+            confLabel.textContent = 'Custom fit available — final measurements will be confirmed by Windross.';
+        } else {
+            sizeLabel.innerHTML = `Estimated starting size: ${suggestion.size}`;
+            sizeLabel.style.fontSize = '1.5rem';
+            confLabel.textContent = `Fit Confidence: ${suggestion.confidence}%`;
+        }
+    } else if (state.measurements.size_estimate) {
+        sizeLabel.innerHTML = `Selected rough size: ${state.measurements.size_estimate}`;
         sizeLabel.style.fontSize = '1.5rem';
-        confLabel.textContent = `Fit Confidence: ${suggestion.confidence}%`;
+        confLabel.textContent = 'Guide only. Final measurements will be confirmed.';
+    } else {
+        sizeLabel.textContent = 'Pending Measurements';
+        sizeLabel.style.fontSize = '1.2rem';
+        confLabel.textContent = 'Please select a size or enter measurements.';
     }
 
     if (typeof updateSummaryPrices === 'function') updateSummaryPrices();
