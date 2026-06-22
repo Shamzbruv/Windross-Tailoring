@@ -727,9 +727,10 @@
                 title: 'Garment Package',
                 desc: 'Choose what pieces you want to customize.',
                 items: [
-                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, displayPrice: '2-piece from J$47,000<br>3-piece from J$52,000', icon: 'layers', img: 'images/package-full-suit.jpg' },
-                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, displayPrice: 'From J$31,500', icon: 'shirt', img: 'images/package-jacket.jpg' },
-                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'Custom tailored pants.', price: 0, displayPrice: 'From J$15,500', icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' }
+                    { id: 'pkg-full', name: 'Full Suit (2 or 3 Piece)', desc: 'Jacket & Trousers.', price: 0, displayPrice: '2-piece from J$51,700<br>3-piece from J$57,200', icon: 'layers', img: 'images/package-full-suit.jpg' },
+                    { id: 'pkg-jacket', name: 'Jacket Only', desc: 'A bespoke standalone blazer.', price: 0, displayPrice: 'From J$24,000', icon: 'shirt', img: 'images/package-jacket.jpg' },
+                    { id: 'pkg-pants', name: 'Trousers Only', desc: 'Custom tailored pants.', price: 0, displayPrice: 'From J$12,500', icon: 'scissors', img: 'https://i.postimg.cc/bwSsfHsS/Chat-GPT-Image-Feb-21-2026-05-41-54-PM.png' },
+                    { id: 'pkg-vest', name: 'Vest Only', desc: 'A custom waistcoat / vest.', price: 0, displayPrice: 'From J$5,500', icon: 'shirt', img: 'images/package-full-suit.jpg' }
                 ]
             },
             {
@@ -875,6 +876,7 @@
                 const pkg = selections['package'].id;
                 if (pkg === 'pkg-jacket' && ['pants', 'vest'].includes(step.id)) return false;
                 if (pkg === 'pkg-pants' && ['jacket', 'lapels', 'vest'].includes(step.id)) return false;
+                if (pkg === 'pkg-vest' && ['jacket', 'lapels', 'pants', 'vest'].includes(step.id)) return false;
                 return true;
             });
         }
@@ -968,6 +970,7 @@
             // TYPE: SIZE RANGE
             else if (step.type === 'size_range') {
                 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+                // Note: XXXXL removed — no prices provided by client for any item at that size
                 contentHtml += '<div class="options-grid">';
                 sizes.forEach(size => {
                     const isSelected = selections.sizeRange === size;
@@ -1522,6 +1525,7 @@
                     styleId = (hasReachedStep('vest') && selections.vest && selections.vest.id === 'v-add') ? 'suit_3_piece' : 'suit_2_piece';
                     if (selections['package'].id === 'pkg-jacket') styleId = 'jacket_only';
                     if (selections['package'].id === 'pkg-pants') styleId = 'pants_only';
+                    if (selections['package'].id === 'pkg-vest') styleId = 'vest_only';
                 }
 
                 const configSelection = {
@@ -1532,7 +1536,9 @@
                     constructionType: 'half_canvas',
                     options: [],
                     measurements: hasReachedStep('measurements') ? (selections.measurements || {}) : {},
-                    quantity: hasReachedStep('quantity') ? (selections.quantity || 1) : 1
+                    quantity: hasReachedStep('quantity') ? (selections.quantity || 1) : 1,
+                    size: selections.sizeRange || null,
+                    sizeEstimate: selections.sizeRange || null
                 };
 
                 const gatedOptions = [];
@@ -1549,15 +1555,31 @@
 
                 const estimate = window.PricingEngine.calculateEstimate(configSelection);
                 if (estimate) {
-                    priceDisplay.innerText = estimate.finalDisplay;
                     window.currentPricingEstimate = estimate;
+
+                    // Handle quote-required (unavailable size)
+                    if (estimate.quoteRequired || estimate.unavailable) {
+                        priceDisplay.innerText = 'Custom quote required';
+                        priceDisplay.style.fontSize = '0.9rem';
+                        const nextBtn = document.getElementById('btn-next');
+                        if (nextBtn && currentStepIndex === activeSteps.length - 1) {
+                            nextBtn.disabled = true;
+                            nextBtn.innerHTML = 'Quote Required <i data-lucide="message-circle"></i>';
+                        }
+                    } else {
+                        priceDisplay.innerText = estimate.finalDisplay;
+                        priceDisplay.style.fontSize = '';
+                        const nextBtn = document.getElementById('btn-next');
+                        if (nextBtn) nextBtn.disabled = false;
+                    }
                     
                     const pBreakdown = document.getElementById('price-breakdown');
                     if (pBreakdown) {
                         if (currentStepIndex > 0) {
                             let buildItems = [];
-                            if (selections['package']) buildItems.push(selections['package'].title || '2-Piece Suit');
+                            if (selections['package']) buildItems.push(selections['package'].title || selections['package'].name || '2-Piece Suit');
                             if (hasReachedStep('texture') && selections.texture) buildItems.push(selections.texture.title || 'Fabric');
+                            if (estimate.resolvedSize) buildItems.push('Size ' + estimate.resolvedSize);
                             
                             pBreakdown.innerHTML = buildItems.join(' + ');
                         } else {
@@ -1658,10 +1680,34 @@
                 return;
             }
 
+            // Block checkout for sizes that require a custom quote
+            if (estimate.quoteRequired || estimate.unavailable) {
+                const footer = document.querySelector('.wizard-footer');
+                let errDiv = document.getElementById('validation-error-notice');
+                if (!errDiv) {
+                    errDiv = document.createElement('div');
+                    errDiv.id = 'validation-error-notice';
+                    errDiv.style.cssText = 'background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); border-radius:6px; padding:15px; margin-top:15px; color:#ff6b6b; font-size:0.9rem; text-align:center; animation: slideUp 0.3s ease; width:100%;';
+                    if (footer) footer.appendChild(errDiv);
+                }
+                const sizeLabel = estimate.selectedSize || estimate.resolvedSize || 'selected';
+                const wMsg = encodeURIComponent(`Hello Windross, I need a custom quote for a ${estimate.styleName || 'custom garment'} in size ${sizeLabel}. Can you help?`);
+                errDiv.innerHTML = `
+                    <strong>Custom Quote Required</strong><br>
+                    <span style="color:var(--text-muted); font-size:0.85rem;">Pricing for size ${sizeLabel} is not available online. Please contact Windross Tailoring for a custom quote.</span><br>
+                    <button class="btn-whatsapp" style="margin-top:12px; padding:10px 20px;" onclick="handleGlobalWhatsAppClick(decodeURIComponent('${wMsg}'))">
+                        <i data-lucide="message-circle" width="16" height="16" style="vertical-align:middle;"></i> Get a Quote on WhatsApp
+                    </button>
+                `;
+                if (window.lucide) window.lucide.createIcons();
+                return;
+            }
+
             // 1. Prepare Configuration Data
             let styleId = 'suit_2_piece';
             if (selections['package'] && selections['package'].id === 'pkg-jacket') styleId = 'jacket_only';
             else if (selections['package'] && selections['package'].id === 'pkg-pants') styleId = 'pants_only';
+            else if (selections['package'] && selections['package'].id === 'pkg-vest') styleId = 'vest_only';
             else if (selections.vest && selections.vest.id === 'v-add') styleId = 'suit_3_piece';
 
             const config = {};
@@ -1706,7 +1752,9 @@
                     fabricGrade: selections.texture ? selections.texture.id : 'cool-wool',
                     constructionType: 'half_canvas',
                     options: optionIds,
-                    measurements: selections.measurements || {}
+                    measurements: selections.measurements || {},
+                    size: selections.sizeRange || null,
+                    sizeEstimate: selections.sizeRange || null
                 },
                 pricing: estimate
             };

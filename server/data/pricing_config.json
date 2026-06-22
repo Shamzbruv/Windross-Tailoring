@@ -31,14 +31,27 @@
         "suit_2_piece": {
             "name": "2-Piece Suit",
             "basePriceJMD": 47000,
-            "description": "Standard jacket and trousers",
-            "intlMultiplier": 1
+            "description": "Custom jacket and trousers",
+            "intlMultiplier": 1,
+            "sizePricesJMD": {
+                "L": 51700,
+                "XL": 56870,
+                "XXL": 62557,
+                "XXXL": 68812
+            }
         },
         "suit_3_piece": {
             "name": "3-Piece Suit",
             "basePriceJMD": 52000,
-            "description": "Jacket, trousers, and waistcoat",
-            "intlMultiplier": 1
+            "description": "Custom jacket, trousers, and vest",
+            "intlMultiplier": 1,
+            "sizePricesJMD": {
+                "XS": 42000,
+                "L": 57200,
+                "XL": 62920,
+                "XXL": 69212,
+                "XXXL": 76133
+            }
         },
         "tuxedo": {
             "name": "Tuxedo",
@@ -50,13 +63,40 @@
             "name": "Jacket Only",
             "basePriceJMD": 31500,
             "description": "Custom jacket",
-            "intlMultiplier": 1
+            "intlMultiplier": 1,
+            "sizePricesJMD": {
+                "XS": 24000,
+                "L": 34650,
+                "XL": 38115,
+                "XXL": 41926,
+                "XXXL": 46119
+            }
         },
         "pants_only": {
             "name": "Pants Only",
             "basePriceJMD": 15500,
             "description": "Custom trousers",
-            "intlMultiplier": 1
+            "intlMultiplier": 1,
+            "sizePricesJMD": {
+                "XS": 12500,
+                "L": 17050,
+                "XL": 18755,
+                "XXL": 20630,
+                "XXXL": 22693
+            }
+        },
+        "vest_only": {
+            "name": "Vest Only",
+            "basePriceJMD": 7000,
+            "description": "Custom vest / waistcoat",
+            "intlMultiplier": 1,
+            "sizePricesJMD": {
+                "XS": 5500,
+                "L": 7700,
+                "XL": 8470,
+                "XXL": 9317,
+                "XXXL": 10248
+            }
         }
     },
     "fabricGrades": {
@@ -185,6 +225,16 @@
                 "2X": 2.75,
                 "3X": 3,
                 "4X": 3.25
+            },
+            "vest_only": {
+                "XS": 1.0,
+                "S": 1.1,
+                "M": 1.25,
+                "L": 1.4,
+                "XL": 1.5,
+                "2X": 1.65,
+                "3X": 1.75,
+                "4X": 1.9
             }
         }
     },

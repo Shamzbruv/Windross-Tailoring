@@ -3,6 +3,21 @@
  * Fetches config from backend and calculates live estimates.
  */
 
+/**
+ * Normalize size aliases to canonical form.
+ * 2X → XXL, 3X → XXXL, 4X → XXXXL
+ */
+function normalizeSize(size) {
+    if (!size || typeof size !== 'string') return null;
+    const upper = size.trim().toUpperCase();
+    const aliases = {
+        '2X': 'XXL',
+        '3X': 'XXXL',
+        '4X': 'XXXXL'
+    };
+    return aliases[upper] || upper;
+}
+
 const PricingEngine = {
     config: null,
     isLoaded: false,
@@ -45,7 +60,7 @@ const PricingEngine = {
 
     /**
      * Estimates pricing based on current selections.
-     * @param {Object} selection - { styleId, fabricId, constructionType, options: [id1, id2], measurements: { chest, waist, hips, height, inputUnit } }
+     * @param {Object} selection - { styleId, fabricId, constructionType, options: [id1, id2], measurements: { chest, waist, hips, height, inputUnit }, size, sizeEstimate }
      */
     calculateEstimate(selection) {
         if (!this.isLoaded || !this.config) return null;
@@ -60,9 +75,49 @@ const PricingEngine = {
         let optionsPriceJMD = 0;
         let sizeSurchargeJMD = 0;
 
-        // 1. Base Price
-        if (this.config.styles[styleId]) {
-            basePriceJMD = this.config.styles[styleId].basePriceJMD;
+        // --- SIZE RESOLUTION ---
+        // Priority: selection.size → selection.sizeEstimate → measurements.size_estimate → computed from measurements
+        const style = this.config.styles[styleId];
+        let suggestedSize = 'M';
+        const hasMeasurements = measurements && (measurements.chest || measurements.bust || measurements.pant_waist || measurements.torso_waist);
+        if (hasMeasurements) {
+            suggestedSize = this._computeSuggestedSize(measurements);
+        }
+
+        const resolvedSize = normalizeSize(
+            selection.size ||
+            selection.sizeEstimate ||
+            (measurements && measurements.size_estimate) ||
+            suggestedSize
+        );
+
+        // --- 1. BASE PRICE (SIZE-BASED LOOKUP) ---
+        if (style && style.sizePricesJMD) {
+            // Style has exact size-price table — use it
+            const exactBasePrice = style.sizePricesJMD[resolvedSize];
+
+            if (!Number.isFinite(exactBasePrice)) {
+                // Size not in the table — return quote-required result
+                return {
+                    unavailable: true,
+                    quoteRequired: true,
+                    selectedSize: resolvedSize,
+                    resolvedSize: resolvedSize,
+                    styleId: styleId,
+                    styleName: style.name || styleId,
+                    message: 'Pricing for this size requires a custom quote. Please contact Windross Tailoring.',
+                    basePriceJMD: 0,
+                    subtotalJMD: 0,
+                    regionAdjustedSubtotalJMD: 0,
+                    suggestedSize,
+                    finalDisplay: 'Custom quote required'
+                };
+            }
+
+            basePriceJMD = exactBasePrice;
+        } else if (style) {
+            // Style without sizePricesJMD (e.g. tuxedo) — use old basePriceJMD
+            basePriceJMD = style.basePriceJMD || 0;
         }
 
         // 2. Fabric & Size Surcharge (Yardage-based calculation)
@@ -79,7 +134,8 @@ const PricingEngine = {
             suit_3_piece: 5.0,
             tuxedo: 4.0,
             jacket_only: 2.5,
-            pants_only: 2.0
+            pants_only: 2.0,
+            vest_only: 1.25
         };
         
         let packageStyle = 'suit_2_piece';
@@ -88,21 +144,19 @@ const PricingEngine = {
         }
 
         let yardsNeeded = provisionalYards[packageStyle] || 4.0;
-        let suggestedSize = 'M';
         
-        // Only use the yardage matrix if the user has actually entered measurements
-        const hasMeasurements = measurements && (measurements.chest || measurements.bust || measurements.pant_waist || measurements.torso_waist);
-        if (hasMeasurements) {
-            suggestedSize = this._computeSuggestedSize(measurements);
-            if (this.config.sizing && this.config.sizing.yardageMatrix && this.config.sizing.yardageMatrix[packageStyle]) {
-                if (this.config.sizing.yardageMatrix[packageStyle][suggestedSize]) {
-                    yardsNeeded = this.config.sizing.yardageMatrix[packageStyle][suggestedSize];
-                }
+        // Use the yardage matrix with the resolved size for fabric cost
+        if (this.config.sizing && this.config.sizing.yardageMatrix && this.config.sizing.yardageMatrix[packageStyle]) {
+            // Try normalized size first, then original aliases for yardage matrix compatibility
+            const yardageForSize = this.config.sizing.yardageMatrix[packageStyle][resolvedSize]
+                || this.config.sizing.yardageMatrix[packageStyle][selection.size || selection.sizeEstimate || (measurements && measurements.size_estimate) || suggestedSize];
+            if (yardageForSize) {
+                yardsNeeded = yardageForSize;
             }
         }
 
         const fabricPriceJMD = yardsNeeded * fabricPricePerYardJMD;
-        sizeSurchargeJMD = 0; // Integrated into the yardage cost natively now
+        sizeSurchargeJMD = 0; // Integrated into the size-based base price now
 
         // 3. Construction
         if (constructionType && this.config.construction[constructionType]) {
@@ -155,6 +209,7 @@ const PricingEngine = {
             subtotalJMD,
             regionAdjustedSubtotalJMD,
             suggestedSize,
+            resolvedSize,
             appliedMarkupPercent,
             fabricPricePerYardJMD,
             yardsNeeded,

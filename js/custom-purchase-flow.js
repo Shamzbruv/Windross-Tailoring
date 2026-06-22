@@ -504,6 +504,7 @@ function nextStep() {
                 currencyDisplay: regionCode === 'INTL' ? 'USD' : 'JMD',
                 pricingEngineSelection: pricingEngineSelection,
                 pricing: pricingPayload,
+                resolvedSize: pricingPayload ? pricingPayload.resolvedSize : null,
                 quantity: suits[state.suitId] ? suits[state.suitId].quantity || 1 : 1,
                 additionalColors: suits[state.suitId] ? suits[state.suitId].additionalColors || 'same' : 'same',
                 extraColors: suits[state.suitId] ? suits[state.suitId].extraColors || {} : {}
@@ -649,6 +650,12 @@ function getActivePriceJMD() {
 
     // Custom Suits
     if (!catalogItem && (state.suitId === 'Custom' || state.suitId === 'Custom Bespoke Suit' || (suits[state.suitId] && suits[state.suitId].pricingEngineSelection))) {
+        // Check for quote-required state
+        const pricing = suits[state.suitId] && suits[state.suitId].pricing;
+        if (pricing && (pricing.quoteRequired || pricing.unavailable)) {
+            return 0; // Will be displayed as 'Custom quote required'
+        }
+
         let customBaseJMD = suits[state.suitId].price;
 
         if (!Number.isFinite(Number(customBaseJMD))) {
@@ -691,13 +698,48 @@ function updateSummaryPrices() {
     const suitData = suits[state.suitId] || suits['default'];
     document.getElementById('summary-suit-name').textContent = state.suitId;
 
+    // Check for quote-required state
+    const pricing = suitData && suitData.pricing;
+    const isQuoteRequired = pricing && (pricing.quoteRequired || pricing.unavailable);
+
     const priceJMD = getActivePriceJMD();
-    const formattedPrice = priceJMD > 0
-        ? (window.formatJMDWithRegion ? window.formatJMDWithRegion(priceJMD) : `J$ ${priceJMD}`)
-        : 'Price unavailable';
+
+    let formattedPrice;
+    if (isQuoteRequired) {
+        formattedPrice = 'Custom quote required';
+    } else {
+        formattedPrice = priceJMD > 0
+            ? (window.formatJMDWithRegion ? window.formatJMDWithRegion(priceJMD) : `J$ ${priceJMD}`)
+            : 'Price unavailable';
+    }
 
     // Base Price
     document.getElementById('summary-price').textContent = formattedPrice;
+
+    // Show resolved size if available
+    const resolvedSize = pricing && pricing.resolvedSize;
+    let sizeNote = document.getElementById('summary-size-note');
+    if (resolvedSize) {
+        if (!sizeNote) {
+            sizeNote = document.createElement('div');
+            sizeNote.id = 'summary-size-note';
+            sizeNote.style.cssText = 'font-size: 0.85rem; color: var(--gold-primary); margin-top: 5px;';
+            const priceEl = document.getElementById('summary-price');
+            if (priceEl && priceEl.parentNode) priceEl.parentNode.insertBefore(sizeNote, priceEl.nextSibling);
+        }
+        sizeNote.textContent = `Selected Size: ${resolvedSize}`;
+    } else if (sizeNote) {
+        sizeNote.textContent = '';
+    }
+
+    // Disable pay button for quote-required
+    const payBtn = document.getElementById('pay-btn');
+    if (payBtn) {
+        if (isQuoteRequired) {
+            payBtn.disabled = true;
+            payBtn.innerHTML = 'Custom Quote Required';
+        }
+    }
 
     // Initial Total (no shipping yet)
     if (state.step < 3) {
@@ -797,6 +839,15 @@ function handlePayment() {
     const btn = document.getElementById('pay-btn');
     btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Processing...';
     btn.disabled = true;
+
+    // Block payment for quote-required custom suits
+    const suitRecord = suits[state.suitId];
+    if (suitRecord && suitRecord.pricing && (suitRecord.pricing.quoteRequired || suitRecord.pricing.unavailable)) {
+        btn.innerHTML = 'Custom Quote Required';
+        btn.disabled = true;
+        alert('Pricing for your selected size requires a custom quote. Please contact Windross Tailoring via WhatsApp.');
+        return;
+    }
 
     const shippingJMD = state.shippingJMD || 0;
     const suitPriceJMD = getActivePriceJMD();

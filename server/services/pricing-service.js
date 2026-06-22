@@ -104,6 +104,18 @@ function quoteCustomSuit(selection, region = REGION_INTL) {
         throw err;
     }
 
+    // Block checkout for sizes that require a custom quote
+    if (quote.quoteRequired || quote.unavailable) {
+        const err = new Error(
+            quote.message ||
+            `Pricing for size "${quote.selectedSize || 'unknown'}" requires a custom quote. Please contact Windross Tailoring.`
+        );
+        err.statusCode = 400;
+        err.quoteRequired = true;
+        err.selectedSize = quote.selectedSize;
+        throw err;
+    }
+
     const config = loadConfig();
     const exchangeRate = getExchangeRate(config);
     const display = regionCode === REGION_JM
