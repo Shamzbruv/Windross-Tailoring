@@ -16,6 +16,8 @@
             --bg: #0c0c0e;
             --card-bg: #141418;
             --card-border: rgba(216, 196, 141, 0.12);
+            --info-bg: rgba(255, 255, 255, 0.03);
+            --info-border: rgba(216, 196, 141, 0.08);
             --gold: #D8C48D;
             --gold-dim: rgba(216, 196, 141, 0.6);
             --white: #f5f2eb;
@@ -40,201 +42,241 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .brand-header {
-            text-align: center;
-            margin-bottom: 28px;
-            padding-top: 8px;
-        }
-
-        .brand-name {
-            font-family: var(--font-heading);
-            font-size: 1.55rem;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: 0.5px;
-        }
-
-        .brand-tagline {
-            font-size: 0.76rem;
-            color: var(--muted);
-            margin-top: 4px;
-            letter-spacing: 0.3px;
-        }
-
         .invoice-card {
             width: 100%;
-            max-width: 620px;
+            max-width: 680px;
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 16px;
             overflow: hidden;
         }
 
-        /* ─── Header ─── */
-        .invoice-header {
-            padding: 26px 28px 20px;
-            border-bottom: 1px solid var(--divider);
+        /* ─── Top Header (matches PDF) ─── */
+        .inv-top-header {
+            padding: 28px 28px 22px;
+            border-bottom: 2px solid var(--gold);
         }
 
-        .invoice-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--gold);
-            margin-bottom: 5px;
-        }
-
-        .invoice-number {
-            font-family: var(--font-heading);
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--white);
-        }
-
-        .invoice-meta {
+        .inv-top-row {
             display: flex;
-            gap: 24px;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
             flex-wrap: wrap;
-            margin-top: 14px;
         }
 
-        .meta-item { font-size: 0.82rem; }
-        .meta-label { color: var(--muted); font-weight: 500; }
-        .meta-value { color: var(--white); margin-top: 2px; }
+        .inv-brand-name {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.3px;
+        }
 
-        /* ─── Sections ─── */
-        .invoice-section {
+        .inv-brand-tagline {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .inv-title-right { text-align: right; }
+
+        .inv-title-label {
+            font-family: var(--font-heading);
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+
+        .inv-title-meta {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ─── FROM / BILL TO cards ─── */
+        .inv-info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
             padding: 20px 28px;
             border-bottom: 1px solid var(--divider);
         }
 
-        .section-title {
-            font-size: 0.72rem;
-            font-weight: 600;
+        .inv-info-card {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+
+        .inv-info-label {
+            font-size: 0.68rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--gold-dim);
-            margin-bottom: 14px;
+            letter-spacing: 1.4px;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .inv-info-text {
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.65;
+            white-space: pre-line;
+        }
+
+        .inv-info-text strong {
+            color: var(--white);
+            font-weight: 600;
         }
 
         /* ─── Line Items Table ─── */
-        .items-table { width: 100%; border-collapse: collapse; }
-
-        .items-table th {
-            font-size: 0.72rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--muted);
-            text-align: left;
-            padding: 0 0 10px;
+        .inv-items-section {
+            padding: 20px 28px;
             border-bottom: 1px solid var(--divider);
         }
 
-        .items-table th:last-child,
-        .items-table td:last-child { text-align: right; }
+        .items-table { width: 100%; border-collapse: collapse; }
 
-        .items-table th:nth-child(2),
-        .items-table td:nth-child(2) { text-align: center; width: 50px; }
+        .items-table thead tr {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+        }
+
+        .items-table th {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--white);
+            text-align: left;
+            padding: 10px 12px;
+        }
+
+        .items-table th:nth-child(2) { text-align: center; width: 50px; }
+        .items-table th:nth-child(3),
+        .items-table th:nth-child(4) { text-align: right; }
 
         .items-table td {
-            font-size: 0.86rem;
-            padding: 11px 0;
+            font-size: 0.84rem;
+            padding: 13px 12px;
             border-bottom: 1px solid var(--divider);
             vertical-align: top;
         }
 
         .items-table tr:last-child td { border-bottom: none; }
+        .items-table td:nth-child(2) { text-align: center; color: var(--muted); }
+        .items-table td:nth-child(3) { text-align: right; color: var(--muted); white-space: nowrap; }
+        .items-table td:nth-child(4) { text-align: right; font-weight: 600; white-space: nowrap; }
 
-        .item-desc { font-weight: 500; color: var(--white); }
-        .item-qty { color: var(--muted); }
-        .item-amount { font-weight: 600; color: var(--white); white-space: nowrap; }
+        .item-desc { font-weight: 600; color: var(--white); }
 
-        /* ─── Totals ─── */
-        .totals-section {
-            padding: 18px 28px 22px;
+        /* ─── Payment + Totals side-by-side (matches PDF) ─── */
+        .inv-summary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            padding: 20px 28px;
             border-bottom: 1px solid var(--divider);
         }
+
+        .inv-payment-card,
+        .inv-totals-card {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+
+        .inv-section-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 0.82rem;
+        }
+
+        .payment-label { color: var(--muted); font-weight: 500; }
+        .payment-value { color: var(--white); font-weight: 600; text-align: right; }
+        .payment-value.gold { color: var(--gold); }
+        .payment-value.green { color: var(--green); }
+        .payment-value.amber { color: var(--amber); }
 
         .totals-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 5px 0;
-            font-size: 0.86rem;
+            font-size: 0.84rem;
         }
 
-        .totals-label { color: var(--muted); font-weight: 500; }
-        .totals-value { color: var(--white); font-weight: 600; }
+        .totals-label { color: var(--muted); font-weight: 600; }
+        .totals-value { color: var(--white); font-weight: 600; text-align: right; }
 
         .totals-divider { border: none; border-top: 1px solid var(--divider); margin: 8px 0; }
 
-        .total-row { padding: 8px 0 2px; }
-        .total-row .totals-label {
+        .total-final { padding: 6px 0 2px; }
+        .total-final .totals-label {
             font-family: var(--font-heading);
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: var(--white);
             font-weight: 700;
         }
-        .total-row .totals-value {
+        .total-final .totals-value {
             font-family: var(--font-heading);
-            font-size: 1.12rem;
+            font-size: 1.08rem;
             color: var(--gold);
             font-weight: 700;
         }
 
-        /* ─── Payment Grid ─── */
-        .payment-section {
-            padding: 20px 28px;
+        /* ─── Balance Outstanding banner ─── */
+        .inv-balance-banner {
+            padding: 16px 28px;
             border-bottom: 1px solid var(--divider);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .payment-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .payment-stat {
-            background: rgba(255, 255, 255, 0.025);
-            border-radius: 10px;
-            padding: 14px;
-        }
-
-        .stat-label {
+        .balance-label {
             font-size: 0.7rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1.2px;
             color: var(--muted);
-            margin-bottom: 4px;
         }
 
-        .stat-value { font-size: 0.98rem; font-weight: 700; color: var(--white); }
-        .stat-value.paid   { color: var(--green); }
-        .stat-value.partial { color: var(--amber); }
-        .stat-value.unpaid  { color: var(--muted); }
-        .stat-value.balance { color: var(--gold); }
-
-        .status-chip {
-            display: inline-block;
-            font-size: 0.72rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            padding: 4px 12px;
-            border-radius: 20px;
+        .balance-amount {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
         }
-
-        .status-chip.paid    { background: rgba(74, 222, 128, 0.12); color: var(--green); }
-        .status-chip.partial { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
-        .status-chip.unpaid  { background: rgba(255, 255, 255, 0.06); color: var(--muted); }
 
         /* ─── Notes ─── */
-        .notes-section {
-            padding: 20px 28px;
+        .inv-notes-section {
+            padding: 18px 28px;
             border-bottom: 1px solid var(--divider);
+        }
+
+        .notes-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--gold-dim);
+            margin-bottom: 8px;
         }
 
         .notes-text {
@@ -245,15 +287,15 @@
         }
 
         /* ─── Exchange Policy ─── */
-        .policy-banner {
+        .inv-policy-banner {
             padding: 18px 28px;
             background: rgba(216, 196, 141, 0.035);
             border-bottom: 1px solid var(--divider);
         }
 
         .policy-title {
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.68rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.2px;
             color: var(--gold);
@@ -262,16 +304,16 @@
 
         .policy-text {
             font-family: var(--font-heading);
-            font-size: 1.02rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--white);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .policy-sub { font-size: 0.76rem; color: var(--muted); }
 
         /* ─── Actions ─── */
-        .actions-section { padding: 24px 28px; }
+        .inv-actions { padding: 24px 28px; }
 
         .download-btn {
             display: flex;
@@ -319,16 +361,16 @@
         /* ─── Footer ─── */
         .footer-text {
             text-align: center;
-            margin-top: 28px;
+            margin-top: 24px;
             font-size: 0.76rem;
             color: var(--muted);
-            max-width: 420px;
+            max-width: 460px;
             line-height: 1.6;
         }
 
         .footer-text a { color: var(--gold-dim); text-decoration: none; }
 
-        /* ─── Loading ─── */
+        /* ─── Loading & Error ─── */
         .loading-container {
             display: flex;
             flex-direction: column;
@@ -348,10 +390,8 @@
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .loading-text { font-size: 0.86rem; color: var(--muted); }
 
-        /* ─── Error ─── */
         .error-container {
             display: flex;
             flex-direction: column;
@@ -390,34 +430,30 @@
         }
 
         .whatsapp-btn:hover { background: rgba(37, 211, 102, 0.18); }
-
         .whatsapp-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
         /* ─── Responsive ─── */
-        @media (max-width: 480px) {
-            body { padding: 16px 12px 40px; }
+        @media (max-width: 560px) {
+            body { padding: 16px 10px 40px; }
 
-            .invoice-header, .invoice-section, .totals-section,
-            .payment-section, .notes-section, .policy-banner,
-            .actions-section { padding-left: 20px; padding-right: 20px; }
+            .inv-top-header, .inv-info-row, .inv-items-section,
+            .inv-summary-row, .inv-notes-section, .inv-policy-banner,
+            .inv-actions, .inv-balance-banner { padding-left: 18px; padding-right: 18px; }
 
-            .brand-name { font-size: 1.3rem; }
-            .invoice-number { font-size: 1.05rem; }
-            .payment-grid { grid-template-columns: 1fr; }
-            .invoice-meta { gap: 14px; }
+            .inv-top-row { flex-direction: column; gap: 12px; }
+            .inv-title-right { text-align: left; }
+
+            .inv-info-row { grid-template-columns: 1fr; }
+            .inv-summary-row { grid-template-columns: 1fr; }
+
+            .inv-brand-name { font-size: 1.3rem; }
+            .inv-title-label { font-size: 1.15rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Brand Header -->
-    <div class="brand-header">
-        <div class="brand-name">Windross Tailoring</div>
-        <div class="brand-tagline">Designer suits, shirts & more — Kingston, Jamaica</div>
-    </div>
-
-    <!-- Invoice Card -->
     <div class="invoice-card" id="invoice-card">
-        <!-- Loading State -->
+        <!-- Loading -->
         <div id="loading-state">
             <div class="loading-container">
                 <div class="spinner"></div>
@@ -425,17 +461,16 @@
             </div>
         </div>
 
-        <!-- Error State (hidden initially) -->
+        <!-- Error (hidden) -->
         <div id="error-state" style="display:none"></div>
 
-        <!-- Invoice Content (hidden initially) -->
+        <!-- Invoice Content (hidden) -->
         <div id="invoice-content" style="display:none"></div>
     </div>
 
-    <!-- Footer (hidden until loaded) -->
     <div class="footer-text" id="footer" style="display:none">
         Thank you for choosing Windross Tailoring.<br>
-        Questions? <a href="https://wa.me/18765986434" target="_blank" rel="noopener">Contact us on WhatsApp</a> or reply to your message.
+        Please reply to this invoice or <a href="https://wa.me/18765986434" target="_blank" rel="noopener">contact us on WhatsApp</a> if you need anything adjusted.
     </div>
 
     <noscript>
@@ -447,35 +482,33 @@
     </noscript>
 
     <script>
-        /* ─── Utility Functions ─── */
+        /* ─── Utilities ─── */
         function esc(str) {
-            const div = document.createElement('div');
-            div.textContent = str || '';
-            return div.innerHTML;
+            const d = document.createElement('div');
+            d.textContent = str || '';
+            return d.innerHTML;
         }
 
-        function formatCurrency(amount, currency) {
+        function fmtCurrency(amount, currency) {
             const num = Number(amount || 0);
-            const symbols = { JMD: 'J$ ', USD: 'US$ ', GBP: '£' };
-            const formatted = num.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            return `${symbols[currency] || currency + ' '}${formatted}`;
+            const sym = { JMD: 'J$ ', USD: 'US$ ', GBP: '£' };
+            return `${sym[currency] || currency + ' '}${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
-        function formatDate(dateStr) {
+        function fmtDate(dateStr) {
             if (!dateStr) return '—';
-            const parts = String(dateStr).split('-');
-            if (parts.length < 3) return String(dateStr);
-            const d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
-            return d.toLocaleDateString('en-US', {
-                year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC'
-            });
+            const p = String(dateStr).split('-');
+            if (p.length < 3) return String(dateStr);
+            const d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
         }
 
-        /* ─── Error Display ─── */
-        function showError(title, message) {
+        function fmtPercent(val) {
+            return `${Number(val || 0).toFixed(2)}%`;
+        }
+
+        /* ─── Error ─── */
+        function showError(title, msg) {
             document.getElementById('loading-state').style.display = 'none';
             const el = document.getElementById('error-state');
             el.style.display = 'block';
@@ -483,7 +516,7 @@
                 <div class="error-container">
                     <div class="error-icon">📄</div>
                     <div class="error-title">${esc(title)}</div>
-                    <div class="error-message">${esc(message)}</div>
+                    <div class="error-message">${esc(msg)}</div>
                     <a href="https://wa.me/18765986434?text=${encodeURIComponent('Hello Windross, I am having trouble viewing my invoice.')}"
                        class="whatsapp-btn" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -498,55 +531,85 @@
             `;
         }
 
-        /* ─── Render Invoice ─── */
+        /* ─── Render (mirrors the PDF layout) ─── */
         function renderInvoice(inv) {
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('footer').style.display = 'block';
 
-            const contentEl = document.getElementById('invoice-content');
-            contentEl.style.display = 'block';
+            const el = document.getElementById('invoice-content');
+            el.style.display = 'block';
 
-            const statusClass = inv.paymentStatus === 'paid' ? 'paid'
-                : inv.paymentStatus === 'partial' ? 'partial' : 'unpaid';
             const hasDeposit = Number(inv.depositPercentage) > 0;
             const hasTax = Number(inv.taxAmount) > 0;
+            const statusClass = inv.paymentStatus === 'paid' ? 'green' : inv.paymentStatus === 'partial' ? 'amber' : '';
 
             let html = '';
 
-            /* Header */
+            /* ── Top Header ── */
             html += `
-                <div class="invoice-header">
-                    <div class="invoice-label">Invoice</div>
-                    <div class="invoice-number">${esc(inv.invoiceNumber)}</div>
-                    <div class="invoice-meta">
-                        <div class="meta-item">
-                            <div class="meta-label">Issued</div>
-                            <div class="meta-value">${formatDate(inv.issueDate)}</div>
+                <div class="inv-top-header">
+                    <div class="inv-top-row">
+                        <div>
+                            <div class="inv-brand-name">Windross Tailoring</div>
+                            <div class="inv-brand-tagline">Designer suits, shirts, ladies suits, vests and more.</div>
                         </div>
-                        ${inv.dueDate ? `<div class="meta-item">
-                            <div class="meta-label">Due</div>
-                            <div class="meta-value">${formatDate(inv.dueDate)}</div>
-                        </div>` : ''}
-                        <div class="meta-item">
-                            <div class="meta-label">Bill To</div>
-                            <div class="meta-value">${esc(inv.customerName)}</div>
+                        <div class="inv-title-right">
+                            <div class="inv-title-label">Invoice</div>
+                            <div class="inv-title-meta">
+                                Invoice #: ${esc(inv.invoiceNumber)}<br>
+                                Issue Date: ${fmtDate(inv.issueDate)}<br>
+                                ${inv.dueDate ? `Due Date: ${fmtDate(inv.dueDate)}` : ''}
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
 
-            /* Line Items */
+            /* ── FROM / BILL TO ── */
+            const billToLines = [
+                inv.customerName || 'Valued Client',
+                inv.customerEmail || '—',
+                inv.customerPhone || '—',
+                inv.customerAddress || '—'
+            ].join('\n');
+
             html += `
-                <div class="invoice-section">
-                    <div class="section-title">Items</div>
+                <div class="inv-info-row">
+                    <div class="inv-info-card">
+                        <div class="inv-info-label">From</div>
+                        <div class="inv-info-text"><strong>Windross Tailoring & Design</strong>
+68 Hagley Park Road (Mancare Plaza)
+Kingston 10, Jamaica
+Phone / WhatsApp: (876) 598-6434
+Email: 876david@gmail.com</div>
+                    </div>
+                    <div class="inv-info-card">
+                        <div class="inv-info-label">Bill To</div>
+                        <div class="inv-info-text"><strong>${esc(inv.customerName || 'Valued Client')}</strong>
+${esc(inv.customerEmail || '—')}
+${esc(inv.customerPhone || '—')}
+${esc(inv.customerAddress || '—')}</div>
+                    </div>
+                </div>
+            `;
+
+            /* ── Line Items (4 columns like the PDF) ── */
+            html += `
+                <div class="inv-items-section">
                     <table class="items-table">
-                        <thead><tr><th>Description</th><th>Qty</th><th>Amount</th></tr></thead>
+                        <thead><tr>
+                            <th>Description</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Amount</th>
+                        </tr></thead>
                         <tbody>
                             ${inv.lineItems.map(item => `
                                 <tr>
                                     <td class="item-desc">${esc(item.description)}</td>
-                                    <td class="item-qty">${item.quantity}</td>
-                                    <td class="item-amount">${formatCurrency(item.amount, inv.currency)}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${fmtCurrency(item.unitPrice, inv.currency)}</td>
+                                    <td>${fmtCurrency(item.amount, inv.currency)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -554,78 +617,83 @@
                 </div>
             `;
 
-            /* Totals */
+            /* ── Payment Snapshot + Totals side-by-side ── */
             html += `
-                <div class="totals-section">
-                    <div class="totals-row">
-                        <span class="totals-label">Subtotal</span>
-                        <span class="totals-value">${formatCurrency(inv.subtotalAmount, inv.currency)}</span>
-                    </div>
-                    ${hasTax ? `<div class="totals-row">
-                        <span class="totals-label">Tax / Extra Fee</span>
-                        <span class="totals-value">${formatCurrency(inv.taxAmount, inv.currency)}</span>
-                    </div>` : ''}
-                    <hr class="totals-divider">
-                    <div class="totals-row total-row">
-                        <span class="totals-label">Project Total</span>
-                        <span class="totals-value">${formatCurrency(inv.totalAmount, inv.currency)}</span>
-                    </div>
-                </div>
-            `;
-
-            /* Payment Status */
-            html += `
-                <div class="payment-section">
-                    <div class="section-title">Payment</div>
-                    <div class="payment-grid">
-                        <div class="payment-stat">
-                            <div class="stat-label">Status</div>
-                            <div><span class="status-chip ${statusClass}">${esc(inv.statusLabel)}</span></div>
+                <div class="inv-summary-row">
+                    <div class="inv-payment-card">
+                        <div class="inv-section-title">Payment Snapshot</div>
+                        <div class="payment-row">
+                            <span class="payment-label">Status</span>
+                            <span class="payment-value ${statusClass}">${esc(inv.statusLabel || 'Awaiting Payment')}</span>
                         </div>
-                        <div class="payment-stat">
-                            <div class="stat-label">Paid So Far</div>
-                            <div class="stat-value ${statusClass}">
-                                ${formatCurrency(inv.amountPaid, inv.currency)}
-                                <span style="font-size:0.76rem;font-weight:500;color:var(--muted);">(${inv.amountPaidPercentage}%)</span>
+                        <div class="payment-row">
+                            <span class="payment-label">Paid So Far</span>
+                            <span class="payment-value">${fmtCurrency(inv.amountPaid, inv.currency)}</span>
+                        </div>
+                        <div class="payment-row">
+                            <span class="payment-label">Paid Percentage</span>
+                            <span class="payment-value">${fmtPercent(inv.amountPaidPercentage)}</span>
+                        </div>
+                        <div class="payment-row">
+                            <span class="payment-label">Balance Due</span>
+                            <span class="payment-value gold">${fmtCurrency(inv.balanceDue, inv.currency)}</span>
+                        </div>
+                        ${hasDeposit ? `
+                            <div class="payment-row" style="margin-top:4px; padding-top:8px; border-top:1px solid var(--divider);">
+                                <span class="payment-label">Deposit Required (${fmtPercent(inv.depositPercentage)})</span>
+                                <span class="payment-value">${fmtCurrency(inv.depositAmount, inv.currency)}</span>
                             </div>
+                            <div class="payment-row">
+                                <span class="payment-label">Deposit Still Outstanding</span>
+                                <span class="payment-value">${fmtCurrency(inv.depositOutstanding, inv.currency)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="inv-totals-card">
+                        <div class="totals-row">
+                            <span class="totals-label">Subtotal</span>
+                            <span class="totals-value">${fmtCurrency(inv.subtotalAmount, inv.currency)}</span>
                         </div>
-                        <div class="payment-stat" style="grid-column:1/-1">
-                            <div class="stat-label">Balance Outstanding</div>
-                            <div class="stat-value balance">${formatCurrency(inv.balanceDue, inv.currency)}</div>
+                        ${hasTax ? `
+                            <div class="totals-row">
+                                <span class="totals-label">Tax / Extra Fee</span>
+                                <span class="totals-value">${fmtCurrency(inv.taxAmount, inv.currency)}</span>
+                            </div>
+                        ` : ''}
+                        <hr class="totals-divider">
+                        <div class="totals-row total-final">
+                            <span class="totals-label">Project Total</span>
+                            <span class="totals-value">${fmtCurrency(inv.totalAmount, inv.currency)}</span>
                         </div>
-                        ${hasDeposit ? `<div class="payment-stat" style="grid-column:1/-1">
-                            <div class="stat-label">Deposit Required (${inv.depositPercentage}%)</div>
-                            <div class="stat-value">${formatCurrency(inv.depositAmount, inv.currency)}</div>
-                        </div>` : ''}
                     </div>
                 </div>
             `;
 
-            /* Notes */
+            /* ── Notes ── */
             if (inv.notes) {
                 html += `
-                    <div class="notes-section">
-                        <div class="section-title">Notes</div>
+                    <div class="inv-notes-section">
+                        <div class="notes-title">Notes</div>
                         <div class="notes-text">${esc(inv.notes)}</div>
                     </div>
                 `;
             }
 
-            /* Exchange Policy */
+            /* ── Exchange Policy ── */
             html += `
-                <div class="policy-banner">
+                <div class="inv-policy-banner">
                     <div class="policy-title">Exchange Policy</div>
                     <div class="policy-text">No refund, only exchange.</div>
                     <div class="policy-sub">Please keep this invoice for reference if an exchange is needed.</div>
                 </div>
             `;
 
-            /* Actions */
+            /* ── Actions ── */
             const waText = encodeURIComponent(`Hello Windross, I have a question about invoice ${inv.invoiceNumber}.`);
             html += `
-                <div class="actions-section">
+                <div class="inv-actions">
                     ${inv.pdfUrl ? `
-                        <a href="${esc(inv.pdfUrl)}" target="_blank" rel="noopener" class="download-btn" id="download-pdf-btn">
+                        <a href="${esc(inv.pdfUrl)}" target="_blank" rel="noopener" class="download-btn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                  stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -641,37 +709,27 @@
                 </div>
             `;
 
-            contentEl.innerHTML = html;
+            el.innerHTML = html;
             document.title = `Invoice ${inv.invoiceNumber} — Windross Tailoring`;
         }
 
-        /* ─── Load Invoice ─── */
+        /* ─── Load ─── */
         async function loadInvoice() {
             const params = new URLSearchParams(window.location.search);
             const invoiceNumber = params.get('inv');
 
             if (!invoiceNumber) {
-                showError(
-                    'No invoice specified',
-                    'This link appears to be incomplete. Please check the link you received from Windross.'
-                );
+                showError('No invoice specified', 'This link appears to be incomplete. Please check the link you received from Windross.');
                 return;
             }
 
             try {
-                const response = await fetch(`/api/invoice/${encodeURIComponent(invoiceNumber)}`);
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Invoice not found.');
-                }
-
+                const res = await fetch(`/api/invoice/${encodeURIComponent(invoiceNumber)}`);
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.error || 'Invoice not found.');
                 renderInvoice(data.invoice);
             } catch (err) {
-                showError(
-                    'Invoice not found',
-                    'We couldn\'t load this invoice. It may have been removed or the link may be incorrect. Please contact Windross for help.'
-                );
+                showError('Invoice not found', 'We couldn\'t load this invoice. It may have been removed or the link may be incorrect. Please contact Windross for help.');
             }
         }
 

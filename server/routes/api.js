@@ -589,12 +589,15 @@ router.get('/invoice/:invoiceNumber', async (req, res) => {
         const baseUrl = getPublicBaseUrl(req);
         const invoice = mapInvoiceRow(row, baseUrl);
 
-        // Return only customer-safe fields (no email, phone, or address)
+        // Return all invoice fields needed to match the PDF layout
         res.json({
             success: true,
             invoice: {
                 invoiceNumber: invoice.invoiceNumber,
                 customerName: invoice.customerName,
+                customerEmail: invoice.customerEmail,
+                customerPhone: invoice.customerPhone,
+                customerAddress: invoice.customerAddress,
                 issueDate: invoice.issueDate,
                 dueDate: invoice.dueDate,
                 currency: invoice.currency,
@@ -604,6 +607,7 @@ router.get('/invoice/:invoiceNumber', async (req, res) => {
                 totalAmount: invoice.totalAmount,
                 depositPercentage: invoice.depositPercentage,
                 depositAmount: invoice.depositAmount,
+                depositOutstanding: invoice.depositOutstanding,
                 amountPaid: invoice.amountPaid,
                 amountPaidPercentage: invoice.amountPaidPercentage,
                 balanceDue: invoice.balanceDue,
@@ -614,7 +618,8 @@ router.get('/invoice/:invoiceNumber', async (req, res) => {
                 totalDisplay: invoice.totalDisplay,
                 amountPaidDisplay: invoice.amountPaidDisplay,
                 balanceDueDisplay: invoice.balanceDueDisplay,
-                depositAmountDisplay: invoice.depositAmountDisplay
+                depositAmountDisplay: invoice.depositAmountDisplay,
+                depositOutstandingDisplay: invoice.depositOutstandingDisplay
             }
         });
     } catch (err) {
