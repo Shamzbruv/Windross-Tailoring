@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice — Windross Tailoring & Design</title>
+    <meta name="description" content="View your Windross Tailoring invoice details and download your invoice PDF.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0c0c0e;
+            --card-bg: #141418;
+            --card-border: rgba(216, 196, 141, 0.12);
+            --gold: #D8C48D;
+            --gold-dim: rgba(216, 196, 141, 0.6);
+            --white: #f5f2eb;
+            --muted: #8a8880;
+            --green: #4ade80;
+            --amber: #fbbf24;
+            --divider: rgba(255, 255, 255, 0.06);
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 60px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-top: 8px;
+        }
+
+        .brand-name {
+            font-family: var(--font-heading);
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.5px;
+        }
+
+        .brand-tagline {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .invoice-card {
+            width: 100%;
+            max-width: 620px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* ─── Header ─── */
+        .invoice-header {
+            padding: 26px 28px 20px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .invoice-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+
+        .invoice-number {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .invoice-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .meta-item { font-size: 0.82rem; }
+        .meta-label { color: var(--muted); font-weight: 500; }
+        .meta-value { color: var(--white); margin-top: 2px; }
+
+        /* ─── Sections ─── */
+        .invoice-section {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--gold-dim);
+            margin-bottom: 14px;
+        }
+
+        /* ─── Line Items Table ─── */
+        .items-table { width: 100%; border-collapse: collapse; }
+
+        .items-table th {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            text-align: left;
+            padding: 0 0 10px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .items-table th:last-child,
+        .items-table td:last-child { text-align: right; }
+
+        .items-table th:nth-child(2),
+        .items-table td:nth-child(2) { text-align: center; width: 50px; }
+
+        .items-table td {
+            font-size: 0.86rem;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--divider);
+            vertical-align: top;
+        }
+
+        .items-table tr:last-child td { border-bottom: none; }
+
+        .item-desc { font-weight: 500; color: var(--white); }
+        .item-qty { color: var(--muted); }
+        .item-amount { font-weight: 600; color: var(--white); white-space: nowrap; }
+
+        /* ─── Totals ─── */
+        .totals-section {
+            padding: 18px 28px 22px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 0.86rem;
+        }
+
+        .totals-label { color: var(--muted); font-weight: 500; }
+        .totals-value { color: var(--white); font-weight: 600; }
+
+        .totals-divider { border: none; border-top: 1px solid var(--divider); margin: 8px 0; }
+
+        .total-row { padding: 8px 0 2px; }
+        .total-row .totals-label {
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+        .total-row .totals-value {
+            font-family: var(--font-heading);
+            font-size: 1.12rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        /* ─── Payment Grid ─── */
+        .payment-section {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .payment-stat {
+            background: rgba(255, 255, 255, 0.025);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value { font-size: 0.98rem; font-weight: 700; color: var(--white); }
+        .stat-value.paid   { color: var(--green); }
+        .stat-value.partial { color: var(--amber); }
+        .stat-value.unpaid  { color: var(--muted); }
+        .stat-value.balance { color: var(--gold); }
+
+        .status-chip {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .status-chip.paid    { background: rgba(74, 222, 128, 0.12); color: var(--green); }
+        .status-chip.partial { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
+        .status-chip.unpaid  { background: rgba(255, 255, 255, 0.06); color: var(--muted); }
+
+        /* ─── Notes ─── */
+        .notes-section {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .notes-text {
+            font-size: 0.84rem;
+            color: var(--muted);
+            line-height: 1.65;
+            white-space: pre-line;
+        }
+
+        /* ─── Exchange Policy ─── */
+        .policy-banner {
+            padding: 18px 28px;
+            background: rgba(216, 196, 141, 0.035);
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .policy-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+
+        .policy-text {
+            font-family: var(--font-heading);
+            font-size: 1.02rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+
+        .policy-sub { font-size: 0.76rem; color: var(--muted); }
+
+        /* ─── Actions ─── */
+        .actions-section { padding: 24px 28px; }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #D8C48D 0%, #B89C5A 100%);
+            color: #111;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(216, 196, 141, 0.25);
+        }
+
+        .download-btn:active { transform: translateY(0); }
+        .download-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        .contact-link {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .contact-link a {
+            color: var(--gold-dim);
+            text-decoration: none;
+        }
+
+        .contact-link a:hover { color: var(--gold); text-decoration: underline; }
+
+        /* ─── Footer ─── */
+        .footer-text {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 0.76rem;
+            color: var(--muted);
+            max-width: 420px;
+            line-height: 1.6;
+        }
+
+        .footer-text a { color: var(--gold-dim); text-decoration: none; }
+
+        /* ─── Loading ─── */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 34px;
+            height: 34px;
+            border: 3px solid var(--divider);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { font-size: 0.86rem; color: var(--muted); }
+
+        /* ─── Error ─── */
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            padding: 40px 28px;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .error-icon { font-size: 2.4rem; opacity: 0.7; }
+
+        .error-title {
+            font-family: var(--font-heading);
+            font-size: 1.12rem;
+            color: var(--white);
+        }
+
+        .error-message { font-size: 0.84rem; color: var(--muted); max-width: 360px; }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 10px 20px;
+            background: rgba(37, 211, 102, 0.1);
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            border-radius: 8px;
+            color: #25D366;
+            font-size: 0.84rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .whatsapp-btn:hover { background: rgba(37, 211, 102, 0.18); }
+
+        .whatsapp-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 480px) {
+            body { padding: 16px 12px 40px; }
+
+            .invoice-header, .invoice-section, .totals-section,
+            .payment-section, .notes-section, .policy-banner,
+            .actions-section { padding-left: 20px; padding-right: 20px; }
+
+            .brand-name { font-size: 1.3rem; }
+            .invoice-number { font-size: 1.05rem; }
+            .payment-grid { grid-template-columns: 1fr; }
+            .invoice-meta { gap: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Brand Header -->
+    <div class="brand-header">
+        <div class="brand-name">Windross Tailoring</div>
+        <div class="brand-tagline">Designer suits, shirts & more — Kingston, Jamaica</div>
+    </div>
+
+    <!-- Invoice Card -->
+    <div class="invoice-card" id="invoice-card">
+        <!-- Loading State -->
+        <div id="loading-state">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading your invoice…</div>
+            </div>
+        </div>
+
+        <!-- Error State (hidden initially) -->
+        <div id="error-state" style="display:none"></div>
+
+        <!-- Invoice Content (hidden initially) -->
+        <div id="invoice-content" style="display:none"></div>
+    </div>
+
+    <!-- Footer (hidden until loaded) -->
+    <div class="footer-text" id="footer" style="display:none">
+        Thank you for choosing Windross Tailoring.<br>
+        Questions? <a href="https://wa.me/18765986434" target="_blank" rel="noopener">Contact us on WhatsApp</a> or reply to your message.
+    </div>
+
+    <noscript>
+        <div style="text-align:center;padding:40px 20px;color:#8a8880;font-family:sans-serif;">
+            <p style="color:#D8C48D;font-size:1.1rem;margin-bottom:12px;">JavaScript is required</p>
+            <p>Please enable JavaScript to view your invoice, or contact Windross on
+                <a href="https://wa.me/18765986434" style="color:#25D366;">WhatsApp</a>.</p>
+        </div>
+    </noscript>
+
+    <script>
+        /* ─── Utility Functions ─── */
+        function esc(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        function formatCurrency(amount, currency) {
+            const num = Number(amount || 0);
+            const symbols = { JMD: 'J$ ', USD: 'US$ ', GBP: '£' };
+            const formatted = num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            return `${symbols[currency] || currency + ' '}${formatted}`;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '—';
+            const parts = String(dateStr).split('-');
+            if (parts.length < 3) return String(dateStr);
+            const d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+            return d.toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC'
+            });
+        }
+
+        /* ─── Error Display ─── */
+        function showError(title, message) {
+            document.getElementById('loading-state').style.display = 'none';
+            const el = document.getElementById('error-state');
+            el.style.display = 'block';
+            el.innerHTML = `
+                <div class="error-container">
+                    <div class="error-icon">📄</div>
+                    <div class="error-title">${esc(title)}</div>
+                    <div class="error-message">${esc(message)}</div>
+                    <a href="https://wa.me/18765986434?text=${encodeURIComponent('Hello Windross, I am having trouble viewing my invoice.')}"
+                       class="whatsapp-btn" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7
+                                     8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8
+                                     8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                        </svg>
+                        Contact Windross
+                    </a>
+                </div>
+            `;
+        }
+
+        /* ─── Render Invoice ─── */
+        function renderInvoice(inv) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('footer').style.display = 'block';
+
+            const contentEl = document.getElementById('invoice-content');
+            contentEl.style.display = 'block';
+
+            const statusClass = inv.paymentStatus === 'paid' ? 'paid'
+                : inv.paymentStatus === 'partial' ? 'partial' : 'unpaid';
+            const hasDeposit = Number(inv.depositPercentage) > 0;
+            const hasTax = Number(inv.taxAmount) > 0;
+
+            let html = '';
+
+            /* Header */
+            html += `
+                <div class="invoice-header">
+                    <div class="invoice-label">Invoice</div>
+                    <div class="invoice-number">${esc(inv.invoiceNumber)}</div>
+                    <div class="invoice-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Issued</div>
+                            <div class="meta-value">${formatDate(inv.issueDate)}</div>
+                        </div>
+                        ${inv.dueDate ? `<div class="meta-item">
+                            <div class="meta-label">Due</div>
+                            <div class="meta-value">${formatDate(inv.dueDate)}</div>
+                        </div>` : ''}
+                        <div class="meta-item">
+                            <div class="meta-label">Bill To</div>
+                            <div class="meta-value">${esc(inv.customerName)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            /* Line Items */
+            html += `
+                <div class="invoice-section">
+                    <div class="section-title">Items</div>
+                    <table class="items-table">
+                        <thead><tr><th>Description</th><th>Qty</th><th>Amount</th></tr></thead>
+                        <tbody>
+                            ${inv.lineItems.map(item => `
+                                <tr>
+                                    <td class="item-desc">${esc(item.description)}</td>
+                                    <td class="item-qty">${item.quantity}</td>
+                                    <td class="item-amount">${formatCurrency(item.amount, inv.currency)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            /* Totals */
+            html += `
+                <div class="totals-section">
+                    <div class="totals-row">
+                        <span class="totals-label">Subtotal</span>
+                        <span class="totals-value">${formatCurrency(inv.subtotalAmount, inv.currency)}</span>
+                    </div>
+                    ${hasTax ? `<div class="totals-row">
+                        <span class="totals-label">Tax / Extra Fee</span>
+                        <span class="totals-value">${formatCurrency(inv.taxAmount, inv.currency)}</span>
+                    </div>` : ''}
+                    <hr class="totals-divider">
+                    <div class="totals-row total-row">
+                        <span class="totals-label">Project Total</span>
+                        <span class="totals-value">${formatCurrency(inv.totalAmount, inv.currency)}</span>
+                    </div>
+                </div>
+            `;
+
+            /* Payment Status */
+            html += `
+                <div class="payment-section">
+                    <div class="section-title">Payment</div>
+                    <div class="payment-grid">
+                        <div class="payment-stat">
+                            <div class="stat-label">Status</div>
+                            <div><span class="status-chip ${statusClass}">${esc(inv.statusLabel)}</span></div>
+                        </div>
+                        <div class="payment-stat">
+                            <div class="stat-label">Paid So Far</div>
+                            <div class="stat-value ${statusClass}">
+                                ${formatCurrency(inv.amountPaid, inv.currency)}
+                                <span style="font-size:0.76rem;font-weight:500;color:var(--muted);">(${inv.amountPaidPercentage}%)</span>
+                            </div>
+                        </div>
+                        <div class="payment-stat" style="grid-column:1/-1">
+                            <div class="stat-label">Balance Outstanding</div>
+                            <div class="stat-value balance">${formatCurrency(inv.balanceDue, inv.currency)}</div>
+                        </div>
+                        ${hasDeposit ? `<div class="payment-stat" style="grid-column:1/-1">
+                            <div class="stat-label">Deposit Required (${inv.depositPercentage}%)</div>
+                            <div class="stat-value">${formatCurrency(inv.depositAmount, inv.currency)}</div>
+                        </div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            /* Notes */
+            if (inv.notes) {
+                html += `
+                    <div class="notes-section">
+                        <div class="section-title">Notes</div>
+                        <div class="notes-text">${esc(inv.notes)}</div>
+                    </div>
+                `;
+            }
+
+            /* Exchange Policy */
+            html += `
+                <div class="policy-banner">
+                    <div class="policy-title">Exchange Policy</div>
+                    <div class="policy-text">No refund, only exchange.</div>
+                    <div class="policy-sub">Please keep this invoice for reference if an exchange is needed.</div>
+                </div>
+            `;
+
+            /* Actions */
+            const waText = encodeURIComponent(`Hello Windross, I have a question about invoice ${inv.invoiceNumber}.`);
+            html += `
+                <div class="actions-section">
+                    ${inv.pdfUrl ? `
+                        <a href="${esc(inv.pdfUrl)}" target="_blank" rel="noopener" class="download-btn" id="download-pdf-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download Invoice PDF
+                        </a>
+                    ` : ''}
+                    <div class="contact-link">
+                        Need help? <a href="https://wa.me/18765986434?text=${waText}" target="_blank" rel="noopener">Contact Windross on WhatsApp</a>
+                    </div>
+                </div>
+            `;
+
+            contentEl.innerHTML = html;
+            document.title = `Invoice ${inv.invoiceNumber} — Windross Tailoring`;
+        }
+
+        /* ─── Load Invoice ─── */
+        async function loadInvoice() {
+            const params = new URLSearchParams(window.location.search);
+            const invoiceNumber = params.get('inv');
+
+            if (!invoiceNumber) {
+                showError(
+                    'No invoice specified',
+                    'This link appears to be incomplete. Please check the link you received from Windross.'
+                );
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/invoice/${encodeURIComponent(invoiceNumber)}`);
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Invoice not found.');
+                }
+
+                renderInvoice(data.invoice);
+            } catch (err) {
+                showError(
+                    'Invoice not found',
+                    'We couldn\'t load this invoice. It may have been removed or the link may be incorrect. Please contact Windross for help.'
+                );
+            }
+        }
+
+        loadInvoice();
+    </script>
+</body>
+</html>

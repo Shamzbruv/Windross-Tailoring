@@ -80,6 +80,11 @@ app.use('/api', require('./routes/api'));
 
 // Fallback to index.html for SPA-like navigation (if needed)
 app.get('*', (req, res) => {
+    // If the request has a file extension (e.g. .pdf, .js, .css) and express.static
+    // didn't serve it, the file truly doesn't exist — return a proper 404
+    if (path.extname(req.path)) {
+        return res.status(404).send('Not found');
+    }
     if (req.accepts('html')) {
         res.sendFile(path.join(__dirname, '../index.html'));
     } else {

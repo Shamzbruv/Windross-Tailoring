@@ -287,7 +287,7 @@ function buildInvoiceWhatsappShare(invoice, baseUrl) {
     const targetPhone = normalizeWhatsappPhone(invoice.whatsappPhone || invoice.customerPhone);
     if (!targetPhone) return null;
 
-    const invoiceUrl = `${baseUrl}/temp/invoices/${path.basename(invoice.pdfPath)}`;
+    const invoiceUrl = `${baseUrl}/invoice-viewer.html?inv=${encodeURIComponent(invoice.invoiceNumber)}`;
     const balanceLine = invoice.balanceDue > 0
         ? `Balance outstanding: ${formatCurrency(invoice.balanceDue, invoice.currency)}.`
         : 'This invoice is now fully paid.';
@@ -568,6 +568,58 @@ router.post('/pricing/quote', (req, res) => {
         res.json(quote);
     } catch (err) {
         res.status(err.statusCode || 500).json({ error: err.message || 'Failed to calculate quote' });
+    }
+});
+
+// Public Invoice Viewer — allows customers to view their invoice via the shared link
+router.get('/invoice/:invoiceNumber', async (req, res) => {
+    const invoiceNumber = req.params.invoiceNumber;
+
+    // Validate invoice number format (WT-INV-YYMMDD-HHMMSS-NNN)
+    if (!/^WT-INV-\d{6}-\d{6}-\d{3}$/.test(invoiceNumber)) {
+        return res.status(400).json({ success: false, error: 'Invalid invoice number format.' });
+    }
+
+    try {
+        const row = await db.getAsync('SELECT * FROM custom_invoices WHERE invoice_number = ?', [invoiceNumber]);
+        if (!row) {
+            return res.status(404).json({ success: false, error: 'Invoice not found.' });
+        }
+
+        const baseUrl = getPublicBaseUrl(req);
+        const invoice = mapInvoiceRow(row, baseUrl);
+
+        // Return only customer-safe fields (no email, phone, or address)
+        res.json({
+            success: true,
+            invoice: {
+                invoiceNumber: invoice.invoiceNumber,
+                customerName: invoice.customerName,
+                issueDate: invoice.issueDate,
+                dueDate: invoice.dueDate,
+                currency: invoice.currency,
+                lineItems: invoice.lineItems,
+                subtotalAmount: invoice.subtotalAmount,
+                taxAmount: invoice.taxAmount,
+                totalAmount: invoice.totalAmount,
+                depositPercentage: invoice.depositPercentage,
+                depositAmount: invoice.depositAmount,
+                amountPaid: invoice.amountPaid,
+                amountPaidPercentage: invoice.amountPaidPercentage,
+                balanceDue: invoice.balanceDue,
+                paymentStatus: invoice.paymentStatus,
+                statusLabel: invoice.statusLabel,
+                notes: invoice.notes,
+                pdfUrl: invoice.pdfUrl,
+                totalDisplay: invoice.totalDisplay,
+                amountPaidDisplay: invoice.amountPaidDisplay,
+                balanceDueDisplay: invoice.balanceDueDisplay,
+                depositAmountDisplay: invoice.depositAmountDisplay
+            }
+        });
+    } catch (err) {
+        console.error('Public invoice lookup error:', err);
+        res.status(500).json({ success: false, error: 'Failed to retrieve invoice.' });
     }
 });
 
