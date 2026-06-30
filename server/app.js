@@ -46,6 +46,11 @@ app.use((req, res, next) => {
 
 // Block access to sensitive files and directories before serving static files
 app.use((req, res, next) => {
+    // Allow public invoice PDFs (shared with customers via WhatsApp/email)
+    if (/^\/temp\/invoices\/[^/]+\.pdf$/i.test(req.path)) {
+        return next();
+    }
+
     const sensitivePatterns = [
         /^\/server\//i,
         /^\/scripts\//i,
