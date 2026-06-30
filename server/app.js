@@ -78,6 +78,17 @@ app.use(express.static(path.join(__dirname, '../')));
 // API Routes
 app.use('/api', require('./routes/api'));
 
+// Redirect old-style direct PDF invoice links to the invoice viewer page
+// If express.static served the file, this route is never reached.
+// If the PDF doesn't exist on disk, redirect to the HTML viewer instead.
+app.get('/temp/invoices/:filename', (req, res) => {
+    const match = req.params.filename.match(/^(WT-INV-\d{6}-\d{6}-\d{3})\.pdf$/i);
+    if (match) {
+        return res.redirect(302, `/invoice-viewer.html?inv=${encodeURIComponent(match[1])}`);
+    }
+    res.status(404).send('Not found');
+});
+
 // Fallback to index.html for SPA-like navigation (if needed)
 app.get('*', (req, res) => {
     // If the request has a file extension (e.g. .pdf, .js, .css) and express.static
