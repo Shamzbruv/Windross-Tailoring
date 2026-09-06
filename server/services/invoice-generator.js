@@ -23,7 +23,8 @@ function formatCurrency(amount, currency = 'JMD') {
         GBP: '£'
     };
 
-    return `${symbolMap[currency] || `${currency} `}${numeric.toFixed(2)}`;
+    const formatted = numeric.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${symbolMap[currency] || `${currency} `}${formatted}`;
 }
 
 function formatPercent(value) {

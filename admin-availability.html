@@ -1584,7 +1584,7 @@ function switchTab(tab) {
 function formatCurrency(amount, currency = 'JMD') {
     const n = Number(amount || 0);
     const symbol = currency === 'GBP' ? '£' : currency === 'USD' ? 'US$ ' : 'J$ ';
-    return `${symbol}${n.toFixed(2)}`;
+    return `${symbol}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function getJamaicaDateString(addDays = 0) {

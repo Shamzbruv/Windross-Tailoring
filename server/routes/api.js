@@ -5,6 +5,7 @@ const { firebaseSync, admin } = require('../services/firebase-sync');
 const pricingService = require('../services/pricing-service');
 const shippingService = require('../services/shipping-service');
 const jwt = require('jsonwebtoken');
+const { getSessionSecret } = require('../session-secret');
 const { generateOrderPDF } = require('../services/pdf-generator');
 const { generateCustomInvoicePDF, formatCurrency } = require('../services/invoice-generator');
 const {
@@ -475,11 +476,9 @@ router.post('/auth/login', async (req, res) => {
             return res.status(403).json({ error: 'Email not authorized for admin access.' });
         }
 
-        const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-for-dev';
-
         const jwtToken = jwt.sign(
             { email, role: 'admin' },
-            sessionSecret,
+            getSessionSecret(),
             { expiresIn: '30d' }
         );
 
@@ -513,8 +512,7 @@ const requireAdmin = (req, res, next) => {
     }
 
     try {
-        const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-for-dev';
-        const decoded = jwt.verify(token, sessionSecret);
+        const decoded = jwt.verify(token, getSessionSecret());
         if (decoded && decoded.role === 'admin') {
             req.admin = decoded;
             return next();

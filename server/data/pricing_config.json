@@ -34,6 +34,8 @@
             "description": "Custom jacket and trousers",
             "intlMultiplier": 1,
             "sizePricesJMD": {
+                "M": 47000,
+                "S": 42727,
                 "L": 51700,
                 "XL": 56870,
                 "XXL": 62557,
@@ -47,6 +49,8 @@
             "intlMultiplier": 1,
             "sizePricesJMD": {
                 "XS": 42000,
+                "M": 52000,
+                "S": 47273,
                 "L": 57200,
                 "XL": 62920,
                 "XXL": 69212,
@@ -66,6 +70,8 @@
             "intlMultiplier": 1,
             "sizePricesJMD": {
                 "XS": 24000,
+                "M": 31500,
+                "S": 28636,
                 "L": 34650,
                 "XL": 38115,
                 "XXL": 41926,
@@ -79,6 +85,8 @@
             "intlMultiplier": 1,
             "sizePricesJMD": {
                 "XS": 12500,
+                "M": 15500,
+                "S": 14091,
                 "L": 17050,
                 "XL": 18755,
                 "XXL": 20630,
@@ -92,6 +100,8 @@
             "intlMultiplier": 1,
             "sizePricesJMD": {
                 "XS": 5500,
+                "M": 7000,
+                "S": 6364,
                 "L": 7700,
                 "XL": 8470,
                 "XXL": 9317,

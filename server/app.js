@@ -7,9 +7,17 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const db = require('./database');
 const { firebaseSync } = require('./services/firebase-sync');
+const { getSessionSecret } = require('./session-secret');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Fail fast and loudly rather than silently signing/verifying admin sessions
+// with a well-known public fallback secret in production.
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+    console.error('FATAL: SESSION_SECRET is not set. Refusing to start in production without it.');
+    process.exit(1);
+}
 
 // Middleware
 app.use(helmet({
@@ -30,8 +38,7 @@ app.use((req, res, next) => {
         
         try {
             // First try to verify as JWT (the new secure method)
-            const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-for-dev';
-            const decoded = jwt.verify(token, sessionSecret);
+            const decoded = jwt.verify(token, getSessionSecret());
             if (decoded && decoded.role === 'admin') {
                 return next();
             }
