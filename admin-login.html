@@ -76,6 +76,53 @@
             border-color: var(--gold);
         }
 
+        .password-field {
+            position: relative;
+        }
+
+        .password-field input {
+            padding-right: 44px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 0;
+            bottom: 20px;
+            right: 4px;
+            width: 36px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .toggle-password:hover,
+        .toggle-password:focus {
+            background: transparent;
+            color: var(--gold);
+        }
+
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .toggle-password .icon-eye-off {
+            display: none;
+        }
+
+        .toggle-password.is-visible .icon-eye {
+            display: none;
+        }
+
+        .toggle-password.is-visible .icon-eye-off {
+            display: block;
+        }
+
         button {
             width: 100%;
             background: var(--gold);
@@ -117,7 +164,19 @@
 
         <form id="login-form">
             <input type="email" id="email" placeholder="Admin Email Address" required autofocus />
-            <input type="password" id="password" placeholder="Password" required />
+            <div class="password-field">
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
+                <button type="button" class="toggle-password" id="toggle-password" aria-label="Show password" aria-pressed="false">
+                    <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.68 19.68 0 0 1 4.22-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a19.86 19.86 0 0 1-2.22 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
             <label style="display:flex; align-items:center; gap:8px; color:var(--muted); font-size:0.9rem; margin-bottom: 20px; cursor:pointer;">
                 <input type="checkbox" id="remember-me" style="width:16px; height:16px; margin:0; accent-color:var(--gold);" checked />
                 Remember my login
@@ -151,6 +210,15 @@
         const rememberCheckbox = document.getElementById('remember-me');
         const btn = document.getElementById('submit-btn');
         const errorMsg = document.getElementById('error-msg');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+
+        togglePasswordBtn.addEventListener('click', () => {
+            const isVisible = passwordInput.type === 'text';
+            passwordInput.type = isVisible ? 'password' : 'text';
+            togglePasswordBtn.classList.toggle('is-visible', !isVisible);
+            togglePasswordBtn.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+            togglePasswordBtn.setAttribute('aria-pressed', String(!isVisible));
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
